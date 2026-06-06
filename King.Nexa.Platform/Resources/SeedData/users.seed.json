@@ -6,22 +6,16 @@
     "role": "Admin"
   },
   {
-    "username": "operations@nexa.com",
-    "email": "operations@nexa.com",
+    "username": "logistics@nexa.com",
+    "email": "logistics@nexa.com",
     "password": "NexaDemo2026!",
-    "role": "OperationsManager"
-  },
-  {
-    "username": "warehouse@nexa.com",
-    "email": "warehouse@nexa.com",
-    "password": "NexaDemo2026!",
-    "role": "WarehouseManager"
+    "role": "Logistics"
   },
   {
     "username": "sales@nexa.com",
     "email": "sales@nexa.com",
     "password": "NexaDemo2026!",
-    "role": "SalesRepresentative"
+    "role": "Sales"
   },
   {
     "username": "buyer.demo@nexa.com",

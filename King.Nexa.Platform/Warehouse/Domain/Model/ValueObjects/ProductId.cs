@@ -1,10 +1,10 @@
 namespace King.Nexa.Platform.Warehouse.Domain.Model.ValueObjects;
 
-public sealed record LotCode
+public sealed record ProductId
 {
-    public LotCode(string value)
+    public ProductId(string value)
     {
-        if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("Lot code is required.", nameof(value));
+        if (string.IsNullOrWhiteSpace(value)) throw new ArgumentException("Product id is required.", nameof(value));
         Value = value.Trim().ToUpperInvariant();
     }
 

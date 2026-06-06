@@ -1,3 +1,3 @@
-namespace King.Nexa.Platform.Warehouse.Interfaces.REST.Resources;
+namespace King.Nexa.Platform.Warehouse.Interfaces.Rest.Resources;
 
-public record ReserveInventoryResource(int Units);
+public record ReserveInventoryResource(string ReservationCode, int Units);

@@ -1,14 +1,12 @@
 namespace King.Nexa.Platform.Warehouse.Interfaces.Rest.Resources;
 
 /// <summary>
-/// Inventory item response resource.
+/// Data required to create an inventory item.
 /// </summary>
-public record InventoryItemResource(
-    int Id,
+public record CreateInventoryItemResource(
     string ProductId,
     string CatalogItemId,
     int AvailableQuantity,
-    int ReservedQuantity,
     string WarehouseLocation,
     decimal MinimumTemperature,
     decimal MaximumTemperature);

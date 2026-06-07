@@ -27,6 +27,11 @@ public class AuthenticationController(IUserCommandService userCommandService) : 
     [HttpPost("sign-in")]
     public async Task<IActionResult> SignIn(SignInResource resource, CancellationToken cancellationToken)
     {
+        if (string.IsNullOrWhiteSpace(resource.Email) && string.IsNullOrWhiteSpace(resource.Username))
+        {
+            return BadRequest(new { message = "Username or Email is required." });
+        }
+
         var command = SignInCommandFromResourceAssembler.ToCommandFromResource(resource);
         var authenticatedUser = await userCommandService.SignInAsync(command, cancellationToken);
 

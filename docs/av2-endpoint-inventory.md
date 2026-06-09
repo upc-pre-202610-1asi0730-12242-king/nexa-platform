@@ -1,8 +1,60 @@
-# Nexa AV2 Endpoint Inventory And Backend Expansion Plan
+# Nexa AV2 Backend Endpoint Inventory
 
-Scope: inventory and plan only. No endpoints implemented in this pass.
+Scope: endpoint inventory and AV2 backend expansion tracking. Batch 1 and Batch 2 backend endpoints are implemented in code, pending final build validation with .NET 10 SDK.
 
 Current routing note: controllers using `[Route("api/v1/[controller]")]` are transformed by `KebabCaseRouteNamingConvention`, so `CatalogItemsController` exposes `api/v1/catalog-items`, `InventoryItemsController` exposes `api/v1/inventory-items`, and so on.
+
+## Final Backend Closure Status
+
+| Check | Status |
+|---|---|
+| Endpoint count | 73 real backend endpoints. |
+| Controllers | 10 controllers verified under `Interfaces/Rest`. |
+| Bounded contexts | `Iam`, `CatalogManagement`, `Warehouse`, `Sales`, `Logistics`, and `Invoicing` verified. |
+| REST naming | Legacy uppercase REST path and namespace tokens were not found in backend source. |
+| Errors folders | All bounded contexts have a context error enum and `Domain/Model/Errors` catalog. |
+| Fake API cleanup | No backend fake API, json-server, mock API service, or hardcoded fake endpoint behavior found in `platform/King.Nexa.Platform`. |
+| Build result | Blocked locally by missing .NET 10 SDK; static backend validation completed. |
+| Migration status | Batch 2 tables need an EF Core migration after .NET 10 SDK/build tooling is available. |
+| Frontend integration status | Pending in WebApp: remove fake API usage and connect to real backend endpoints. |
+
+## Fake API Cleanup Status
+
+No backend fake API, json-server, mock API service, or hardcoded fake endpoint behavior was found inside `platform/King.Nexa.Platform`.
+
+Frontend fake API cleanup remains pending and must be handled in the WebApp repository.
+
+## Frontend Integration Notes
+
+- Frontend features must consume the real backend endpoints listed in this inventory.
+- No json-server or fake API usage should remain in final WebApp features.
+- Each frontend feature should map to a real backend endpoint.
+- Backend currently exposes the routes listed in the endpoint table and should remain stable while frontend integration is completed.
+
+## Stabilization Audit
+
+| Check | Result |
+|---|---|
+| Endpoint count | 73 endpoints verified by `[HttpGet]`, `[HttpPost]`, `[HttpPut]`, `[HttpDelete]`, and `[HttpPatch]` scan. |
+| Controllers verified | `CatalogItemsController`, `CategoriesController`, `BrandsController`, `InventoryItemsController`, `WarehousesController`, `OrdersController`, `ShipmentsController`, `InvoicesController`, `PaymentsController`, `AuthenticationController`. |
+| REST naming | No legacy uppercase REST path or namespace references remain in source or docs. |
+| Bounded-context errors | `Iam`, `CatalogManagement`, `Warehouse`, `Sales`, `Logistics`, and `Invoicing` have context error enum files and `Domain/Model/Errors` catalogs. |
+| Batch 2 resources verified | `Category`, `Brand`, `Warehouse`, and `Payment` vertical slices verified across Domain, Application, Infrastructure, EF, DI, and Interfaces/Rest. |
+| DbSets verified | `Categories`, `Brands`, `Warehouses`, and `Payments` exist in `AppDbContext`. |
+| DI registrations verified | Category, Brand, Warehouse, and Payment repositories plus command/query services are registered. |
+| EF configurations verified | Table mappings exist for `categories`, `brands`, `warehouses`, and `payments`. |
+| Route consistency | Expected controller base routes are present with no duplicate controller route collisions. |
+
+Known risks:
+
+- Build remains blocked if .NET 10 SDK is not installed. Current local SDK during audit was `8.0.421`.
+- EF migration is still needed for Batch 2 tables.
+
+Pending migration steps:
+
+```bash
+dotnet ef migrations add AddAv2Batch2Resources --project King.Nexa.Platform --startup-project King.Nexa.Platform
+```
 
 ## Batch 2 Implementation Update
 
@@ -94,12 +146,16 @@ Next recommended batch:
 | Controller | Bounded context | Count |
 |---|---:|---:|
 | AuthenticationController | Iam | 2 |
-| CatalogItemsController | CatalogManagement | 3 |
-| InventoryItemsController | Warehouse | 6 |
-| OrdersController | Sales | 6 |
-| ShipmentsController | Logistics | 4 |
-| InvoicesController | Invoicing | 4 |
-| Total | All | 25 |
+| CatalogItemsController | CatalogManagement | 9 |
+| CategoriesController | CatalogManagement | 6 |
+| BrandsController | CatalogManagement | 6 |
+| InventoryItemsController | Warehouse | 10 |
+| WarehousesController | Warehouse | 6 |
+| OrdersController | Sales | 11 |
+| ShipmentsController | Logistics | 8 |
+| InvoicesController | Invoicing | 8 |
+| PaymentsController | Invoicing | 7 |
+| Total | All | 73 |
 
 Count includes `[HttpGet]`, `[HttpPost]`, `[HttpPut]`, `[HttpDelete]`, and `[HttpPatch]`.
 

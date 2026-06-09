@@ -61,5 +61,35 @@ public static class ModelBuilderExtensions
             .IsRequired();
         catalogItem.Property(item => item.IsActive).HasColumnName("is_active").IsRequired();
         catalogItem.HasIndex(item => item.CatalogItemId).IsUnique();
+
+        var category = builder.Entity<Category>();
+        category.ToTable("categories");
+        category.HasKey(entity => entity.Id);
+        category.Property(entity => entity.Name)
+            .HasConversion(value => value.Value, value => new CategoryName(value))
+            .HasColumnName("name")
+            .HasMaxLength(80)
+            .IsRequired();
+        category.Property(entity => entity.Description)
+            .HasColumnName("description")
+            .HasMaxLength(240)
+            .IsRequired();
+        category.Property(entity => entity.IsActive).HasColumnName("is_active").IsRequired();
+        category.HasIndex(entity => entity.Name).IsUnique();
+
+        var brand = builder.Entity<Brand>();
+        brand.ToTable("brands");
+        brand.HasKey(entity => entity.Id);
+        brand.Property(entity => entity.Name)
+            .HasConversion(value => value.Value, value => new BrandName(value))
+            .HasColumnName("name")
+            .HasMaxLength(120)
+            .IsRequired();
+        brand.Property(entity => entity.Description)
+            .HasColumnName("description")
+            .HasMaxLength(240)
+            .IsRequired();
+        brand.Property(entity => entity.IsActive).HasColumnName("is_active").IsRequired();
+        brand.HasIndex(entity => entity.Name).IsUnique();
     }
 }

@@ -14,6 +14,12 @@ public static class CatalogManagementServiceCollectionExtensions
         services.AddScoped<ICatalogItemRepository, CatalogItemRepository>();
         services.AddScoped<ICatalogItemCommandService, CatalogItemCommandService>();
         services.AddScoped<ICatalogItemQueryService, CatalogItemQueryService>();
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
+        services.AddScoped<ICategoryCommandService, CategoryCommandService>();
+        services.AddScoped<ICategoryQueryService, CategoryQueryService>();
+        services.AddScoped<IBrandRepository, BrandRepository>();
+        services.AddScoped<IBrandCommandService, BrandCommandService>();
+        services.AddScoped<IBrandQueryService, BrandQueryService>();
 
         return services;
     }

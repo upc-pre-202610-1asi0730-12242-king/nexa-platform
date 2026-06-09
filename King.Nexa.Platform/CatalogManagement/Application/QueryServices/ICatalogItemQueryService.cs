@@ -17,4 +17,12 @@ public interface ICatalogItemQueryService
     /// Retrieves a catalog item by its internal numeric identifier.
     /// </summary>
     Task<CatalogItem?> Handle(GetCatalogItemByIdQuery query, CancellationToken cancellationToken = default);
+
+    Task<CatalogItem?> Handle(GetCatalogItemByCatalogItemIdQuery query, CancellationToken cancellationToken = default);
+
+    Task<IEnumerable<CatalogItem>> Handle(GetCatalogItemsByCategoryNameQuery query, CancellationToken cancellationToken = default);
+
+    Task<IEnumerable<CatalogItem>> Handle(GetCatalogItemsByBrandNameQuery query, CancellationToken cancellationToken = default);
+
+    Task<IEnumerable<CatalogItem>> Handle(GetCatalogItemsByColdChainRequirementQuery query, CancellationToken cancellationToken = default);
 }

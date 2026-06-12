@@ -25,7 +25,7 @@ public static class SharedServiceCollectionExtensions
             var environment = serviceProvider.GetRequiredService<IHostEnvironment>();
             var loggerFactory = serviceProvider.GetRequiredService<ILoggerFactory>();
 
-            options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
+            options.UseNpgsql(connectionString)
                 .UseLoggerFactory(loggerFactory)
                 .EnableDetailedErrors()
                 .AddInterceptors(serviceProvider.GetRequiredService<AuditableEntityInterceptor>());

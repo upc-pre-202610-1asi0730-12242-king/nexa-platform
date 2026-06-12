@@ -63,7 +63,7 @@ using (var scope = app.Services.CreateScope())
     try
     {
         var context = services.GetRequiredService<AppDbContext>();
-        await context.Database.MigrateAsync();
+        context.Database.Migrate();
         logger.LogInformation("Database migrations applied successfully.");
 
         if (app.Environment.IsDevelopment())

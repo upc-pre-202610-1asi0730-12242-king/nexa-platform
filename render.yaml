@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: nexa-platform-api
+    runtime: docker
+    plan: free
+    healthCheckPath: /swagger/index.html
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__DefaultConnection
+        sync: false
+      - key: SeedData__Enabled
+        value: "true"
+      - key: AllowedOrigins__0
+        sync: false

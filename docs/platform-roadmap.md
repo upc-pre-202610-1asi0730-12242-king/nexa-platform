@@ -35,7 +35,7 @@ Planned future work:
 Local architecture update:
 
 - target .NET 8 and EF Core 8;
-- use MySQL persistence through Pomelo;
+- use PostgreSQL persistence through Npgsql;
 - configure XML documentation and Swagger XML comments;
 - formalize CatalogManagement, Sales, Warehouse, Logistics, Invoicing, IAM, and Shared boundaries;
 - prioritize `/api/v1/catalog-items`, `/api/v1/orders`, and `/api/v1/inventory-items`;

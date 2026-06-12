@@ -1,0 +1,11 @@
+**/bin/
+**/obj/
+.git/
+.vs/
+.vscode/
+.idea/
+.DS_Store
+appsettings.Local.json
+*.user
+*.suo
+*.log

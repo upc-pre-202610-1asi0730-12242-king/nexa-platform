@@ -10,6 +10,7 @@ obj/
 TestResults/
 out/
 packages/
+publish-test/
 
 # IDE and local workspace files
 .vs/
@@ -30,6 +31,7 @@ logs/
 .env
 .env.local
 appsettings.Local.json
+*.sql
 *.db
 *.sqlite
 *.pfx

@@ -37,7 +37,7 @@
 
 ## Overview
 
-The `nexa-platform` repository houses the planned ASP.NET Core backend service layer for the Nexa platform. It establishes a modular monolith foundation with bounded contexts, domain invariants, MySQL persistence structures, and REST API controllers to support catalog, order, inventory, route, and invoice workflows.
+The `nexa-platform` repository houses the planned ASP.NET Core backend service layer for the Nexa platform. It establishes a modular monolith foundation with bounded contexts, domain invariants, PostgreSQL persistence structures, and REST API controllers to support catalog, order, inventory, route, and invoice workflows.
 
 **Current stable backend version:** `v0.6.1`
 
@@ -135,7 +135,7 @@ nexa-platform/
     ├── Program.cs              # Bootstrapper entry point
     ├── appsettings.json        # Solution configs & database templates
     ├── Resources/              # Shared and context i18n resources
-    ├── Migrations/             # EF migration target and MySQL init script
+    ├── Migrations/             # EF migration target for PostgreSQL
     ├── Shared/                 # Shared Kernel domain base
     ├── Sales/                  # Sales context domain layer
     ├── Logistics/              # Logistics context domain layer
@@ -166,7 +166,7 @@ Ensure you have the compatible .NET SDK installed on your machine.
    ```bash
    dotnet run --project King.Nexa.Platform/King.Nexa.Platform.csproj
    ```
-   *The application is configured for MySQL through Pomelo. For local development, create `nexa_platform_db` with `King.Nexa.Platform/Migrations/mysql-init.sql`, then use `King.Nexa.Platform/appsettings.Local.json` for machine-specific credentials. See `docs/database-setup.md` for the migration flow.*
+   *The application is configured for PostgreSQL through Npgsql. For Render, set `ConnectionStrings__DefaultConnection` in the Web Service environment and keep `King.Nexa.Platform/appsettings.Local.json` for machine-specific local credentials only.*
 
 ---
 

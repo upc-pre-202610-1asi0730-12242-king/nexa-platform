@@ -6,8 +6,8 @@
 
 - ASP.NET Core Web API with controller-based REST endpoints.
 - C# project under `King.Nexa.Platform`.
-- .NET 8, Entity Framework Core 8, MySQL, Pomelo, Humanizer, XML docs, and i18n resources.
-- A single physical MySQL database stores all bounded context tables.
+- .NET 10, Entity Framework Core, PostgreSQL, Npgsql, Humanizer, XML docs, and i18n resources.
+- A single physical PostgreSQL database stores all bounded context tables.
 - REST routes use `/api/v1` and plural resource names.
 - REST routes are kebab-case; tables and columns are plural snake_case.
 - Source folders follow bounded context boundaries instead of generic technical buckets.

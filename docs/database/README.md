@@ -6,30 +6,28 @@ This seed is not a fake API, not json-server data, and not frontend source data.
 
 ## Files
 
-- `docs/database/seed-av2-local.sql`: idempotent local MySQL seed script.
-- `docs/database/seed-to-webapp-readiness.md`: mapping from seeded backend data to WebApp areas.
+- `docs/database/seed-local.sql`: idempotent local PostgreSQL seed script.
 
 ## Local Warning
 
 Use only with local `nexa_platform_db`.
 
-Do not run this against shared, staging, or production databases.
+Do not run this against shared, staging, or production databases unless explicitly intended.
 
 The script does not use `DROP TABLE`, `TRUNCATE TABLE`, or broad `DELETE FROM`.
 
-## How To Run With MySQL CLI
+## How To Run With psql CLI
 
 ```bash
-mysql -u root -p nexa_platform_db < docs/database/seed-av2-local.sql
+psql -U postgres -d nexa_platform_db -f docs/database/seed-local.sql
 ```
 
-## How To Run With MySQL Workbench
+## How To Run With pgAdmin / DBeaver
 
-1. Open MySQL Workbench.
-2. Select local `nexa_platform_db`.
-3. Open `docs/database/seed-av2-local.sql`.
-4. Run full script.
-5. Run verification queries at bottom.
+1. Open pgAdmin or DBeaver.
+2. Select local `nexa_platform_db` database.
+3. Open and run `docs/database/seed-local.sql`.
+4. Run verification queries at bottom.
 
 ## Tables Seeded
 
@@ -78,8 +76,6 @@ Quality checks passed:
 ## Verification Queries
 
 ```sql
-USE nexa_platform_db;
-
 SELECT COUNT(*) AS categories_count FROM categories;
 SELECT COUNT(*) AS brands_count FROM brands;
 SELECT COUNT(*) AS warehouses_count FROM warehouses;

@@ -9,4 +9,10 @@ public class UserQueryService(IUserRepository userRepository) : IUserQueryServic
 {
     public async Task<User?> Handle(GetUserByUsernameQuery query, CancellationToken cancellationToken = default) =>
         await userRepository.FindByUsernameAsync(query.Username, cancellationToken);
+
+    public Task<User?> FindByIdAsync(int id, CancellationToken cancellationToken = default) =>
+        userRepository.FindByIdAsync(id, cancellationToken);
+
+    public Task<IReadOnlyCollection<User>> ListByTenantAsync(int tenantId, CancellationToken cancellationToken = default) =>
+        userRepository.ListByTenantAsync(tenantId, cancellationToken);
 }

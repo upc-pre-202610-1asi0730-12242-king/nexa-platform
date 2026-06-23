@@ -7,10 +7,13 @@ using King.Nexa.Platform.Shared.Infrastructure.DependencyInjection;
 using King.Nexa.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
 using King.Nexa.Platform.Shared.Infrastructure.Interfaces.AspNetCore.Configuration;
 using King.Nexa.Platform.Shared.Infrastructure.Pipeline.Middleware.Extensions;
+using King.Nexa.Platform.Shared.Infrastructure.Security.Middleware;
 using King.Nexa.Platform.Shared.Infrastructure.Seed;
+using King.Nexa.Platform.TenantManagement.Infrastructure.DependencyInjection;
 using King.Nexa.Platform.Warehouse.Infrastructure.DependencyInjection;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.OpenApi;
 using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -38,6 +41,24 @@ if (!string.IsNullOrEmpty(allowedOrigins))
     builder.Configuration["AllowedOrigins:0"] = allowedOrigins;
 }
 
+var jwtSecret = Environment.GetEnvironmentVariable("NEXA_JWT_SECRET");
+if (!string.IsNullOrWhiteSpace(jwtSecret))
+{
+    builder.Configuration["Jwt:SigningKey"] = jwtSecret;
+}
+
+var jwtIssuer = Environment.GetEnvironmentVariable("NEXA_JWT_ISSUER");
+if (!string.IsNullOrWhiteSpace(jwtIssuer))
+{
+    builder.Configuration["Jwt:Issuer"] = jwtIssuer;
+}
+
+var jwtAudience = Environment.GetEnvironmentVariable("NEXA_JWT_AUDIENCE");
+if (!string.IsNullOrWhiteSpace(jwtAudience))
+{
+    builder.Configuration["Jwt:Audience"] = jwtAudience;
+}
+
 const string frontendCorsPolicy = "AllowFrontend";
 
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
@@ -46,7 +67,13 @@ builder.Services.AddCors(options =>
     options.AddPolicy(frontendCorsPolicy, policy =>
     {
         var origins = builder.Configuration.GetSection("AllowedOrigins").Get<string[]>() ?? Array.Empty<string>();
-        var finalOrigins = new List<string> { "http://localhost:5173", "https://localhost:5173" };
+        var finalOrigins = new List<string>
+        {
+            "http://localhost:5173",
+            "https://localhost:5173",
+            "http://127.0.0.1:5173",
+            "https://127.0.0.1:5173"
+        };
         if (origins.Length > 0)
         {
             finalOrigins.AddRange(origins);
@@ -59,6 +86,7 @@ builder.Services.AddCors(options =>
 });
 
 builder.Services.AddSharedInfrastructure(builder.Configuration);
+builder.Services.AddTenantManagement();
 builder.Services.AddCatalogManagement();
 builder.Services.AddSales();
 builder.Services.AddWarehouse();
@@ -66,14 +94,39 @@ builder.Services.AddLogistics();
 builder.Services.AddInvoicing();
 builder.Services.AddIam();
 
+var dataProtection = builder.Services.AddDataProtection()
+    .SetApplicationName(builder.Configuration["DataProtection:ApplicationName"] ?? "Nexa");
+var dataProtectionKeysPath = builder.Configuration["DataProtection:KeysPath"]
+    ?? Environment.GetEnvironmentVariable("DATA_PROTECTION__KEYS_PATH");
+if (!string.IsNullOrWhiteSpace(dataProtectionKeysPath))
+{
+    dataProtection.PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath));
+}
+
 builder.Services.AddControllers(options =>
 {
     options.Conventions.Add(new KebabCaseRouteNamingConvention());
 });
 builder.Services.AddLocalization();
+builder.Services.AddHealthChecks();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT authorization header using the Bearer scheme.",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT"
+    });
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference("Bearer", document, null)] = []
+    });
+    options.OperationFilter<PublicEndpointOperationFilter>();
+
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
     var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
 
@@ -93,26 +146,6 @@ using (var scope = app.Services.CreateScope())
     {
         var context = services.GetRequiredService<AppDbContext>();
         
-        // Safeguard: If database has tables but migrations history is empty, seed the initial migration record
-        var databaseCreator = context.Database.GetService<Microsoft.EntityFrameworkCore.Storage.IDatabaseCreator>() 
-            as Microsoft.EntityFrameworkCore.Storage.RelationalDatabaseCreator;
-        if (databaseCreator != null && databaseCreator.HasTables())
-        {
-            context.Database.ExecuteSqlRaw(@"
-                CREATE TABLE IF NOT EXISTS ""__EFMigrationsHistory"" (
-                    ""MigrationId"" character varying(150) NOT NULL,
-                    ""ProductVersion"" character varying(32) NOT NULL,
-                    CONSTRAINT ""PK___EFMigrationsHistory"" PRIMARY KEY (""MigrationId"")
-                );
-            ");
-            
-            context.Database.ExecuteSqlRaw(@"
-                INSERT INTO ""__EFMigrationsHistory"" (""MigrationId"", ""ProductVersion"")
-                VALUES ('20260615052826_InitialCreate', '9.0.16')
-                ON CONFLICT DO NOTHING;
-            ");
-        }
-
         context.Database.Migrate();
         logger.LogInformation("Database migrations applied successfully.");
 
@@ -137,9 +170,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+    app.UseHttpsRedirection();
 app.UseCors(frontendCorsPolicy);
+app.UseAuthentication();
+app.UseMiddleware<WorkspaceMembershipValidationMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 app.Run();
+
+public partial class Program;

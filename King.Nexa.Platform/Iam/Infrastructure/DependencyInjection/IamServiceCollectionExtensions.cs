@@ -15,6 +15,7 @@ public static class IamServiceCollectionExtensions
     public static IServiceCollection AddIam(this IServiceCollection services)
     {
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IWorkspaceSessionLookupService, WorkspaceSessionLookupService>();
         services.AddScoped<IUserCommandService, UserCommandService>();
         services.AddScoped<IUserQueryService, UserQueryService>();
         services.AddScoped<IPasswordHashingService, PasswordHashingService>();
@@ -23,3 +24,4 @@ public static class IamServiceCollectionExtensions
         return services;
     }
 }
+

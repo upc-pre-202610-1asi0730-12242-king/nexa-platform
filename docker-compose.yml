@@ -1,0 +1,64 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: nexa-postgres
+    environment:
+      POSTGRES_DB: nexa_platform_db
+      POSTGRES_USER: nexa
+      POSTGRES_PASSWORD: nexa_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - nexa-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nexa -d nexa_platform_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: nexa-platform-api
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      CONNECTION_STRINGS__DEFAULT_CONNECTION: Host=postgres;Port=5432;Database=nexa_platform_db;Username=nexa;Password=nexa_dev_password;SSL Mode=Disable
+      NEXA_JWT_SECRET: nexa-local-development-signing-key-2026-not-for-production
+      NEXA_JWT_ISSUER: nexa-platform
+      NEXA_JWT_AUDIENCE: nexa-webapp
+      SEED_DATA__ENABLED: "true"
+      STORAGE__DOCUMENTS_PATH: /app/storage/documents
+      DATA_PROTECTION__KEYS_PATH: /var/nexa/dataprotection-keys
+      ALLOWED_ORIGINS__0: http://localhost:5173
+    ports:
+      - "5068:8080"
+    volumes:
+      - nexa-document-storage:/app/storage
+      - nexa-dataprotection-keys:/var/nexa/dataprotection-keys
+
+  webapp:
+    build:
+      context: ../nexa-webapp
+      dockerfile: Dockerfile
+    container_name: nexa-webapp
+    depends_on:
+      - api
+    environment:
+      VITE_NEXA_API_BASE_URL: http://localhost:5068/api/v1
+      VITE_DEV_PROXY_TARGET: http://api:8080
+      VITE_CORE_BACKEND_ENABLED: "true"
+      VITE_SERVER_OPEN: "false"
+    ports:
+      - "5173:5173"
+    volumes:
+      - ../nexa-webapp:/app
+      - /app/node_modules
+
+volumes:
+  nexa-postgres-data:
+  nexa-document-storage:
+  nexa-dataprotection-keys:

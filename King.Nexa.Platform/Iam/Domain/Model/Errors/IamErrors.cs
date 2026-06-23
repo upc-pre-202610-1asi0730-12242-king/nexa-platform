@@ -34,3 +34,4 @@ public static class IamErrors
     public static readonly Error InternalServerError =
         new("Iam.InternalServerError", "An internal server error occurred while processing the identity request.");
 }
+

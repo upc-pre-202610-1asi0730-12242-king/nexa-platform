@@ -1,6 +1,7 @@
 using King.Nexa.Platform.Iam.Application.CommandServices;
 using King.Nexa.Platform.Iam.Interfaces.Rest.Resources;
 using King.Nexa.Platform.Iam.Interfaces.Rest.Transform;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace King.Nexa.Platform.Iam.Interfaces.Rest;
@@ -25,6 +26,7 @@ public class AuthenticationController(IUserCommandService userCommandService) : 
     /// Authenticates a platform user with username and password.
     /// </summary>
     [HttpPost("sign-in")]
+    [AllowAnonymous]
     public async Task<IActionResult> SignIn(SignInResource resource, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(resource.Email) && string.IsNullOrWhiteSpace(resource.Username))
@@ -40,3 +42,4 @@ public class AuthenticationController(IUserCommandService userCommandService) : 
             : Ok(AuthenticatedUserResourceFromEntityAssembler.ToResourceFromEntity(authenticatedUser));
     }
 }
+

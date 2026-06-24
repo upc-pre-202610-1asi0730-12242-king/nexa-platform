@@ -8,3 +8,4 @@ public static class SignUpCommandFromResourceAssembler
     public static SignUpCommand ToCommandFromResource(SignUpResource resource) =>
         new(resource.Username, resource.Email, resource.Password, resource.Role);
 }
+

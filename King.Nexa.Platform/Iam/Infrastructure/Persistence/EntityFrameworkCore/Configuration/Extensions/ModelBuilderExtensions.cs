@@ -15,7 +15,11 @@ public static class ModelBuilderExtensions
         user.Property(entity => entity.Email).HasColumnName("email").HasMaxLength(160).IsRequired();
         user.Property(entity => entity.PasswordHash).HasColumnName("password_hash").HasMaxLength(240).IsRequired();
         user.Property(entity => entity.Role).HasColumnName("role").HasMaxLength(40).IsRequired();
+        user.Property(entity => entity.FullName).HasColumnName("full_name").HasMaxLength(140).IsRequired();
+        user.Property(entity => entity.Phone).HasColumnName("phone").HasMaxLength(32);
+        user.Property(entity => entity.PreferredLanguage).HasColumnName("preferred_language").HasMaxLength(8).IsRequired();
         user.HasIndex(entity => entity.Username).IsUnique();
         user.HasIndex(entity => entity.Email).IsUnique();
     }
 }
+

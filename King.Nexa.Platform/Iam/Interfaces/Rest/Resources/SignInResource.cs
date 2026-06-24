@@ -4,6 +4,8 @@ namespace King.Nexa.Platform.Iam.Interfaces.Rest.Resources;
 /// Data required to sign in.
 /// </summary>
 /// <param name="Email">The email address of the user (preferred).</param>
-/// <param name="Username">The username of the user (backward compatibility).</param>
+/// <param name="Username">Optional username identifier when email is not supplied.</param>
 /// <param name="Password">The user's password.</param>
-public record SignInResource(string? Email, string? Username, string Password);
+/// <param name="WorkspaceSlug">The workspace slug the user is entering.</param>
+public record SignInResource(string? Email, string? Username, string Password, string? WorkspaceSlug);
+

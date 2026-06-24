@@ -159,6 +159,24 @@ The `nexa-platform` repository houses the ASP.NET Core backend service layer for
     ```
     *The API will start listening locally at `http://localhost:5068/` and the Swagger UI will be accessible at `http://localhost:5068/swagger`.*
 
+### Docker Runtime
+
+Run the reproducible local stack from this repository root:
+
+```bash
+docker compose up --build
+```
+
+The active compose file is `nexa-platform/docker-compose.yml`. It starts:
+
+| Service | URL / Port | Purpose |
+|---|---|---|
+| `postgres` | `localhost:5432` | PostgreSQL 16 database for local development |
+| `api` | `http://localhost:5068` | ASP.NET Core API and Swagger at `/swagger` |
+| `webapp` | `http://localhost:5173` | Vite/Vue web application from `../nexa-webapp` |
+
+The webapp container uses `VITE_NEXA_API_BASE_URL=http://localhost:5068/api/v1` and disables Vite's browser auto-open inside Docker with `VITE_SERVER_OPEN=false`. Compose credentials are local-only; production configuration must supply its own database and JWT secrets. Placeholder JWT signing keys are rejected at startup.
+
 ---
 
 ## Available Commands
@@ -170,6 +188,7 @@ The `nexa-platform` repository houses the ASP.NET Core backend service layer for
 | `dotnet run --project King.Nexa.Platform` | Starts the local API server. |
 | `dotnet ef database update --project King.Nexa.Platform` | Applies migrations to the database. |
 | `dotnet ef migrations add <Name> --project King.Nexa.Platform` | Creates a new EF migration. |
+| `docker compose up --build` | Starts PostgreSQL, API, and webapp with the local compose stack. |
 
 ---
 

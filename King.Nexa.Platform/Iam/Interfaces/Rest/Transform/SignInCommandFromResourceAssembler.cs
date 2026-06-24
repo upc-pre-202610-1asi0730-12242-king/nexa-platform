@@ -6,5 +6,6 @@ namespace King.Nexa.Platform.Iam.Interfaces.Rest.Transform;
 public static class SignInCommandFromResourceAssembler
 {
     public static SignInCommand ToCommandFromResource(SignInResource resource) =>
-        new(resource.Email ?? resource.Username ?? string.Empty, resource.Password);
+        new(resource.Email ?? resource.Username ?? string.Empty, resource.Password, resource.WorkspaceSlug);
 }
+

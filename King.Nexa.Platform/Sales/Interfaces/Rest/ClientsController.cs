@@ -1,0 +1,67 @@
+using King.Nexa.Platform.Sales.Application.CommandServices;
+using King.Nexa.Platform.Sales.Application.QueryServices;
+using King.Nexa.Platform.Sales.Interfaces.Rest.Resources;
+using King.Nexa.Platform.Sales.Interfaces.Rest.Transform;
+using King.Nexa.Platform.Shared.Application.Security;
+using King.Nexa.Platform.Shared.Infrastructure.Security.Authorization;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace King.Nexa.Platform.Sales.Interfaces.Rest;
+
+[ApiController]
+[Authorize(Policy = NexaAuthorizationPolicies.WorkspaceMember)]
+[Route("api/v1/clients")]
+[Route("api/v1/client-accounts")]
+public class ClientsController(
+    IClientAccountQueryService queryService,
+    IClientAccountCommandService commandService,
+    ICurrentWorkspaceContext workspaceContext) : ControllerBase
+{
+    [HttpGet]
+    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    {
+        var clients = await queryService.ListAsync(cancellationToken);
+        return Ok(clients.Select(ClientAccountResourceAssembler.ToResource));
+    }
+
+    [HttpGet("{id:int}")]
+    public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
+    {
+        var client = await queryService.FindByIdAsync(id, cancellationToken);
+        return client is null ? NotFound() : Ok(ClientAccountResourceAssembler.ToResource(client));
+    }
+
+    [HttpGet("by-code/{code}")]
+    public async Task<IActionResult> GetByCode(string code, CancellationToken cancellationToken)
+    {
+        var client = await queryService.FindByCodeAsync(code, cancellationToken);
+        return client is null ? NotFound() : Ok(ClientAccountResourceAssembler.ToResource(client));
+    }
+
+    [HttpPost]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanAcceptPurchaseRequest)]
+    public async Task<IActionResult> Create(CreateClientAccountResource resource, CancellationToken cancellationToken)
+    {
+        var client = await commandService.CreateAsync(
+            ClientAccountResourceAssembler.ToEntity(resource, RequireTenantId()),
+            cancellationToken);
+        return CreatedAtAction(nameof(GetById), new { id = client.Id }, ClientAccountResourceAssembler.ToResource(client));
+    }
+
+    [HttpPut("{id:int}")]
+    [HttpPatch("{id:int}")]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanAcceptPurchaseRequest)]
+    public async Task<IActionResult> Update(int id, CreateClientAccountResource resource, CancellationToken cancellationToken)
+    {
+        var client = await commandService.UpdateAsync(
+            id,
+            ClientAccountResourceAssembler.ToEntity(resource, RequireTenantId()),
+            cancellationToken);
+        return client is null ? NotFound() : Ok(ClientAccountResourceAssembler.ToResource(client));
+    }
+
+    private int RequireTenantId() => workspaceContext.TenantId is > 0
+        ? workspaceContext.TenantId.Value
+        : throw new InvalidOperationException("An authenticated tenant context is required.");
+}

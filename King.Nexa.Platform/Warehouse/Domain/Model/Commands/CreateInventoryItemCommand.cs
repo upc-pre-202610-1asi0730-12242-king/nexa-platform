@@ -11,3 +11,4 @@ public record CreateInventoryItemCommand(
     StockQuantity AvailableQuantity,
     WarehouseLocation WarehouseLocation,
     TemperatureRange TemperatureRange);
+

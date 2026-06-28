@@ -12,3 +12,4 @@ public sealed record CatalogItemId
 
     public override string ToString() => Value;
 }
+

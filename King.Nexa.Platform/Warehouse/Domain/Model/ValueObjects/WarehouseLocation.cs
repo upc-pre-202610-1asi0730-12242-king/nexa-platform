@@ -12,3 +12,4 @@ public sealed record WarehouseLocation
 
     public override string ToString() => Value;
 }
+

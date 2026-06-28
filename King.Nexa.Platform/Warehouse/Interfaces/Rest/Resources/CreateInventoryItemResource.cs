@@ -10,3 +10,4 @@ public record CreateInventoryItemResource(
     string WarehouseLocation,
     decimal MinimumTemperature,
     decimal MaximumTemperature);
+

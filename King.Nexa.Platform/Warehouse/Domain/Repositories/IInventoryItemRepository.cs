@@ -1,4 +1,6 @@
+using King.Nexa.Platform.Shared.Application.Pagination;
 using King.Nexa.Platform.Shared.Domain.Repositories;
+using King.Nexa.Platform.Warehouse.Domain.Model.Queries;
 using King.Nexa.Platform.Warehouse.Domain.Model.Aggregates;
 using King.Nexa.Platform.Warehouse.Domain.Model.ValueObjects;
 
@@ -11,4 +13,7 @@ public interface IInventoryItemRepository : IBaseRepository<InventoryItem>
     Task<IEnumerable<InventoryItem>> ListByWarehouseLocationAsync(WarehouseLocation warehouseLocation, CancellationToken cancellationToken = default);
 
     Task<IEnumerable<InventoryItem>> ListLowStockAsync(int threshold, CancellationToken cancellationToken = default);
+
+    Task<PagedResult<InventoryItem>> SearchAsync(InventoryItemCollectionQuery query, CancellationToken cancellationToken = default);
 }
+

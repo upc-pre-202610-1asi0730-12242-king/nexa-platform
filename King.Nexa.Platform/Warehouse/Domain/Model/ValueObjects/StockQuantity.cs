@@ -13,3 +13,4 @@ public sealed record StockQuantity
 
     public int Value { get; }
 }
+

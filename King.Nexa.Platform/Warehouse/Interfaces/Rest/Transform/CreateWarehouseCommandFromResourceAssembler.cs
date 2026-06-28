@@ -12,3 +12,4 @@ public static class CreateWarehouseCommandFromResourceAssembler
             new WarehouseLocation(resource.Location),
             new TemperatureRange(resource.MinimumTemperature, resource.MaximumTemperature));
 }
+

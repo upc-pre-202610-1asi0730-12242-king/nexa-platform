@@ -31,6 +31,8 @@ public class InventoryItem : AuditableEntity
 
     public ProductId ProductId { get; private set; }
 
+    public int TenantId { get; private set; }
+
     public CatalogItemId CatalogItemId { get; private set; }
 
     public StockQuantity AvailableQuantity { get; private set; }
@@ -40,6 +42,12 @@ public class InventoryItem : AuditableEntity
     public WarehouseLocation WarehouseLocation { get; private set; }
 
     public TemperatureRange TemperatureRange { get; private set; }
+
+    public void AssignTenant(int tenantId)
+    {
+        if (tenantId <= 0) throw new ArgumentException("Tenant id must be positive.", nameof(tenantId));
+        TenantId = tenantId;
+    }
 
     public void Update(UpdateInventoryItemCommand command)
     {
@@ -66,5 +74,31 @@ public class InventoryItem : AuditableEntity
 
         AvailableQuantity = new StockQuantity(AvailableQuantity.Value + reservation.Units);
         ReservedQuantity = new StockQuantity(ReservedQuantity.Value - reservation.Units);
+    }
+
+    public void RegisterMovement(string movementType, int units)
+    {
+        if (string.IsNullOrWhiteSpace(movementType))
+            throw new ArgumentException("Movement type is required.", nameof(movementType));
+        if (units <= 0)
+            throw new ArgumentOutOfRangeException(nameof(units), "Movement units must be positive.");
+
+        var normalizedType = movementType.Trim().ToLowerInvariant();
+        if (normalizedType is "inbound" or "entry" or "adjustment-in")
+        {
+            AvailableQuantity = new StockQuantity(AvailableQuantity.Value + units);
+            return;
+        }
+
+        if (normalizedType is "outbound" or "exit" or "adjustment-out")
+        {
+            if (units > AvailableQuantity.Value)
+                throw new InvalidOperationException("Movement units exceed available stock.");
+
+            AvailableQuantity = new StockQuantity(AvailableQuantity.Value - units);
+            return;
+        }
+
+        throw new InvalidOperationException("Unsupported inventory movement type.");
     }
 }

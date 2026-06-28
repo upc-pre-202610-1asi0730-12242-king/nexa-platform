@@ -15,3 +15,4 @@ public sealed record InventoryReservation
 
     public int Units { get; }
 }
+

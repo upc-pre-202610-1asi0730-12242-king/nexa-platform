@@ -20,3 +20,4 @@ public class ShipmentQueryService(IShipmentRepository shipmentRepository) : IShi
     public async Task<IEnumerable<Shipment>> Handle(GetShipmentsByStatusQuery query, CancellationToken cancellationToken = default) =>
         await shipmentRepository.ListByStatusAsync(query.Status, cancellationToken);
 }
+

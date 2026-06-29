@@ -12,3 +12,4 @@ public interface IShipmentRepository : IBaseRepository<Shipment>
 
     Task<IEnumerable<Shipment>> ListByStatusAsync(DeliveryStatus status, CancellationToken cancellationToken = default);
 }
+

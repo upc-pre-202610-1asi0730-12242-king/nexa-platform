@@ -13,3 +13,4 @@ public interface IShipmentCommandService
 
     Task<bool> CancelAsync(CancelShipmentCommand command, CancellationToken cancellationToken = default);
 }
+

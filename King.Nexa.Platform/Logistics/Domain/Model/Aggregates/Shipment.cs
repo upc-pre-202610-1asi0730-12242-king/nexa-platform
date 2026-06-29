@@ -4,7 +4,7 @@ using King.Nexa.Platform.Shared.Domain.Model.Entities;
 
 namespace King.Nexa.Platform.Logistics.Domain.Model.Aggregates;
 
-public class Shipment : AuditableEntity
+public class Shipment : AuditableEntity, ITenantScoped
 {
     protected Shipment()
     {
@@ -21,6 +21,8 @@ public class Shipment : AuditableEntity
 
     public ShipmentCode ShipmentCode { get; private set; }
 
+    public int TenantId { get; private set; }
+
     public int OrderId { get; private set; }
 
     public DateTimeOffset ScheduledAt { get; private set; }
@@ -30,6 +32,12 @@ public class Shipment : AuditableEntity
     public DeliveryStatus Status { get; private set; }
 
     public TemperatureRecord? LastTemperatureRecord { get; private set; }
+
+    public void AssignTenant(int tenantId)
+    {
+        if (tenantId <= 0) throw new ArgumentException("Tenant id must be positive.", nameof(tenantId));
+        TenantId = tenantId;
+    }
 
     public void RegisterTemperature(decimal celsius) => LastTemperatureRecord = new TemperatureRecord(celsius);
 
@@ -56,3 +64,4 @@ public class Shipment : AuditableEntity
         DeliveredAt = DateTimeOffset.UtcNow;
     }
 }
+

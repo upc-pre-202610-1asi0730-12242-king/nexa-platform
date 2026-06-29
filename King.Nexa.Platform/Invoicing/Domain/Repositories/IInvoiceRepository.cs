@@ -1,5 +1,7 @@
 using King.Nexa.Platform.Invoicing.Domain.Model.Aggregates;
+using King.Nexa.Platform.Invoicing.Domain.Model.Queries;
 using King.Nexa.Platform.Invoicing.Domain.Model.ValueObjects;
+using King.Nexa.Platform.Shared.Application.Pagination;
 using King.Nexa.Platform.Shared.Domain.Repositories;
 
 namespace King.Nexa.Platform.Invoicing.Domain.Repositories;
@@ -11,4 +13,7 @@ public interface IInvoiceRepository : IBaseRepository<Invoice>
     Task<IEnumerable<Invoice>> ListByOrderIdAsync(int orderId, CancellationToken cancellationToken = default);
 
     Task<IEnumerable<Invoice>> ListByPaymentStatusAsync(PaymentStatus paymentStatus, CancellationToken cancellationToken = default);
+
+    Task<PagedResult<Invoice>> SearchAsync(InvoiceCollectionQuery query, CancellationToken cancellationToken = default);
 }
+

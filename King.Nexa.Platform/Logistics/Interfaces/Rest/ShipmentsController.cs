@@ -5,11 +5,14 @@ using King.Nexa.Platform.Logistics.Domain.Model.Queries;
 using King.Nexa.Platform.Logistics.Domain.Model.ValueObjects;
 using King.Nexa.Platform.Logistics.Interfaces.Rest.Resources;
 using King.Nexa.Platform.Logistics.Interfaces.Rest.Transform;
+using King.Nexa.Platform.Shared.Infrastructure.Security.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace King.Nexa.Platform.Logistics.Interfaces.Rest;
 
 [ApiController]
+[Authorize(Policy = NexaAuthorizationPolicies.WorkspaceMember)]
 [Route("api/v1/[controller]")]
 public class ShipmentsController(IShipmentCommandService shipmentCommandService, IShipmentQueryService shipmentQueryService) : ControllerBase
 {
@@ -60,6 +63,7 @@ public class ShipmentsController(IShipmentCommandService shipmentCommandService,
     /// Schedules a shipment for an accepted sales order.
     /// </summary>
     [HttpPost]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanStartDispatch)]
     public async Task<IActionResult> ScheduleShipment(ScheduleShipmentResource resource, CancellationToken cancellationToken)
     {
         var command = ScheduleShipmentCommandFromResourceAssembler.ToCommandFromResource(resource);
@@ -71,6 +75,7 @@ public class ShipmentsController(IShipmentCommandService shipmentCommandService,
     /// Reschedules a shipment.
     /// </summary>
     [HttpPut("{id:int}/schedule")]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanStartDispatch)]
     public async Task<IActionResult> RescheduleShipment(int id, RescheduleShipmentResource resource, CancellationToken cancellationToken)
     {
         var command = RescheduleShipmentCommandFromResourceAssembler.ToCommandFromResource(id, resource);
@@ -82,6 +87,7 @@ public class ShipmentsController(IShipmentCommandService shipmentCommandService,
     /// Marks a shipment as delivered.
     /// </summary>
     [HttpPost("{id:int}/delivered")]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanStartDispatch)]
     public async Task<IActionResult> MarkShipmentDelivered(int id, CancellationToken cancellationToken)
     {
         var shipment = await shipmentCommandService.MarkDeliveredAsync(new MarkShipmentDeliveredCommand(id), cancellationToken);
@@ -93,6 +99,7 @@ public class ShipmentsController(IShipmentCommandService shipmentCommandService,
     /// Cancels a shipment that has not been delivered.
     /// </summary>
     [HttpDelete("{id:int}")]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanStartDispatch)]
     public async Task<IActionResult> CancelShipment(int id, CancellationToken cancellationToken)
     {
         var cancelled = await shipmentCommandService.CancelAsync(new CancelShipmentCommand(id), cancellationToken);

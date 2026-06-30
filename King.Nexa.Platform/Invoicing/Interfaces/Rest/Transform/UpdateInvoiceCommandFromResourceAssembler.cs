@@ -9,3 +9,4 @@ public static class UpdateInvoiceCommandFromResourceAssembler
     public static UpdateInvoiceCommand ToCommandFromResource(int id, UpdateInvoiceResource resource) =>
         new(id, new InvoiceNumber(resource.InvoiceNumber), resource.OrderId, new BillingAmount(resource.Amount, resource.Currency));
 }
+

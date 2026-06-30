@@ -3,6 +3,7 @@ using System;
 using King.Nexa.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace King.Nexa.Platform.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260629183140_AddTenantAwareCompositeForeignKeys")]
+    partial class AddTenantAwareCompositeForeignKeys
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -148,15 +151,9 @@ namespace King.Nexa.Platform.Migrations
                     b.HasAlternateKey("TenantId", "Id")
                         .HasName("ak_catalog_items_tenant_id_id");
 
-                    b.HasIndex("TenantId", "BrandName")
-                        .HasDatabaseName("ix_catalog_items_tenant_id_brand_name");
-
                     b.HasIndex("TenantId", "CatalogItemId")
                         .IsUnique()
                         .HasDatabaseName("ix_catalog_items_tenant_id_catalog_item_id");
-
-                    b.HasIndex("TenantId", "CategoryName")
-                        .HasDatabaseName("ix_catalog_items_tenant_id_category_name");
 
                     b.HasIndex("TenantId", "ProductId")
                         .IsUnique()
@@ -339,9 +336,6 @@ namespace King.Nexa.Platform.Migrations
                     b.HasIndex("TenantId", "PaymentStatus")
                         .HasDatabaseName("ix_invoices_tenant_id_payment_status");
 
-                    b.HasIndex("TenantId", "PaymentStatus", "CreatedAt")
-                        .HasDatabaseName("ix_invoices_tenant_id_payment_status_created_at");
-
                     b.ToTable("invoices", (string)null);
                 });
 
@@ -436,9 +430,6 @@ namespace King.Nexa.Platform.Migrations
 
                     b.HasIndex("TenantId", "Status")
                         .HasDatabaseName("ix_payments_tenant_id_status");
-
-                    b.HasIndex("TenantId", "Status", "CreatedAt")
-                        .HasDatabaseName("ix_payments_tenant_id_status_created_at");
 
                     b.ToTable("payments", (string)null);
                 });
@@ -993,9 +984,6 @@ namespace King.Nexa.Platform.Migrations
                     b.HasIndex("TenantId", "Status")
                         .HasDatabaseName("ix_dispatch_orders_tenant_id_status");
 
-                    b.HasIndex("TenantId", "Status", "CreatedAt")
-                        .HasDatabaseName("ix_dispatch_orders_tenant_id_status_created_at");
-
                     b.ToTable("dispatch_orders", (string)null);
                 });
 
@@ -1377,9 +1365,6 @@ namespace King.Nexa.Platform.Migrations
                     b.HasIndex("TenantId", "OrderNumber")
                         .IsUnique()
                         .HasDatabaseName("ix_orders_tenant_id_order_number");
-
-                    b.HasIndex("TenantId", "Status", "CreatedAt")
-                        .HasDatabaseName("ix_orders_tenant_id_status_created_at");
 
                     b.ToTable("orders", (string)null);
                 });
@@ -1863,9 +1848,6 @@ namespace King.Nexa.Platform.Migrations
                     b.HasIndex("TenantId", "Status")
                         .HasDatabaseName("ix_purchase_requests_tenant_id_status");
 
-                    b.HasIndex("TenantId", "Status", "CreatedAt")
-                        .HasDatabaseName("ix_purchase_requests_tenant_id_status_created_at");
-
                     b.ToTable("purchase_requests", (string)null);
                 });
 
@@ -2196,61 +2178,6 @@ namespace King.Nexa.Platform.Migrations
                         .HasDatabaseName("ix_document_types_key");
 
                     b.ToTable("document_types", (string)null);
-                });
-
-            modelBuilder.Entity("King.Nexa.Platform.Shared.Domain.Model.Entities.OutboxMessage", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Error")
-                        .HasMaxLength(2000)
-                        .HasColumnType("character varying(2000)")
-                        .HasColumnName("error");
-
-                    b.Property<DateTime>("OccurredOnUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("occurred_on_utc");
-
-                    b.Property<string>("Payload")
-                        .IsRequired()
-                        .HasColumnType("jsonb")
-                        .HasColumnName("payload");
-
-                    b.Property<DateTime?>("ProcessedOnUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("processed_on_utc");
-
-                    b.Property<int>("RetryCount")
-                        .HasColumnType("integer")
-                        .HasColumnName("retry_count");
-
-                    b.Property<int?>("TenantId")
-                        .HasColumnType("integer")
-                        .HasColumnName("tenant_id");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("type");
-
-                    b.Property<int?>("WorkspaceId")
-                        .HasColumnType("integer")
-                        .HasColumnName("workspace_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_outbox_messages");
-
-                    b.HasIndex("ProcessedOnUtc", "OccurredOnUtc")
-                        .HasDatabaseName("ix_outbox_messages_processed_on_utc_occurred_on_utc");
-
-                    b.HasIndex("TenantId", "OccurredOnUtc")
-                        .HasDatabaseName("ix_outbox_messages_tenant_id_occurred_on_utc");
-
-                    b.ToTable("outbox_messages", (string)null);
                 });
 
             modelBuilder.Entity("King.Nexa.Platform.Shared.Domain.Model.Entities.PaymentOption", b =>

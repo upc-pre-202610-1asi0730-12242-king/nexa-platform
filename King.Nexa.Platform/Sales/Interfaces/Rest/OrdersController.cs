@@ -95,8 +95,10 @@ public class OrdersController(IOrderCommandService orderCommandService, IOrderQu
 
     /// <summary>
     /// Confirms an order after payment and inventory reservation are available.
+    /// The legacy /confirm route is kept as a compatibility alias for /confirmations.
     /// </summary>
     [HttpPost("{id:int}/confirm")]
+    [HttpPost("{id:int}/confirmations")]
     [Authorize(Policy = NexaAuthorizationPolicies.CanCreateOrder)]
     public async Task<IActionResult> ConfirmOrder(int id, ConfirmOrderResource resource, CancellationToken cancellationToken)
     {
@@ -109,8 +111,10 @@ public class OrdersController(IOrderCommandService orderCommandService, IOrderQu
 
     /// <summary>
     /// Rejects an order with the business reason that prevents delivery.
+    /// The legacy /reject route is kept as a compatibility alias for /rejections.
     /// </summary>
     [HttpPost("{id:int}/reject")]
+    [HttpPost("{id:int}/rejections")]
     [Authorize(Policy = NexaAuthorizationPolicies.CanCreateOrder)]
     public async Task<IActionResult> RejectOrder(int id, RejectOrderResource resource, CancellationToken cancellationToken)
     {
@@ -121,8 +125,10 @@ public class OrdersController(IOrderCommandService orderCommandService, IOrderQu
 
     /// <summary>
     /// Cancels an order that has not completed the sales workflow.
+    /// The legacy /cancel route is kept as a compatibility alias for /cancellations.
     /// </summary>
     [HttpPost("{id:int}/cancel")]
+    [HttpPost("{id:int}/cancellations")]
     [Authorize(Policy = NexaAuthorizationPolicies.CanCreateOrder)]
     public async Task<IActionResult> CancelOrder(int id, CancellationToken cancellationToken)
     {

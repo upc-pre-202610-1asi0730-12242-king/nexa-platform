@@ -34,6 +34,17 @@ public class InventoryOperationsCommandRepository(AppDbContext context) : IInven
     public Task<InventoryReservationRecord?> FindReservationByIdAsync(int tenantId, int id, CancellationToken cancellationToken = default) =>
         context.InventoryReservations.FirstOrDefaultAsync(row => row.TenantId == tenantId && row.Id == id, cancellationToken);
 
+    public Task<InventoryReservationRecord?> FindActiveReservationByCodeAsync(int tenantId, int inventoryItemId, string code, CancellationToken cancellationToken = default)
+    {
+        var value = code.Trim();
+        return context.InventoryReservations.FirstOrDefaultAsync(
+            row => row.TenantId == tenantId &&
+                   row.InventoryItemId == inventoryItemId &&
+                   row.Code == value &&
+                   row.Status != "released",
+            cancellationToken);
+    }
+
     public Task AddReservationAsync(InventoryReservationRecord reservation, CancellationToken cancellationToken = default) =>
         context.InventoryReservations.AddAsync(reservation, cancellationToken).AsTask();
 

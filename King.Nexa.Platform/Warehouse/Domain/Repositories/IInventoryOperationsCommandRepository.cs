@@ -14,6 +14,7 @@ public interface IInventoryOperationsCommandRepository
     Task AddLotAsync(InventoryLot lot, CancellationToken cancellationToken = default);
     Task AddMovementAsync(InventoryMovement movement, CancellationToken cancellationToken = default);
     Task<InventoryReservationRecord?> FindReservationByIdAsync(int tenantId, int id, CancellationToken cancellationToken = default);
+    Task<InventoryReservationRecord?> FindActiveReservationByCodeAsync(int tenantId, int inventoryItemId, string code, CancellationToken cancellationToken = default);
     Task AddReservationAsync(InventoryReservationRecord reservation, CancellationToken cancellationToken = default);
     Task<int?> FindOrderIdByReferenceAsync(int tenantId, string? reference, CancellationToken cancellationToken = default);
     Task<int?> ResolvePurchaseRequestIdAsync(int tenantId, int? id, CancellationToken cancellationToken = default);

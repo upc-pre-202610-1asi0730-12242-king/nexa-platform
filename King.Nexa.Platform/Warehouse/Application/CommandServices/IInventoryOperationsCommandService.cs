@@ -9,6 +9,7 @@ public interface IInventoryOperationsCommandService
     Task<InventoryMovement> CreateMovementAsync(InventoryMovementDraft draft, CancellationToken cancellationToken = default);
     Task<InventoryReservationRecord> CreateReservationAsync(InventoryReservationDraft draft, CancellationToken cancellationToken = default);
     Task<InventoryReservationRecord?> ReleaseReservationAsync(int id, CancellationToken cancellationToken = default);
+    Task<InventoryReservationRecord?> ReleaseReservationAsync(InventoryReservationDraft draft, CancellationToken cancellationToken = default);
 }
 
 public record InventoryLotDraft(

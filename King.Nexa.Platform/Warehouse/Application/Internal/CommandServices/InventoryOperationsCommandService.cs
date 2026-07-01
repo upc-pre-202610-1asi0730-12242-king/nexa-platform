@@ -150,6 +150,23 @@ public class InventoryOperationsCommandService(
     {
         var tenantId = CurrentTenantId();
         var reservation = await repository.FindReservationByIdAsync(tenantId, id, cancellationToken);
+        return await ReleaseReservationAsync(tenantId, reservation, cancellationToken);
+    }
+
+    public async Task<InventoryReservationRecord?> ReleaseReservationAsync(InventoryReservationDraft draft, CancellationToken cancellationToken = default)
+    {
+        var tenantId = CurrentTenantId();
+        var item = await ResolveInventoryItemAsync(draft.InventoryItemId, draft.ProductId, tenantId, cancellationToken);
+        if (string.IsNullOrWhiteSpace(draft.Code)) throw new InvalidOperationException("Reservation code is required.");
+        var reservation = await repository.FindActiveReservationByCodeAsync(tenantId, item.Id, draft.Code, cancellationToken);
+        if (reservation is null) return null;
+        if (draft.Units > 0 && reservation.Units != draft.Units)
+            throw new InvalidOperationException("Reservation units do not match the existing reservation.");
+        return await ReleaseReservationAsync(tenantId, reservation, cancellationToken);
+    }
+
+    private async Task<InventoryReservationRecord?> ReleaseReservationAsync(int tenantId, InventoryReservationRecord? reservation, CancellationToken cancellationToken)
+    {
         if (reservation is null) return null;
         if (reservation.Status == "released") return reservation;
         var item = await repository.FindInventoryItemByIdAsync(tenantId, reservation.InventoryItemId, cancellationToken)

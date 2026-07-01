@@ -21,6 +21,7 @@
 - Initial validation: completed.
 - Phase 1 REST API consistency: completed for the safest high-impact compatibility routes.
 - Phase 4 multi-tenancy hardening: completed safe interface/guard/helper scope without global EF filters.
+- Phase 6 design pattern cleanup: completed safe domain-event foundation without activating partial event workflow.
 
 ## Files Changed
 
@@ -37,6 +38,8 @@
 - `King.Nexa.Platform/Shared/Infrastructure/Persistence/EntityFrameworkCore/Repositories/TenantScopedQueryableExtensions.cs`: added reusable tenant-scoping query helper.
 - Tenant-owned aggregate/entity files: applied `ITenantScoped` to existing models with `TenantId`.
 - `docs/multi-tenancy-hardening-plan.md`: documented deferred global-filter rollout and validation sequence.
+- `King.Nexa.Platform/Shared/Domain/Model/Events/*`: added domain event contracts and in-memory aggregate event container.
+- `docs/domain-events-outbox-foundation.md`: documented outbox/event candidates and rollout guardrails.
 
 ## Risks
 
@@ -50,3 +53,5 @@
 - After Phase 1: `dotnet test nexa-platform.sln --no-build` passed with 40/40 tests.
 - After Phase 4 safe hardening: `dotnet build nexa-platform.sln --no-restore` passed with 0 warnings and 0 errors.
 - After Phase 4 safe hardening: `dotnet test nexa-platform.sln --no-build` passed with 40/40 tests.
+- After Phase 6 foundation: `dotnet build nexa-platform.sln --no-restore` passed with 0 warnings and 0 errors.
+- After Phase 6 foundation: `dotnet test nexa-platform.sln --no-build` passed with 40/40 tests.

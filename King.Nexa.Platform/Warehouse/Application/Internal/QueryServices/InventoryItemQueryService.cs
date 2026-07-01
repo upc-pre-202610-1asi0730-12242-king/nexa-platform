@@ -4,6 +4,7 @@ using King.Nexa.Platform.Warehouse.Domain.Model.Aggregates;
 using King.Nexa.Platform.Warehouse.Domain.Model.Queries;
 using King.Nexa.Platform.Warehouse.Domain.Model.ValueObjects;
 using King.Nexa.Platform.Warehouse.Domain.Repositories;
+using King.Nexa.Platform.Shared.Application.Pagination;
 
 namespace King.Nexa.Platform.Warehouse.Application.Internal.QueryServices;
 
@@ -23,4 +24,7 @@ public class InventoryItemQueryService(IInventoryItemRepository inventoryItemRep
 
     public async Task<IEnumerable<InventoryItem>> Handle(GetLowStockInventoryItemsQuery query, CancellationToken cancellationToken = default) =>
         await inventoryItemRepository.ListLowStockAsync(query.Threshold, cancellationToken);
+
+    public Task<PagedResult<InventoryItem>> SearchAsync(InventoryItemCollectionQuery query, CancellationToken cancellationToken = default) =>
+        inventoryItemRepository.SearchAsync(query, cancellationToken);
 }

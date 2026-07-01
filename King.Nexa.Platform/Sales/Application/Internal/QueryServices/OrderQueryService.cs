@@ -4,6 +4,7 @@ using King.Nexa.Platform.Sales.Domain.Model.Aggregates;
 using King.Nexa.Platform.Sales.Domain.Model.Queries;
 using King.Nexa.Platform.Sales.Domain.Model.ValueObjects;
 using King.Nexa.Platform.Sales.Domain.Repositories;
+using King.Nexa.Platform.Shared.Application.Pagination;
 
 namespace King.Nexa.Platform.Sales.Application.Internal.QueryServices;
 
@@ -23,4 +24,7 @@ public class OrderQueryService(IOrderRepository orderRepository) : IOrderQuerySe
 
     public async Task<IEnumerable<Order>> Handle(GetOrdersByStatusQuery query, CancellationToken cancellationToken = default) =>
         await orderRepository.ListByStatusAsync(query.Status, cancellationToken);
+
+    public Task<PagedResult<Order>> SearchAsync(OrderCollectionQuery query, CancellationToken cancellationToken = default) =>
+        orderRepository.SearchAsync(query, cancellationToken);
 }

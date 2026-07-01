@@ -5,6 +5,7 @@ using King.Nexa.Platform.Sales.Domain.Model.Queries;
 using King.Nexa.Platform.Sales.Domain.Model.ValueObjects;
 using King.Nexa.Platform.Sales.Interfaces.Rest.Resources;
 using King.Nexa.Platform.Sales.Interfaces.Rest.Transform;
+using King.Nexa.Platform.Shared.Application.Pagination;
 using King.Nexa.Platform.Shared.Infrastructure.Security.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,8 +21,40 @@ public class OrdersController(IOrderCommandService orderCommandService, IOrderQu
     /// Gets all orders.
     /// </summary>
     [HttpGet]
-    public async Task<IActionResult> GetAllOrders(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllOrders(
+        [FromQuery] int? page,
+        [FromQuery] int? pageSize,
+        [FromQuery] string? status,
+        [FromQuery] int? clientAccountId,
+        [FromQuery] string? search,
+        [FromQuery] DateOnly? createdFrom,
+        [FromQuery] DateOnly? createdTo,
+        [FromQuery] string? sort,
+        CancellationToken cancellationToken)
     {
+        if (HasCollectionQuery(page, pageSize, status, clientAccountId, search, createdFrom, createdTo, sort))
+        {
+            OrderStatus? orderStatus = null;
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                if (!Enum.TryParse<OrderStatus>(status, true, out var parsedStatus))
+                    return BadRequest(new { message = "Invalid order status." });
+                orderStatus = parsedStatus;
+            }
+
+            var paged = await orderQueryService.SearchAsync(
+                new OrderCollectionQuery(
+                    new PaginationRequest(page, pageSize),
+                    orderStatus,
+                    clientAccountId,
+                    search,
+                    createdFrom,
+                    createdTo,
+                    sort),
+                cancellationToken);
+            return Ok(paged.Map(OrderResourceFromEntityAssembler.ToResourceFromEntity));
+        }
+
         var orders = await orderQueryService.Handle(new GetAllOrdersQuery(), cancellationToken);
         return Ok(orders.Select(OrderResourceFromEntityAssembler.ToResourceFromEntity));
     }
@@ -147,4 +180,14 @@ public class OrdersController(IOrderCommandService orderCommandService, IOrderQu
         var order = await orderCommandService.CancelAsync(new CancelOrderCommand(id), cancellationToken);
         return order is null ? NotFound() : NoContent();
     }
+
+    private static bool HasCollectionQuery(int? page, int? pageSize, params object?[] filters) =>
+        page.HasValue ||
+        pageSize.HasValue ||
+        filters.Any(filter => filter switch
+        {
+            null => false,
+            string value => !string.IsNullOrWhiteSpace(value),
+            _ => true
+        });
 }

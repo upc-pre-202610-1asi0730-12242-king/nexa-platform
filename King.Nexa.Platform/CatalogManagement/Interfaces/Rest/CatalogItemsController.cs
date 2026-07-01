@@ -6,6 +6,7 @@ using King.Nexa.Platform.CatalogManagement.Domain.Model.ValueObjects;
 using King.Nexa.Platform.CatalogManagement.Interfaces.Rest.Resources;
 using King.Nexa.Platform.CatalogManagement.Interfaces.Rest.Transform;
 using King.Nexa.Platform.Sales.Application.QueryServices;
+using King.Nexa.Platform.Shared.Application.Pagination;
 using King.Nexa.Platform.Shared.Infrastructure.Security.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -24,8 +25,43 @@ public class CatalogItemsController(
     /// Gets all catalog items.
     /// </summary>
     [HttpGet]
-    public async Task<IActionResult> GetAllCatalogItems([FromQuery] bool includePromotions, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllCatalogItems(
+        [FromQuery] bool includePromotions,
+        [FromQuery] int? page,
+        [FromQuery] int? pageSize,
+        [FromQuery] string? search,
+        [FromQuery] string? brand,
+        [FromQuery] string? category,
+        [FromQuery] string? coldChain,
+        [FromQuery] bool? active,
+        [FromQuery] DateOnly? createdFrom,
+        [FromQuery] DateOnly? createdTo,
+        CancellationToken cancellationToken)
     {
+        if (!includePromotions && HasCollectionQuery(page, pageSize, search, brand, category, coldChain, active, createdFrom, createdTo))
+        {
+            ColdChainRequirement? coldChainRequirement = null;
+            if (!string.IsNullOrWhiteSpace(coldChain))
+            {
+                if (!Enum.TryParse<ColdChainRequirement>(coldChain, true, out var parsedRequirement))
+                    return BadRequest(new { message = "Invalid cold-chain requirement." });
+                coldChainRequirement = parsedRequirement;
+            }
+
+            var paged = await catalogItemQueryService.SearchAsync(
+                new CatalogItemCollectionQuery(
+                    new PaginationRequest(page, pageSize),
+                    search,
+                    brand,
+                    category,
+                    coldChainRequirement,
+                    active,
+                    createdFrom,
+                    createdTo),
+                cancellationToken);
+            return Ok(paged.Map(CatalogItemResourceFromEntityAssembler.ToResourceFromEntity));
+        }
+
         var catalogItems = await catalogItemQueryService.Handle(new GetAllCatalogItemsQuery(), cancellationToken);
         var resources = catalogItems.Select(CatalogItemResourceFromEntityAssembler.ToResourceFromEntity).ToList();
         if (!includePromotions) return Ok(resources);
@@ -147,4 +183,13 @@ public class CatalogItemsController(
         return deleted ? NoContent() : NotFound();
     }
 
+    private static bool HasCollectionQuery(int? page, int? pageSize, params object?[] filters) =>
+        page.HasValue ||
+        pageSize.HasValue ||
+        filters.Any(filter => filter switch
+        {
+            null => false,
+            string value => !string.IsNullOrWhiteSpace(value),
+            _ => true
+        });
 }

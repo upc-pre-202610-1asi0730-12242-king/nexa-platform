@@ -1,7 +1,10 @@
 using King.Nexa.Platform.Sales.Domain.Model.Entities;
+using King.Nexa.Platform.Sales.Domain.Model.Queries;
 using King.Nexa.Platform.Sales.Domain.Repositories;
+using King.Nexa.Platform.Shared.Application.Pagination;
 using King.Nexa.Platform.Shared.Application.Security;
 using King.Nexa.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
+using King.Nexa.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Queries;
 using Microsoft.EntityFrameworkCore;
 
 namespace King.Nexa.Platform.Sales.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
@@ -26,6 +29,33 @@ public class PurchaseRequestRepository(AppDbContext context, ICurrentWorkspaceCo
             .Where(row => row.Status == "submitted" || row.Status == "buyer_adjustment_requested" || row.Status == "commercially_validated")
             .OrderByDescending(row => row.UpdatedAt ?? row.CreatedAt)
             .ToListAsync(cancellationToken);
+
+    public async Task<PagedResult<PurchaseRequest>> SearchAsync(PurchaseRequestCollectionQuery query, CancellationToken cancellationToken = default)
+    {
+        var requests = ScopedRequests().AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(query.Status))
+            requests = requests.Where(row => row.Status == query.Status.Trim().ToLowerInvariant());
+        if (query.ClientAccountId.HasValue)
+            requests = requests.Where(row => row.ClientAccountId == query.ClientAccountId.Value);
+        if (!string.IsNullOrWhiteSpace(query.Priority))
+            requests = requests.Where(row => row.Priority == query.Priority.Trim().ToLowerInvariant());
+        if (query.CreatedFrom.HasValue)
+            requests = requests.Where(row => row.CreatedAt >= query.CreatedFrom.Value.ToDateTime(TimeOnly.MinValue));
+        if (query.CreatedTo.HasValue)
+            requests = requests.Where(row => row.CreatedAt <= query.CreatedTo.Value.ToDateTime(TimeOnly.MaxValue));
+        if (!string.IsNullOrWhiteSpace(query.Search))
+        {
+            var pattern = $"%{query.Search.Trim()}%";
+            requests = requests.Where(row =>
+                EF.Functions.ILike(row.Code, pattern) ||
+                EF.Functions.ILike(row.Comments, pattern) ||
+                EF.Functions.ILike(row.CommercialOwner, pattern));
+        }
+
+        requests = requests.OrderByDescending(row => row.UpdatedAt ?? row.CreatedAt);
+        return await requests.ToPagedResultAsync(query.Pagination, cancellationToken);
+    }
 
     public void Remove(PurchaseRequest request) => context.PurchaseRequests.Remove(request);
 

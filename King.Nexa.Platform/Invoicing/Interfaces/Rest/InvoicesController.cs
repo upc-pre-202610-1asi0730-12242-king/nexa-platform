@@ -5,6 +5,7 @@ using King.Nexa.Platform.Invoicing.Domain.Model.Queries;
 using King.Nexa.Platform.Invoicing.Domain.Model.ValueObjects;
 using King.Nexa.Platform.Invoicing.Interfaces.Rest.Resources;
 using King.Nexa.Platform.Invoicing.Interfaces.Rest.Transform;
+using King.Nexa.Platform.Shared.Application.Pagination;
 using King.Nexa.Platform.Shared.Infrastructure.Security.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,8 +24,40 @@ public class InvoicesController(IInvoiceCommandService invoiceCommandService, II
     [ProducesResponseType(typeof(IEnumerable<InvoiceResource>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> GetAllInvoices(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllInvoices(
+        [FromQuery] int? page,
+        [FromQuery] int? pageSize,
+        [FromQuery] string? status,
+        [FromQuery] string? paymentStatus,
+        [FromQuery] int? clientAccountId,
+        [FromQuery] int? orderId,
+        [FromQuery] DateOnly? createdFrom,
+        [FromQuery] DateOnly? createdTo,
+        CancellationToken cancellationToken)
     {
+        if (InvoiceControllerQuery.HasCollectionQuery(page, pageSize, status, paymentStatus, clientAccountId, orderId, createdFrom, createdTo))
+        {
+            var requestedStatus = paymentStatus ?? status;
+            PaymentStatus? parsedPaymentStatus = null;
+            if (!string.IsNullOrWhiteSpace(requestedStatus))
+            {
+                if (!Enum.TryParse<PaymentStatus>(requestedStatus, true, out var parsedStatus))
+                    return BadRequest(new { message = "Invalid payment status." });
+                parsedPaymentStatus = parsedStatus;
+            }
+
+            var paged = await invoiceQueryService.SearchAsync(
+                new InvoiceCollectionQuery(
+                    new PaginationRequest(page, pageSize),
+                    parsedPaymentStatus,
+                    clientAccountId,
+                    orderId,
+                    createdFrom,
+                    createdTo),
+                cancellationToken);
+            return Ok(paged.Map(InvoiceResourceFromEntityAssembler.ToResourceFromEntity));
+        }
+
         var invoices = await invoiceQueryService.Handle(new GetAllInvoicesQuery(), cancellationToken);
         return Ok(invoices.Select(InvoiceResourceFromEntityAssembler.ToResourceFromEntity));
     }
@@ -173,3 +206,16 @@ public class InvoicesController(IInvoiceCommandService invoiceCommandService, II
 }
 
 public record ChangeInvoiceStatusResource(string PaymentStatus);
+
+file static class InvoiceControllerQuery
+{
+    public static bool HasCollectionQuery(int? page, int? pageSize, params object?[] filters) =>
+        page.HasValue ||
+        pageSize.HasValue ||
+        filters.Any(filter => filter switch
+        {
+            null => false,
+            string value => !string.IsNullOrWhiteSpace(value),
+            _ => true
+        });
+}

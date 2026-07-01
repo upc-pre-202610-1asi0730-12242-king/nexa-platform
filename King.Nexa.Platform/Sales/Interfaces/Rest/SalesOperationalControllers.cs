@@ -2,10 +2,12 @@ using King.Nexa.Platform.Sales.Application.CommandServices;
 using King.Nexa.Platform.Sales.Application.QueryServices;
 using King.Nexa.Platform.Sales.Domain.Model.Aggregates;
 using King.Nexa.Platform.Sales.Domain.Model.Commands;
+using King.Nexa.Platform.Sales.Domain.Model.Queries;
 using King.Nexa.Platform.Sales.Domain.Model.Entities;
 using King.Nexa.Platform.Sales.Domain.Model.ValueObjects;
 using King.Nexa.Platform.Sales.Interfaces.Rest.Resources;
 using King.Nexa.Platform.Sales.Interfaces.Rest.Transform;
+using King.Nexa.Platform.Shared.Application.Pagination;
 using King.Nexa.Platform.Shared.Infrastructure.Security.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,8 +23,32 @@ public class PurchaseRequestsController(
 {
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<PurchaseRequestResource>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<PurchaseRequestResource>>> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll(
+        [FromQuery] int? page,
+        [FromQuery] int? pageSize,
+        [FromQuery] string? status,
+        [FromQuery] int? clientAccountId,
+        [FromQuery] string? priority,
+        [FromQuery] string? search,
+        [FromQuery] DateOnly? createdFrom,
+        [FromQuery] DateOnly? createdTo,
+        CancellationToken cancellationToken)
     {
+        if (HasCollectionQuery(page, pageSize, status, clientAccountId, priority, search, createdFrom, createdTo))
+        {
+            var paged = await queryService.SearchAsync(
+                new PurchaseRequestCollectionQuery(
+                    new PaginationRequest(page, pageSize),
+                    status,
+                    clientAccountId,
+                    priority,
+                    search,
+                    createdFrom,
+                    createdTo),
+                cancellationToken);
+            return Ok(paged.Map(PurchaseRequestResourceAssembler.ToResourceFromEntity));
+        }
+
         var requests = await queryService.ListAsync(cancellationToken);
         return Ok(requests.Select(PurchaseRequestResourceAssembler.ToResourceFromEntity));
     }
@@ -178,6 +204,16 @@ public class PurchaseRequestsController(
             return BadRequest(ex.Message);
         }
     }
+
+    private static bool HasCollectionQuery(int? page, int? pageSize, params object?[] filters) =>
+        page.HasValue ||
+        pageSize.HasValue ||
+        filters.Any(filter => filter switch
+        {
+            null => false,
+            string value => !string.IsNullOrWhiteSpace(value),
+            _ => true
+        });
 }
 
 [ApiController]

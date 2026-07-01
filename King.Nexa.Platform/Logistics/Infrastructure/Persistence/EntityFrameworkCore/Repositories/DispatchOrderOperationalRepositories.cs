@@ -1,9 +1,12 @@
 using King.Nexa.Platform.Invoicing.Domain.Model.Entities;
 using King.Nexa.Platform.Logistics.Domain.Model.Entities;
+using King.Nexa.Platform.Logistics.Domain.Model.Queries;
 using King.Nexa.Platform.Logistics.Domain.Repositories;
 using King.Nexa.Platform.Sales.Domain.Model.Entities;
+using King.Nexa.Platform.Shared.Application.Pagination;
 using King.Nexa.Platform.Shared.Application.Security;
 using King.Nexa.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
+using King.Nexa.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Queries;
 using Microsoft.EntityFrameworkCore;
 
 namespace King.Nexa.Platform.Logistics.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
@@ -21,6 +24,25 @@ public class DispatchOrderRepository(AppDbContext context, ICurrentWorkspaceCont
             .AsNoTracking()
             .OrderByDescending(row => row.UpdatedAt ?? row.CreatedAt)
             .ToListAsync(cancellationToken);
+
+    public async Task<PagedResult<DispatchOrder>> SearchAsync(DispatchOrderCollectionQuery query, CancellationToken cancellationToken = default)
+    {
+        var dispatches = Scoped().AsNoTracking();
+
+        if (!string.IsNullOrWhiteSpace(query.Status))
+            dispatches = dispatches.Where(row => row.Status == query.Status.Trim().ToLowerInvariant());
+        if (query.ClientAccountId.HasValue)
+            dispatches = dispatches.Where(row => row.ClientAccountId == query.ClientAccountId.Value);
+        if (query.OrderId.HasValue)
+            dispatches = dispatches.Where(row => row.OrderId == query.OrderId.Value);
+        if (query.CreatedFrom.HasValue)
+            dispatches = dispatches.Where(row => row.CreatedAt >= query.CreatedFrom.Value.ToDateTime(TimeOnly.MinValue));
+        if (query.CreatedTo.HasValue)
+            dispatches = dispatches.Where(row => row.CreatedAt <= query.CreatedTo.Value.ToDateTime(TimeOnly.MaxValue));
+
+        dispatches = dispatches.OrderByDescending(row => row.UpdatedAt ?? row.CreatedAt);
+        return await dispatches.ToPagedResultAsync(query.Pagination, cancellationToken);
+    }
 
     public void Remove(DispatchOrder dispatch) => context.DispatchOrders.Remove(dispatch);
 

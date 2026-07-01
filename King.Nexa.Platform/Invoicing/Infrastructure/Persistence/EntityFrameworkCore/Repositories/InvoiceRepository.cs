@@ -1,8 +1,11 @@
 using King.Nexa.Platform.Invoicing.Domain.Model.Aggregates;
+using King.Nexa.Platform.Invoicing.Domain.Model.Queries;
 using King.Nexa.Platform.Invoicing.Domain.Model.ValueObjects;
 using King.Nexa.Platform.Invoicing.Domain.Repositories;
+using King.Nexa.Platform.Shared.Application.Pagination;
 using King.Nexa.Platform.Shared.Application.Security;
 using King.Nexa.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
+using King.Nexa.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Queries;
 using King.Nexa.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,6 +27,28 @@ public class InvoiceRepository(AppDbContext context, ICurrentWorkspaceContext wo
 
     public async Task<IEnumerable<Invoice>> ListByPaymentStatusAsync(PaymentStatus paymentStatus, CancellationToken cancellationToken = default) =>
         await Scoped().Where(invoice => invoice.PaymentStatus == paymentStatus).ToListAsync(cancellationToken);
+
+    public async Task<PagedResult<Invoice>> SearchAsync(InvoiceCollectionQuery query, CancellationToken cancellationToken = default)
+    {
+        var invoices = Scoped().AsNoTracking();
+
+        if (query.PaymentStatus.HasValue)
+            invoices = invoices.Where(invoice => invoice.PaymentStatus == query.PaymentStatus.Value);
+        if (query.OrderId.HasValue)
+            invoices = invoices.Where(invoice => invoice.OrderId == query.OrderId.Value);
+        if (query.ClientAccountId.HasValue)
+            invoices = invoices.Where(invoice => Context.Orders.Any(order =>
+                order.TenantId == invoice.TenantId &&
+                order.Id == invoice.OrderId &&
+                order.ClientAccountId == query.ClientAccountId.Value));
+        if (query.CreatedFrom.HasValue)
+            invoices = invoices.Where(invoice => invoice.CreatedAt >= query.CreatedFrom.Value.ToDateTime(TimeOnly.MinValue));
+        if (query.CreatedTo.HasValue)
+            invoices = invoices.Where(invoice => invoice.CreatedAt <= query.CreatedTo.Value.ToDateTime(TimeOnly.MaxValue));
+
+        invoices = invoices.OrderByDescending(invoice => invoice.CreatedAt);
+        return await invoices.ToPagedResultAsync(query.Pagination, cancellationToken);
+    }
 
     private IQueryable<Invoice> Scoped()
     {

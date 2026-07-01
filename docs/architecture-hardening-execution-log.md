@@ -20,6 +20,7 @@
 - Baseline setup: completed.
 - Initial validation: completed.
 - Phase 1 REST API consistency: completed for the safest high-impact compatibility routes.
+- Phase 2 optional pagination and filtering: completed for orders, purchase requests, catalog items, invoices, payments, dispatch orders, and inventory items.
 - Phase 4 multi-tenancy hardening: completed safe interface/guard/helper scope without global EF filters.
 - Phase 6 design pattern cleanup: completed safe domain-event foundation without activating partial event workflow.
 - Phase 7 database hardening: completed safe query indexes and validation documentation.
@@ -37,6 +38,10 @@
 - `King.Nexa.Platform/Warehouse/Domain/Repositories/IInventoryOperationsCommandRepository.cs`: added tenant-scoped active reservation lookup by item and code.
 - `King.Nexa.Platform/Warehouse/Infrastructure/Persistence/EntityFrameworkCore/Repositories/InventoryOperationsCommandRepository.cs`: implemented tenant-scoped active reservation lookup.
 - `docs/api-rest-conventions.md`: documented canonical resources, compatibility aliases, collection filters, errors, and tenant scope.
+- `King.Nexa.Platform/Shared/Application/Pagination/*`: added reusable `PaginationRequest` and `PagedResult<T>` contracts.
+- `King.Nexa.Platform/Shared/Infrastructure/Persistence/EntityFrameworkCore/Queries/PagedQueryableExtensions.cs`: added EF-backed paged query execution.
+- Main collection query contracts and repository methods: added optional filtering/pagination for orders, purchase requests, catalog items, invoices, payments, dispatch orders, and inventory items.
+- Main collection controllers: preserved unpaged array responses and added paged envelopes when `page`, `pageSize`, or supported filters are provided.
 - `King.Nexa.Platform/Shared/Domain/Model/Entities/ITenantScoped.cs`: added tenant-scoped marker contract.
 - `King.Nexa.Platform/Shared/Infrastructure/Persistence/EntityFrameworkCore/Repositories/BaseRepository.cs`: added fail-closed generic read guard for tenant-scoped entities.
 - `King.Nexa.Platform/Shared/Infrastructure/Persistence/EntityFrameworkCore/Repositories/TenantScopedQueryableExtensions.cs`: added reusable tenant-scoping query helper.
@@ -63,13 +68,18 @@
 - `nexa-platform/ngrok.yml` is an untracked local file containing a real local tunnel token and was intentionally excluded from the baseline commit.
 - The current objective asks for broad hardening. Changes must remain additive, non-destructive, and compatible with current Buyer, Sales, Logistics, and Owner flows.
 - Docker publish reports `NU1903` for `Microsoft.OpenApi` 2.4.1. The package was not upgraded in this pass because dependency changes need an explicit approval window.
-- The full architecture objective is larger than one safe pass. Backend role-specific read-model endpoints, pagination contracts, outbox dispatching, and broader facade extraction remain planned work.
+- The full architecture objective is larger than one safe pass. Backend role-specific read-model endpoint implementation, outbox dispatching, and broader facade extraction remain planned work.
 
 ## Validation After Current Phase
 
 - Backend restore/build/test and frontend production build passed before implementation changes.
 - After Phase 1: `dotnet build nexa-platform.sln --no-restore` passed with 0 warnings and 0 errors.
 - After Phase 1: `dotnet test nexa-platform.sln --no-build` passed with 40/40 tests.
+- After Phase 2 pagination: `dotnet build nexa-platform.sln --no-restore` passed with 0 warnings and 0 errors.
+- After Phase 2 pagination: `dotnet test nexa-platform.sln --no-build` passed with 40/40 tests.
+- After Phase 2 pagination: `docker compose -f docker-compose.yml up -d --build api` passed; Docker publish still reports `Microsoft.OpenApi` NU1903.
+- After Phase 2 pagination: paged requests for `/orders`, `/purchase-requests`, `/catalog-items`, `/invoices`, `/payments`, `/dispatch-orders`, and `/inventory-items` returned 200 with `items`, `page`, and `totalItems`.
+- After Phase 2 pagination: unpaged legacy requests for the same seven endpoints returned 200 and array responses.
 - After Phase 4 safe hardening: `dotnet build nexa-platform.sln --no-restore` passed with 0 warnings and 0 errors.
 - After Phase 4 safe hardening: `dotnet test nexa-platform.sln --no-build` passed with 40/40 tests.
 - After Phase 6 foundation: `dotnet build nexa-platform.sln --no-restore` passed with 0 warnings and 0 errors.

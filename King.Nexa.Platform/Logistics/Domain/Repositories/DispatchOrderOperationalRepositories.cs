@@ -1,4 +1,6 @@
 using King.Nexa.Platform.Logistics.Domain.Model.Entities;
+using King.Nexa.Platform.Logistics.Domain.Model.Queries;
+using King.Nexa.Platform.Shared.Application.Pagination;
 
 namespace King.Nexa.Platform.Logistics.Domain.Repositories;
 
@@ -7,6 +9,7 @@ public interface IDispatchOrderRepository
     Task AddAsync(DispatchOrder dispatch, CancellationToken cancellationToken = default);
     Task<DispatchOrder?> FindByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<IEnumerable<DispatchOrder>> ListAsync(CancellationToken cancellationToken = default);
+    Task<PagedResult<DispatchOrder>> SearchAsync(DispatchOrderCollectionQuery query, CancellationToken cancellationToken = default);
     void Remove(DispatchOrder dispatch);
     Task AddEventAsync(DispatchEvent dispatchEvent, CancellationToken cancellationToken = default);
     Task<DispatchTrackingRecordSet> GetTrackingByOrderAsync(int orderId, CancellationToken cancellationToken = default);

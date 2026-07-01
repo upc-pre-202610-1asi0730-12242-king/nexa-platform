@@ -5,6 +5,7 @@ using King.Nexa.Platform.Warehouse.Domain.Model.Queries;
 using King.Nexa.Platform.Warehouse.Domain.Model.ValueObjects;
 using King.Nexa.Platform.Warehouse.Interfaces.Rest.Resources;
 using King.Nexa.Platform.Warehouse.Interfaces.Rest.Transform;
+using King.Nexa.Platform.Shared.Application.Pagination;
 using King.Nexa.Platform.Shared.Infrastructure.Security.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,8 +24,26 @@ public class InventoryItemsController(
     /// Gets all inventory items.
     /// </summary>
     [HttpGet]
-    public async Task<IActionResult> GetAllInventoryItems(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllInventoryItems(
+        [FromQuery] int? page,
+        [FromQuery] int? pageSize,
+        [FromQuery] string? search,
+        [FromQuery] string? productId,
+        [FromQuery] int? warehouseId,
+        CancellationToken cancellationToken)
     {
+        if (HasCollectionQuery(page, pageSize, search, productId, warehouseId))
+        {
+            var paged = await inventoryItemQueryService.SearchAsync(
+                new InventoryItemCollectionQuery(
+                    new PaginationRequest(page, pageSize),
+                    search,
+                    productId,
+                    warehouseId),
+                cancellationToken);
+            return Ok(paged.Map(InventoryItemResourceFromEntityAssembler.ToResourceFromEntity));
+        }
+
         var items = await inventoryItemQueryService.Handle(new GetAllInventoryItemsQuery(), cancellationToken);
         return Ok(items.Select(InventoryItemResourceFromEntityAssembler.ToResourceFromEntity));
     }
@@ -136,4 +155,14 @@ public class InventoryItemsController(
         if (item is null) return NotFound();
         return Ok(InventoryItemResourceFromEntityAssembler.ToResourceFromEntity(item));
     }
+
+    private static bool HasCollectionQuery(int? page, int? pageSize, params object?[] filters) =>
+        page.HasValue ||
+        pageSize.HasValue ||
+        filters.Any(filter => filter switch
+        {
+            null => false,
+            string value => !string.IsNullOrWhiteSpace(value),
+            _ => true
+        });
 }

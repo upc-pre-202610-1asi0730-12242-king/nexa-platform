@@ -4,6 +4,7 @@ using King.Nexa.Platform.CatalogManagement.Domain.Model.Aggregates;
 using King.Nexa.Platform.CatalogManagement.Domain.Model.Queries;
 using King.Nexa.Platform.CatalogManagement.Domain.Model.ValueObjects;
 using King.Nexa.Platform.CatalogManagement.Domain.Repositories;
+using King.Nexa.Platform.Shared.Application.Pagination;
 
 namespace King.Nexa.Platform.CatalogManagement.Application.Internal.QueryServices;
 
@@ -35,4 +36,7 @@ public class CatalogItemQueryService(ICatalogItemRepository catalogItemRepositor
 
     public async Task<IEnumerable<CatalogItem>> Handle(GetCatalogItemsByColdChainRequirementQuery query, CancellationToken cancellationToken = default) =>
         await catalogItemRepository.ListByColdChainRequirementAsync(query.ColdChainRequirement, cancellationToken);
+
+    public Task<PagedResult<CatalogItem>> SearchAsync(CatalogItemCollectionQuery query, CancellationToken cancellationToken = default) =>
+        catalogItemRepository.SearchAsync(query, cancellationToken);
 }

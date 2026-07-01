@@ -1,8 +1,10 @@
 using King.Nexa.Platform.Logistics.Application.CommandServices;
 using King.Nexa.Platform.Logistics.Application.QueryServices;
 using King.Nexa.Platform.Logistics.Domain.Model.Entities;
+using King.Nexa.Platform.Logistics.Domain.Model.Queries;
 using King.Nexa.Platform.Logistics.Interfaces.Rest.Resources;
 using King.Nexa.Platform.Logistics.Interfaces.Rest.Transform;
+using King.Nexa.Platform.Shared.Application.Pagination;
 using King.Nexa.Platform.Shared.Infrastructure.Security.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,16 +20,38 @@ public class DispatchOrdersController(
 {
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<DispatchOrderResource>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<DispatchOrderResource>>> GetAll(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAll(
+        [FromQuery] int? page,
+        [FromQuery] int? pageSize,
+        [FromQuery] string? status,
+        [FromQuery] int? clientAccountId,
+        [FromQuery] int? orderId,
+        [FromQuery] DateOnly? createdFrom,
+        [FromQuery] DateOnly? createdTo,
+        CancellationToken cancellationToken)
     {
+        if (HasCollectionQuery(page, pageSize, status, clientAccountId, orderId, createdFrom, createdTo))
+        {
+            var paged = await queryService.SearchAsync(
+                new DispatchOrderCollectionQuery(
+                    new PaginationRequest(page, pageSize),
+                    status,
+                    clientAccountId,
+                    orderId,
+                    createdFrom,
+                    createdTo),
+                cancellationToken);
+            return Ok(paged.Map(DispatchOrderResourceAssembler.ToResourceFromEntity));
+        }
+
         var dispatches = await queryService.ListAsync(cancellationToken);
         return Ok(dispatches.Select(DispatchOrderResourceAssembler.ToResourceFromEntity));
     }
 
     [HttpGet("by-tenant/{tenantId:int}")]
     [ProducesResponseType(typeof(IEnumerable<DispatchOrderResource>), StatusCodes.Status200OK)]
-    public Task<ActionResult<IEnumerable<DispatchOrderResource>>> GetByTenant(int tenantId, CancellationToken cancellationToken) =>
-        GetAll(cancellationToken);
+    public async Task<IActionResult> GetByTenant(int tenantId, CancellationToken cancellationToken) =>
+        await GetAll(null, null, null, null, null, null, null, cancellationToken);
 
     [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(DispatchOrderResource), StatusCodes.Status200OK)]
@@ -185,6 +209,16 @@ public class DispatchOrdersController(
         var dispatch = await commandService.ChangeStatusAsync(id, resource.Status, resource.Note ?? $"Dispatch status changed to {resource.Status}.", resource.VisibleToBuyer ?? true, cancellationToken);
         return dispatch is null ? NotFound() : Ok(DispatchOrderResourceAssembler.ToResourceFromEntity(dispatch));
     }
+
+    private static bool HasCollectionQuery(int? page, int? pageSize, params object?[] filters) =>
+        page.HasValue ||
+        pageSize.HasValue ||
+        filters.Any(filter => filter switch
+        {
+            null => false,
+            string value => !string.IsNullOrWhiteSpace(value),
+            _ => true
+        });
 }
 
 [ApiController]

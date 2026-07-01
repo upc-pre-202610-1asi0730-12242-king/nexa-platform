@@ -1,5 +1,7 @@
 using King.Nexa.Platform.Sales.Domain.Model.Aggregates;
 using King.Nexa.Platform.Sales.Domain.Model.ValueObjects;
+using King.Nexa.Platform.Shared.Application.Pagination;
+using King.Nexa.Platform.Sales.Domain.Model.Queries;
 using King.Nexa.Platform.Shared.Domain.Repositories;
 
 namespace King.Nexa.Platform.Sales.Domain.Repositories;
@@ -17,4 +19,6 @@ public interface IOrderRepository : IBaseRepository<Order>
     Task<IEnumerable<Order>> ListByCustomerIdAsync(CustomerId customerId, CancellationToken cancellationToken = default);
 
     Task<IEnumerable<Order>> ListByStatusAsync(OrderStatus status, CancellationToken cancellationToken = default);
+
+    Task<PagedResult<Order>> SearchAsync(OrderCollectionQuery query, CancellationToken cancellationToken = default);
 }

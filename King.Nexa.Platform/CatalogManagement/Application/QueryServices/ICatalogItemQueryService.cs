@@ -1,5 +1,6 @@
 using King.Nexa.Platform.CatalogManagement.Domain.Model.Aggregates;
 using King.Nexa.Platform.CatalogManagement.Domain.Model.Queries;
+using King.Nexa.Platform.Shared.Application.Pagination;
 
 namespace King.Nexa.Platform.CatalogManagement.Application.QueryServices;
 
@@ -25,4 +26,6 @@ public interface ICatalogItemQueryService
     Task<IEnumerable<CatalogItem>> Handle(GetCatalogItemsByBrandNameQuery query, CancellationToken cancellationToken = default);
 
     Task<IEnumerable<CatalogItem>> Handle(GetCatalogItemsByColdChainRequirementQuery query, CancellationToken cancellationToken = default);
+
+    Task<PagedResult<CatalogItem>> SearchAsync(CatalogItemCollectionQuery query, CancellationToken cancellationToken = default);
 }

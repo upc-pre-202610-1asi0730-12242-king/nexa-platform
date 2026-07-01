@@ -35,6 +35,7 @@ public static class InvoicingServiceCollectionExtensions
         services.AddScoped<INotificationRecordCommandService, NotificationRecordCommandService>();
         services.AddScoped<INotificationRecordQueryService, NotificationRecordQueryService>();
         services.AddScoped<IOrderDocumentProvisioner, SalesOrderDocumentProvisioner>();
+        services.AddScoped<IStripePaymentPreparationService, StripePaymentPreparationService>();
 
         return services;
     }

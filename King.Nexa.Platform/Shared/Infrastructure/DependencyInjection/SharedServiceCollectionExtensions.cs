@@ -45,6 +45,13 @@ public static class SharedServiceCollectionExtensions
                 _ => { });
         services.AddAuthorization(options =>
         {
+            var authenticatedPolicy = new AuthorizationPolicyBuilder(NexaAuthenticationConstants.Scheme)
+                .RequireAuthenticatedUser()
+                .Build();
+
+            options.DefaultPolicy = authenticatedPolicy;
+            options.FallbackPolicy = authenticatedPolicy;
+
             options.AddPolicy(NexaAuthorizationPolicies.WorkspaceMember, policy =>
                 policy.RequireAuthenticatedUser()
                     .RequireClaim("tenant_id")

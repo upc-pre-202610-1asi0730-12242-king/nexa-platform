@@ -1,13 +1,24 @@
 using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 using King.Nexa.Platform.CatalogManagement.Interfaces.Rest;
+using King.Nexa.Platform.Iam.Interfaces.Rest;
+using King.Nexa.Platform.Invoicing.Infrastructure.Integration;
 using King.Nexa.Platform.Invoicing.Interfaces.Rest;
 using King.Nexa.Platform.Logistics.Interfaces.Rest;
 using King.Nexa.Platform.Sales.Interfaces.Rest;
+using King.Nexa.Platform.Shared.Infrastructure.DependencyInjection;
 using King.Nexa.Platform.Shared.Infrastructure.Security.Authorization;
 using King.Nexa.Platform.Shared.Interfaces.Rest;
+using King.Nexa.Platform.TenantManagement.Interfaces.Rest;
 using King.Nexa.Platform.Warehouse.Interfaces.Rest;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 
 namespace King.Nexa.Platform.Tests;
 
@@ -22,12 +33,99 @@ public class ApiSurfaceHardeningTests
     [InlineData(typeof(ShipmentsController))]
     [InlineData(typeof(InvoicesController))]
     [InlineData(typeof(PaymentsController))]
+    [InlineData(typeof(StripePaymentsController))]
     public void Critical_workspace_controllers_require_membership(Type controllerType)
     {
         var attribute = controllerType.GetCustomAttribute<AuthorizeAttribute>();
 
         Assert.NotNull(attribute);
         Assert.Equal(NexaAuthorizationPolicies.WorkspaceMember, attribute.Policy);
+    }
+
+    [Fact]
+    public void Authorization_has_authenticated_fallback_policy()
+    {
+        var services = new ServiceCollection();
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["Jwt:Issuer"] = "nexa-platform-tests",
+                ["Jwt:Audience"] = "nexa-webapp-tests",
+                ["Jwt:SigningKey"] = "test-signing-key-with-more-than-thirty-two-characters",
+                ["ConnectionStrings:DefaultConnection"] = "Host=localhost;Database=nexa_test;Username=nexa;Password=nexa"
+            })
+            .Build();
+
+        services.AddLogging();
+        services.AddSharedInfrastructure(configuration);
+
+        using var provider = services.BuildServiceProvider();
+        var options = provider.GetRequiredService<IOptions<AuthorizationOptions>>().Value;
+
+        Assert.NotNull(options.DefaultPolicy);
+        Assert.NotNull(options.FallbackPolicy);
+        Assert.Contains(options.FallbackPolicy.Requirements, requirement => requirement is DenyAnonymousAuthorizationRequirement);
+    }
+
+    [Fact]
+    public void Only_documented_controller_actions_are_public()
+    {
+        var allowedPublicActions = new HashSet<string>(StringComparer.Ordinal)
+        {
+            $"{typeof(AuthenticationController).FullName}.{nameof(AuthenticationController.SignIn)}",
+            $"{typeof(OrganizationRegistrationsController).FullName}.{nameof(OrganizationRegistrationsController.Create)}",
+            $"{typeof(TenantsController).FullName}.{nameof(TenantsController.GetBySlug)}",
+            $"{typeof(StripePaymentsController).FullName}.{nameof(StripePaymentsController.Webhook)}"
+        };
+
+        var publicActions = typeof(PaymentsController).Assembly.GetTypes()
+            .Where(type => typeof(ControllerBase).IsAssignableFrom(type) && type.Name.EndsWith("Controller", StringComparison.Ordinal))
+            .SelectMany(type => type.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly)
+                .Where(method => method.GetCustomAttributes<HttpMethodAttribute>().Any())
+                .Where(method =>
+                    method.GetCustomAttribute<AllowAnonymousAttribute>() is not null ||
+                    type.GetCustomAttribute<AllowAnonymousAttribute>() is not null)
+                .Select(method => $"{type.FullName}.{method.Name}"))
+            .OrderBy(name => name)
+            .ToArray();
+
+        Assert.Equal(allowedPublicActions.OrderBy(name => name), publicActions);
+    }
+
+    [Fact]
+    public void Authentication_sign_up_is_not_public_by_default()
+    {
+        var method = typeof(AuthenticationController).GetMethod(nameof(AuthenticationController.SignUp));
+
+        Assert.NotNull(method);
+        Assert.Null(method.GetCustomAttribute<AllowAnonymousAttribute>());
+    }
+
+    [Fact]
+    public void Sales_read_models_require_sales_policy()
+    {
+        var attribute = typeof(SalesReadModelsController).GetCustomAttribute<AuthorizeAttribute>();
+
+        Assert.NotNull(attribute);
+        Assert.Equal(NexaAuthorizationPolicies.CanAcceptPurchaseRequest, attribute.Policy);
+    }
+
+    [Fact]
+    public async Task Stripe_webhook_signature_verification_requires_valid_signature()
+    {
+        const string secret = "whsec_test_secret";
+        const string payload = "{\"id\":\"evt_test\"}";
+        var timestamp = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var validSignature = ComputeHmacSha256Hex(secret, $"{timestamp}.{payload}");
+        var service = new StripePaymentPreparationService(new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["Stripe:WebhookSecret"] = secret
+            })
+            .Build());
+
+        Assert.True(await service.VerifyWebhookSignatureAsync(payload, $"t={timestamp},v1={validSignature}"));
+        Assert.False(await service.VerifyWebhookSignatureAsync(payload, $"t={timestamp},v1=invalid"));
     }
 
     [Fact]
@@ -149,4 +247,10 @@ public class ApiSurfaceHardeningTests
         controllerType.GetCustomAttributes().Any(attribute =>
             attribute.GetType().Namespace == "System" &&
             attribute.GetType().Name == ((char)79) + "bsolete" + "Attribute");
+
+    private static string ComputeHmacSha256Hex(string secret, string payload)
+    {
+        var hash = HMACSHA256.HashData(Encoding.UTF8.GetBytes(secret), Encoding.UTF8.GetBytes(payload));
+        return Convert.ToHexString(hash).ToLowerInvariant();
+    }
 }

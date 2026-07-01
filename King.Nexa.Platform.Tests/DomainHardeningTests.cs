@@ -37,6 +37,24 @@ public class DomainHardeningTests
     }
 
     [Fact]
+    public void Dispatch_can_start_preparation_from_operations_queue()
+    {
+        var dispatch = new DispatchOrder { Status = "ready_for_operations" };
+
+        dispatch.ChangeStatus("preparing");
+
+        Assert.Equal("preparing", dispatch.Status);
+    }
+
+    [Fact]
+    public void Dispatch_cannot_restart_preparation_after_delivery()
+    {
+        var dispatch = new DispatchOrder { Status = "delivered" };
+
+        Assert.Throws<InvalidOperationException>(() => dispatch.ChangeStatus("preparing"));
+    }
+
+    [Fact]
     public void Inventory_reservation_rejects_negative_quantity()
     {
         Assert.Throws<ArgumentException>(() => new InventoryReservation("RES-001", -1));

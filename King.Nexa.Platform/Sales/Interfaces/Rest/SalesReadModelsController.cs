@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace King.Nexa.Platform.Sales.Interfaces.Rest;
 
 [ApiController]
-[Authorize(Policy = NexaAuthorizationPolicies.WorkspaceMember)]
+[Authorize(Policy = NexaAuthorizationPolicies.CanAcceptPurchaseRequest)]
 [Route("api/v1/sales")]
 public class SalesReadModelsController(IWorkspaceReadModelQueryService readModels) : ControllerBase
 {

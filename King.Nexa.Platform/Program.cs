@@ -72,6 +72,18 @@ if (!string.IsNullOrWhiteSpace(jwtAudience))
     builder.Configuration["Jwt:Audience"] = jwtAudience;
 }
 
+var stripeSecretKey = Environment.GetEnvironmentVariable("STRIPE_SECRET_KEY");
+if (!string.IsNullOrWhiteSpace(stripeSecretKey))
+{
+    builder.Configuration["Stripe:SecretKey"] = stripeSecretKey;
+}
+
+var stripeWebhookSecret = Environment.GetEnvironmentVariable("STRIPE_WEBHOOK_SECRET");
+if (!string.IsNullOrWhiteSpace(stripeWebhookSecret))
+{
+    builder.Configuration["Stripe:WebhookSecret"] = stripeWebhookSecret;
+}
+
 const string frontendCorsPolicy = "AllowFrontend";
 
 builder.Services.AddRouting(options => options.LowercaseUrls = true);
@@ -214,7 +226,7 @@ app.MapGet("/health/ready", async (AppDbContext context, CancellationToken cance
     return canConnect
         ? Results.Ok(new { status = "Healthy" })
         : Results.Problem("Database is not reachable.", statusCode: StatusCodes.Status503ServiceUnavailable);
-}).AllowAnonymous();
+});
 
 app.Run();
 

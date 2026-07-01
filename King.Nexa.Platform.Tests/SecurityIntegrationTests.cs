@@ -138,6 +138,7 @@ public class SecurityIntegrationTests
 
         var buyerSession = await SignInAsync(client, "buyer@icisa.pe");
         UseSession(client, buyerSession, buyerSession.TenantId);
+        Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync("/api/v1/sales/order-summaries")).StatusCode);
         var buyerClients = await client.GetStringAsync("/api/v1/clients");
         Assert.Contains("Buyer assigned client", buyerClients, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("Buyer unassigned client", buyerClients, StringComparison.OrdinalIgnoreCase);
@@ -214,6 +215,10 @@ public class SecurityIntegrationTests
         using var genericStatusEscalationJson = JsonDocument.Parse(await genericStatusEscalation.Content.ReadAsStringAsync());
         Assert.Equal("submitted", genericStatusEscalationJson.RootElement.GetProperty("status").GetString());
         Assert.Equal(seed.TenantAClientId, genericStatusEscalationJson.RootElement.GetProperty("clientAccountId").GetInt32());
+
+        var logisticsSession = await SignInAsync(client, "logistics@icisa.pe");
+        UseSession(client, logisticsSession, logisticsSession.TenantId);
+        Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync("/api/v1/organization-registrations")).StatusCode);
 
         UseSession(client, session, session.TenantId);
         client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
@@ -392,6 +397,23 @@ public class SecurityIntegrationTests
             Status = "active",
             PortalAccess = true,
             ClientAccountId = tenantAClient.Id
+        });
+
+        var logistics = new User(
+            "logistics@icisa.pe",
+            "logistics@icisa.pe",
+            passwordHashing.HashPassword("Password123!"),
+            "Logistics Manager");
+        await db.Users.AddAsync(logistics);
+        await db.SaveChangesAsync();
+        await db.UserWorkspaceMemberships.AddAsync(new UserWorkspaceMembership
+        {
+            TenantId = tenantA.Id,
+            WorkspaceId = workspace.Id,
+            UserId = logistics.Id,
+            Email = logistics.Email,
+            Role = "Logistics Manager",
+            Status = "active"
         });
 
         var otherUser = new User(

@@ -7,6 +7,7 @@ public class DispatchOrder : AuditableEntity, ITenantScoped
     private static readonly HashSet<string> AllowedStatuses = new(StringComparer.OrdinalIgnoreCase)
     {
         "ready_for_operations",
+        "preparing",
         "assigned",
         "scheduled",
         "ready_for_route",
@@ -51,6 +52,9 @@ public class DispatchOrder : AuditableEntity, ITenantScoped
         if (string.IsNullOrWhiteSpace(status)) throw new ArgumentException("Dispatch status is required.", nameof(status));
         switch (status.Trim().ToLowerInvariant())
         {
+            case "preparing":
+                StartPreparation();
+                break;
             case "in_route":
                 StartRoute();
                 break;
@@ -64,6 +68,13 @@ public class DispatchOrder : AuditableEntity, ITenantScoped
                 SetStatus(status);
                 break;
         }
+    }
+
+    public void StartPreparation()
+    {
+        if (Status != "ready_for_operations")
+            throw new InvalidOperationException("Dispatch preparation can only start from the operations queue.");
+        SetStatus("preparing");
     }
 
     public void StartRoute()

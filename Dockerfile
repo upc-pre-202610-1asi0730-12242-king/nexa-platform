@@ -17,5 +17,7 @@ WORKDIR /app
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 COPY --from=build /app/publish .
+RUN mkdir -p /var/nexa/dataprotection-keys /app/storage \
+    && chown -R $APP_UID:0 /var/nexa /app/storage
 USER $APP_UID
 ENTRYPOINT ["dotnet", "King.Nexa.Platform.dll"]

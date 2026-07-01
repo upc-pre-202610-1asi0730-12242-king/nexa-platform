@@ -4,7 +4,7 @@
 
 - Runtime: Docker
 - Dockerfile: `./Dockerfile`
-- Health check path: `/health`
+- Health check path: `/health/live`
 - Internal port: `8080`
 
 The application also supports Render `PORT`; if `ASPNETCORE_URLS` is not set, startup binds to `http://0.0.0.0:${PORT}`.
@@ -17,6 +17,8 @@ The application also supports Render `PORT`; if `ASPNETCORE_URLS` is not set, st
 - `NEXA_JWT_ISSUER=nexa-platform`
 - `NEXA_JWT_AUDIENCE=nexa-webapp`
 - `CORS_ALLOWED_ORIGINS=<frontend origin list>`
+- `STRIPE_SECRET_KEY=<backend Stripe secret key>`
+- `STRIPE_WEBHOOK_SECRET=<Stripe webhook signing secret>`
 
 `DATABASE_URL` is also supported and normalized at startup when `ConnectionStrings__DefaultConnection` is not provided.
 
@@ -35,11 +37,11 @@ Production defaults should be:
 
 ## Health Checks
 
-- `/health`: aggregate ASP.NET health endpoint.
+- `/health`: aggregate ASP.NET health endpoint; authenticated by default.
 - `/health/live`: process liveness, no database requirement.
-- `/health/ready`: database readiness through EF connectivity.
+- `/health/ready`: database readiness through EF connectivity; authenticated by default.
 
-Use `/health/ready` for deployment verification after the database is attached.
+Use `/health/live` for unauthenticated deployment liveness checks. Use `/health/ready` for authenticated deployment verification after the database is attached.
 
 ## Migration Strategy
 

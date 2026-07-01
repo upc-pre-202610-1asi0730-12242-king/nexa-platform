@@ -22,6 +22,7 @@
 - Phase 1 REST API consistency: completed for the safest high-impact compatibility routes.
 - Phase 4 multi-tenancy hardening: completed safe interface/guard/helper scope without global EF filters.
 - Phase 6 design pattern cleanup: completed safe domain-event foundation without activating partial event workflow.
+- Phase 7 database hardening: completed safe query indexes and validation documentation.
 
 ## Files Changed
 
@@ -40,6 +41,11 @@
 - `docs/multi-tenancy-hardening-plan.md`: documented deferred global-filter rollout and validation sequence.
 - `King.Nexa.Platform/Shared/Domain/Model/Events/*`: added domain event contracts and in-memory aggregate event container.
 - `docs/domain-events-outbox-foundation.md`: documented outbox/event candidates and rollout guardrails.
+- `King.Nexa.Platform/*/Infrastructure/Persistence/EntityFrameworkCore/Configuration/Extensions/ModelBuilderExtensions.cs`: added safe tenant-scoped query indexes for orders, requests, dispatches, invoices, payments, and catalog filters.
+- `King.Nexa.Platform/Migrations/20260701151138_AddSafeQueryIndexes.cs`: generated non-destructive index migration.
+- `King.Nexa.Platform/Migrations/AppDbContextModelSnapshot.cs`: updated EF model snapshot for safe query indexes.
+- `docs/database-hardening-report.md`: documented implemented indexes and deferred constraints/normalization.
+- `docs/database-validation-queries.md`: added schema-first validation queries.
 
 ## Risks
 
@@ -55,3 +61,5 @@
 - After Phase 4 safe hardening: `dotnet test nexa-platform.sln --no-build` passed with 40/40 tests.
 - After Phase 6 foundation: `dotnet build nexa-platform.sln --no-restore` passed with 0 warnings and 0 errors.
 - After Phase 6 foundation: `dotnet test nexa-platform.sln --no-build` passed with 40/40 tests.
+- After Phase 7 database hardening: `dotnet build nexa-platform.sln --no-restore` passed with 0 warnings and 0 errors.
+- After Phase 7 database hardening: `dotnet test nexa-platform.sln --no-build` passed with 40/40 tests.

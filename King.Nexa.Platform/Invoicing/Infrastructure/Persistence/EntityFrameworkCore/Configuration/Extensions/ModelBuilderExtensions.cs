@@ -35,6 +35,7 @@ public static class ModelBuilderExtensions
             .IsRequired();
         invoice.HasIndex(entity => new { entity.TenantId, entity.InvoiceNumber }).IsUnique();
         invoice.HasIndex(entity => new { entity.TenantId, entity.PaymentStatus });
+        invoice.HasIndex(entity => new { entity.TenantId, entity.PaymentStatus, entity.CreatedAt });
         invoice.HasOne<Tenant>().WithMany().HasForeignKey(entity => entity.TenantId).OnDelete(DeleteBehavior.Cascade);
 
         var payment = builder.Entity<Payment>();
@@ -67,6 +68,7 @@ public static class ModelBuilderExtensions
         payment.HasIndex(entity => new { entity.TenantId, entity.ReferenceCode }).IsUnique();
         payment.HasIndex(entity => new { entity.TenantId, entity.Status });
         payment.HasIndex(entity => new { entity.TenantId, entity.CreatedAt });
+        payment.HasIndex(entity => new { entity.TenantId, entity.Status, entity.CreatedAt });
         payment.HasOne<Tenant>().WithMany().HasForeignKey(entity => entity.TenantId).OnDelete(DeleteBehavior.Cascade);
         payment.HasOne<Invoice>()
             .WithMany()

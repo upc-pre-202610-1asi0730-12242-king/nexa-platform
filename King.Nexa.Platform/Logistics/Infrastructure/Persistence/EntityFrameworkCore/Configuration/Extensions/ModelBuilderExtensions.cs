@@ -54,6 +54,7 @@ public static class ModelBuilderExtensions
         entity.Property(row => row.DeliveryWindow).HasMaxLength(160);
         entity.HasIndex(row => new { row.TenantId, row.Code }).IsUnique();
         entity.HasIndex(row => new { row.TenantId, row.Status });
+        entity.HasIndex(row => new { row.TenantId, row.Status, row.CreatedAt });
         entity.HasOne<Tenant>().WithMany().HasForeignKey(row => row.TenantId).OnDelete(DeleteBehavior.Cascade);
         entity.HasOne<Order>()
             .WithMany()

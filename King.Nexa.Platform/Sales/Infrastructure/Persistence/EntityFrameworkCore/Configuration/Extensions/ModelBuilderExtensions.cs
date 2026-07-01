@@ -70,6 +70,7 @@ public static class ModelBuilderExtensions
             .HasMaxLength(240);
         order.HasIndex(entity => new { entity.TenantId, entity.OrderNumber }).IsUnique();
         order.HasIndex(entity => new { entity.TenantId, entity.ClientAccountId });
+        order.HasIndex(entity => new { entity.TenantId, entity.Status, entity.CreatedAt });
         order.HasOne<Tenant>().WithMany().HasForeignKey(entity => entity.TenantId).OnDelete(DeleteBehavior.Cascade);
         order.HasOne<ClientAccount>()
             .WithMany()
@@ -177,6 +178,7 @@ public static class ModelBuilderExtensions
         entity.Property(row => row.CommercialOwner).HasMaxLength(140);
         entity.HasIndex(row => new { row.TenantId, row.Code }).IsUnique();
         entity.HasIndex(row => new { row.TenantId, row.Status });
+        entity.HasIndex(row => new { row.TenantId, row.Status, row.CreatedAt });
         entity.HasOne<Tenant>().WithMany().HasForeignKey(row => row.TenantId).OnDelete(DeleteBehavior.Cascade);
         entity.HasOne<ClientAccount>()
             .WithMany()

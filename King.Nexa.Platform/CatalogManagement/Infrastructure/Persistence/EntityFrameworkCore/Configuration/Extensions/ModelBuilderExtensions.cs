@@ -65,6 +65,8 @@ public static class ModelBuilderExtensions
         catalogItem.Property(item => item.IsActive).HasColumnName("is_active").IsRequired();
         catalogItem.HasIndex(item => new { item.TenantId, item.CatalogItemId }).IsUnique();
         catalogItem.HasIndex(item => new { item.TenantId, item.ProductId }).IsUnique();
+        catalogItem.HasIndex(item => new { item.TenantId, item.BrandName });
+        catalogItem.HasIndex(item => new { item.TenantId, item.CategoryName });
         catalogItem.HasOne<Tenant>().WithMany().HasForeignKey(item => item.TenantId).OnDelete(DeleteBehavior.Cascade);
 
         var category = builder.Entity<Category>();

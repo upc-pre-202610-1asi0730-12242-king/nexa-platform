@@ -23,6 +23,7 @@
 - Phase 4 multi-tenancy hardening: completed safe interface/guard/helper scope without global EF filters.
 - Phase 6 design pattern cleanup: completed safe domain-event foundation without activating partial event workflow.
 - Phase 7 database hardening: completed safe query indexes and validation documentation.
+- Phase 8 Render deploy readiness: completed env-driven port/database/CORS/migration/seed/swagger/health hardening.
 
 ## Files Changed
 
@@ -46,6 +47,10 @@
 - `King.Nexa.Platform/Migrations/AppDbContextModelSnapshot.cs`: updated EF model snapshot for safe query indexes.
 - `docs/database-hardening-report.md`: documented implemented indexes and deferred constraints/normalization.
 - `docs/database-validation-queries.md`: added schema-first validation queries.
+- `King.Nexa.Platform/Program.cs`: added Render `PORT`, `DATABASE_URL`, production CORS allowlist, `/health/live`, `/health/ready`, production Swagger opt-in, and startup migration/seed flags.
+- `Dockerfile`: documented runtime port and non-root runtime user.
+- `render.yaml`: declared production-safe env variables without hardcoded secrets.
+- `docs/render-deploy-backend.md`: added Render setup, env vars, health checks, migration/seed strategy, and smoke commands.
 
 ## Risks
 
@@ -63,3 +68,5 @@
 - After Phase 6 foundation: `dotnet test nexa-platform.sln --no-build` passed with 40/40 tests.
 - After Phase 7 database hardening: `dotnet build nexa-platform.sln --no-restore` passed with 0 warnings and 0 errors.
 - After Phase 7 database hardening: `dotnet test nexa-platform.sln --no-build` passed with 40/40 tests.
+- After Phase 8 deploy hardening: `dotnet build nexa-platform.sln --no-restore` passed with 0 warnings and 0 errors.
+- After Phase 8 deploy hardening: `dotnet test nexa-platform.sln --no-build` passed with 40/40 tests.

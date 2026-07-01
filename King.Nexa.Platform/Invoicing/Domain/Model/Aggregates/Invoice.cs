@@ -20,6 +20,8 @@ public class Invoice : AuditableEntity
         PaymentStatus = PaymentStatus.Pending;
     }
 
+    public int TenantId { get; private set; }
+
     public InvoiceNumber InvoiceNumber { get; private set; }
 
     public int OrderId { get; private set; }
@@ -29,6 +31,12 @@ public class Invoice : AuditableEntity
     public PaymentStatus PaymentStatus { get; private set; }
 
     public DateTimeOffset? PaidAt { get; private set; }
+
+    public void AssignTenant(int tenantId)
+    {
+        if (tenantId <= 0) throw new ArgumentException("Tenant id must be positive.", nameof(tenantId));
+        TenantId = tenantId;
+    }
 
     public void Update(UpdateInvoiceCommand command)
     {

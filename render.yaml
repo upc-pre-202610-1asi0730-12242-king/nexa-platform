@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: nexa-platform
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health
+    envVars:
+      - key: ASPNETCORE_URLS
+        value: http://+:8080
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: CONNECTION_STRINGS__DEFAULT_CONNECTION
+        fromDatabase:
+          name: nexa-platform-db
+          property: connectionString
+      - key: SEED_DATA__ENABLED
+        value: false
+      - key: ALLOWED_ORIGINS__0
+        sync: false
+
+databases:
+  - name: nexa-platform-db
+    plan: free
+    databaseName: nexa_platform_db
+    user: nexa

@@ -5,4 +5,12 @@ namespace King.Nexa.Platform.Sales.Domain.Model.Commands;
 /// <summary>
 /// Command used to create an order with one or more items.
 /// </summary>
-public record CreateOrderCommand(OrderNumber OrderNumber, CustomerId CustomerId, IReadOnlyCollection<CreateOrderItemCommand> Items);
+public record CreateOrderCommand(
+    OrderNumber OrderNumber,
+    CustomerId CustomerId,
+    IReadOnlyCollection<CreateOrderItemCommand> Items,
+    string Priority = "medium",
+    string Notes = "",
+    DeliveryDetails? Delivery = null,
+    int? ClientAccountId = null,
+    decimal? ShippingEstimate = null);

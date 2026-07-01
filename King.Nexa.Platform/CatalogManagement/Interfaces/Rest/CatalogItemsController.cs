@@ -5,22 +5,56 @@ using King.Nexa.Platform.CatalogManagement.Domain.Model.Queries;
 using King.Nexa.Platform.CatalogManagement.Domain.Model.ValueObjects;
 using King.Nexa.Platform.CatalogManagement.Interfaces.Rest.Resources;
 using King.Nexa.Platform.CatalogManagement.Interfaces.Rest.Transform;
+using King.Nexa.Platform.Sales.Application.QueryServices;
+using King.Nexa.Platform.Shared.Infrastructure.Security.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace King.Nexa.Platform.CatalogManagement.Interfaces.Rest;
 
 [ApiController]
+[Authorize(Policy = NexaAuthorizationPolicies.WorkspaceMember)]
 [Route("api/v1/[controller]")]
-public class CatalogItemsController(ICatalogItemCommandService catalogItemCommandService, ICatalogItemQueryService catalogItemQueryService) : ControllerBase
+public class CatalogItemsController(
+    ICatalogItemCommandService catalogItemCommandService,
+    ICatalogItemQueryService catalogItemQueryService,
+    IPromotionQueryService promotionQueryService) : ControllerBase
 {
     /// <summary>
     /// Gets all catalog items.
     /// </summary>
     [HttpGet]
-    public async Task<IActionResult> GetAllCatalogItems(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllCatalogItems([FromQuery] bool includePromotions, CancellationToken cancellationToken)
     {
         var catalogItems = await catalogItemQueryService.Handle(new GetAllCatalogItemsQuery(), cancellationToken);
-        return Ok(catalogItems.Select(CatalogItemResourceFromEntityAssembler.ToResourceFromEntity));
+        var resources = catalogItems.Select(CatalogItemResourceFromEntityAssembler.ToResourceFromEntity).ToList();
+        if (!includePromotions) return Ok(resources);
+
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var promotions = (await promotionQueryService.ListAsync(cancellationToken))
+            .Where(snapshot => snapshot.Promotion.Status == "active")
+            .Where(snapshot => !snapshot.Promotion.StartsOn.HasValue || snapshot.Promotion.StartsOn.Value <= today)
+            .Where(snapshot => !snapshot.Promotion.EndsOn.HasValue || snapshot.Promotion.EndsOn.Value >= today)
+            .OrderBy(snapshot => snapshot.Promotion.EndsOn)
+            .ToArray();
+
+        return Ok(resources.Select(item => new
+        {
+            Item = item,
+            Promotions = promotions
+                .Where(snapshot => snapshot.ProductIds.Contains(item.ProductId, StringComparer.OrdinalIgnoreCase))
+                .Select(snapshot => new
+                {
+                    snapshot.Promotion.Id,
+                    snapshot.Promotion.Code,
+                    snapshot.Promotion.Name,
+                    snapshot.Promotion.Campaign,
+                    snapshot.Promotion.DiscountLabel,
+                    snapshot.Promotion.StartsOn,
+                    snapshot.Promotion.EndsOn,
+                    snapshot.Promotion.Status
+                })
+        }));
     }
 
     /// <summary>
@@ -80,6 +114,7 @@ public class CatalogItemsController(ICatalogItemCommandService catalogItemComman
     /// Creates a catalog item for the Nexa product catalog.
     /// </summary>
     [HttpPost]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanManageCatalog)]
     public async Task<IActionResult> CreateCatalogItem(CreateCatalogItemResource resource, CancellationToken cancellationToken)
     {
         var command = CreateCatalogItemCommandFromResourceAssembler.ToCommandFromResource(resource);
@@ -91,6 +126,8 @@ public class CatalogItemsController(ICatalogItemCommandService catalogItemComman
     /// Updates an existing catalog item.
     /// </summary>
     [HttpPut("{id:int}")]
+    [HttpPatch("{id:int}")]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanManageCatalog)]
     public async Task<IActionResult> UpdateCatalogItem(int id, UpdateCatalogItemResource resource, CancellationToken cancellationToken)
     {
         var command = UpdateCatalogItemCommandFromResourceAssembler.ToCommandFromResource(id, resource);
@@ -102,9 +139,12 @@ public class CatalogItemsController(ICatalogItemCommandService catalogItemComman
     /// Deactivates an existing catalog item.
     /// </summary>
     [HttpDelete("{id:int}")]
+    [HttpPost("{id:int}/deactivations")]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanManageCatalog)]
     public async Task<IActionResult> DeleteCatalogItem(int id, CancellationToken cancellationToken)
     {
         var deleted = await catalogItemCommandService.DeleteAsync(new DeleteCatalogItemCommand(id), cancellationToken);
         return deleted ? NoContent() : NotFound();
     }
+
 }

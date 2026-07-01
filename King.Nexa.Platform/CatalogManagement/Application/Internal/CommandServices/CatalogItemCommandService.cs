@@ -3,6 +3,7 @@ using King.Nexa.Platform.CatalogManagement.Application.QueryServices;
 using King.Nexa.Platform.CatalogManagement.Domain.Model.Aggregates;
 using King.Nexa.Platform.CatalogManagement.Domain.Model.Commands;
 using King.Nexa.Platform.CatalogManagement.Domain.Repositories;
+using King.Nexa.Platform.Shared.Application.Security;
 using King.Nexa.Platform.Shared.Domain.Repositories;
 
 namespace King.Nexa.Platform.CatalogManagement.Application.Internal.CommandServices;
@@ -10,7 +11,10 @@ namespace King.Nexa.Platform.CatalogManagement.Application.Internal.CommandServi
 /// <summary>
 /// Coordinates catalog item creation and persistence.
 /// </summary>
-public class CatalogItemCommandService(ICatalogItemRepository catalogItemRepository, IUnitOfWork unitOfWork) : ICatalogItemCommandService
+public class CatalogItemCommandService(
+    ICatalogItemRepository catalogItemRepository,
+    IUnitOfWork unitOfWork,
+    ICurrentWorkspaceContext workspaceContext) : ICatalogItemCommandService
 {
     /// <summary>
     /// Creates a catalog item and commits the unit of work.
@@ -18,6 +22,8 @@ public class CatalogItemCommandService(ICatalogItemRepository catalogItemReposit
     public async Task<CatalogItem> CreateAsync(CreateCatalogItemCommand command, CancellationToken cancellationToken = default)
     {
         var catalogItem = new CatalogItem(command);
+        catalogItem.AssignTenant(workspaceContext.TenantId
+            ?? throw new InvalidOperationException("Current tenant is required to create catalog items."));
         await catalogItemRepository.AddAsync(catalogItem, cancellationToken);
         await unitOfWork.CompleteAsync(cancellationToken);
         return catalogItem;

@@ -134,6 +134,10 @@ namespace King.Nexa.Platform.Migrations
                         .HasColumnType("character varying(64)")
                         .HasColumnName("product_id");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -141,9 +145,16 @@ namespace King.Nexa.Platform.Migrations
                     b.HasKey("Id")
                         .HasName("pk_catalog_items");
 
-                    b.HasIndex("CatalogItemId")
+                    b.HasAlternateKey("TenantId", "Id")
+                        .HasName("ak_catalog_items_tenant_id_id");
+
+                    b.HasIndex("TenantId", "CatalogItemId")
                         .IsUnique()
-                        .HasDatabaseName("ix_catalog_items_catalog_item_id");
+                        .HasDatabaseName("ix_catalog_items_tenant_id_catalog_item_id");
+
+                    b.HasIndex("TenantId", "ProductId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_catalog_items_tenant_id_product_id");
 
                     b.ToTable("catalog_items", (string)null);
                 });
@@ -204,17 +215,39 @@ namespace King.Nexa.Platform.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
+                    b.Property<bool>("CriticalNotificationsEnabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("critical_notifications_enabled");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(160)
                         .HasColumnType("character varying(160)")
                         .HasColumnName("email");
 
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(140)
+                        .HasColumnType("character varying(140)")
+                        .HasColumnName("full_name");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasMaxLength(240)
                         .HasColumnType("character varying(240)")
                         .HasColumnName("password_hash");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("PreferredLanguage")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
+                        .HasColumnName("preferred_language");
 
                     b.Property<string>("Role")
                         .IsRequired()
@@ -279,6 +312,10 @@ namespace King.Nexa.Platform.Migrations
                         .HasColumnType("character varying(24)")
                         .HasColumnName("payment_status");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -286,9 +323,15 @@ namespace King.Nexa.Platform.Migrations
                     b.HasKey("Id")
                         .HasName("pk_invoices");
 
-                    b.HasIndex("InvoiceNumber")
+                    b.HasAlternateKey("TenantId", "Id")
+                        .HasName("ak_invoices_tenant_id_id");
+
+                    b.HasIndex("TenantId", "InvoiceNumber")
                         .IsUnique()
-                        .HasDatabaseName("ix_invoices_invoice_number");
+                        .HasDatabaseName("ix_invoices_tenant_id_invoice_number");
+
+                    b.HasIndex("TenantId", "PaymentStatus")
+                        .HasDatabaseName("ix_invoices_tenant_id_payment_status");
 
                     b.ToTable("invoices", (string)null);
                 });
@@ -302,13 +345,33 @@ namespace King.Nexa.Platform.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("ClientAccountId")
+                        .HasColumnType("integer")
+                        .HasColumnName("client_account_id");
+
+                    b.Property<DateTimeOffset?>("ConfirmedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("confirmed_at");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<int>("InvoiceId")
+                    b.Property<int?>("InvoiceId")
                         .HasColumnType("integer")
                         .HasColumnName("invoice_id");
+
+                    b.Property<int?>("OrderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("order_id");
+
+                    b.Property<int?>("PaymentMethodRecordId")
+                        .HasColumnType("integer")
+                        .HasColumnName("payment_method_record_id");
+
+                    b.Property<int?>("PaymentOptionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("payment_option_id");
 
                     b.Property<string>("ReferenceCode")
                         .IsRequired()
@@ -316,11 +379,19 @@ namespace King.Nexa.Platform.Migrations
                         .HasColumnType("character varying(80)")
                         .HasColumnName("reference_code");
 
+                    b.Property<DateTimeOffset?>("RejectedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("rejected_at");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(24)
                         .HasColumnType("character varying(24)")
                         .HasColumnName("status");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -329,11 +400,325 @@ namespace King.Nexa.Platform.Migrations
                     b.HasKey("Id")
                         .HasName("pk_payments");
 
-                    b.HasIndex("ReferenceCode")
+                    b.HasAlternateKey("TenantId", "Id")
+                        .HasName("ak_payments_tenant_id_id");
+
+                    b.HasIndex("PaymentOptionId")
+                        .HasDatabaseName("ix_payments_payment_option_id");
+
+                    b.HasIndex("TenantId", "ClientAccountId")
+                        .HasDatabaseName("ix_payments_tenant_id_client_account_id");
+
+                    b.HasIndex("TenantId", "CreatedAt")
+                        .HasDatabaseName("ix_payments_tenant_id_created_at");
+
+                    b.HasIndex("TenantId", "InvoiceId")
+                        .HasDatabaseName("ix_payments_tenant_id_invoice_id");
+
+                    b.HasIndex("TenantId", "OrderId")
+                        .HasDatabaseName("ix_payments_tenant_id_order_id");
+
+                    b.HasIndex("TenantId", "PaymentMethodRecordId")
+                        .HasDatabaseName("ix_payments_tenant_id_payment_method_record_id");
+
+                    b.HasIndex("TenantId", "ReferenceCode")
                         .IsUnique()
-                        .HasDatabaseName("ix_payments_reference_code");
+                        .HasDatabaseName("ix_payments_tenant_id_reference_code");
+
+                    b.HasIndex("TenantId", "Status")
+                        .HasDatabaseName("ix_payments_tenant_id_status");
 
                     b.ToTable("payments", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Invoicing.Domain.Model.Entities.BusinessDocument", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("ClientAccountId")
+                        .HasColumnType("integer")
+                        .HasColumnName("client_account_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("DocumentTypeId")
+                        .HasColumnType("integer")
+                        .HasColumnName("document_type_id");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(220)
+                        .HasColumnType("character varying(220)")
+                        .HasColumnName("file_name");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("label");
+
+                    b.Property<int?>("OrderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("order_id");
+
+                    b.Property<bool>("Required")
+                        .HasColumnType("boolean")
+                        .HasColumnName("required");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("status");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("type");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<bool>("VisibleToBuyer")
+                        .HasColumnType("boolean")
+                        .HasColumnName("visible_to_buyer");
+
+                    b.HasKey("Id")
+                        .HasName("pk_business_documents");
+
+                    b.HasIndex("DocumentTypeId")
+                        .HasDatabaseName("ix_business_documents_document_type_id");
+
+                    b.HasIndex("TenantId", "OrderId")
+                        .HasDatabaseName("ix_business_documents_tenant_id_order_id");
+
+                    b.HasIndex("TenantId", "ClientAccountId", "Status")
+                        .HasDatabaseName("ix_business_documents_tenant_id_client_account_id_status");
+
+                    b.ToTable("business_documents", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Invoicing.Domain.Model.Entities.NotificationRecord", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(600)
+                        .HasColumnType("character varying(600)")
+                        .HasColumnName("body");
+
+                    b.Property<int?>("ClientAccountId")
+                        .HasColumnType("integer")
+                        .HasColumnName("client_account_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("Read")
+                        .HasColumnType("boolean")
+                        .HasColumnName("read");
+
+                    b.Property<string>("RecipientRole")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("recipient_role");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)")
+                        .HasColumnName("title");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("type");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_notification_records");
+
+                    b.HasIndex("TenantId", "ClientAccountId", "Read")
+                        .HasDatabaseName("ix_notification_records_tenant_id_client_account_id_read");
+
+                    b.ToTable("notification_records", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Invoicing.Domain.Model.Entities.PaymentMethodRecord", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClientAccountId")
+                        .HasColumnType("integer")
+                        .HasColumnName("client_account_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_default");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("label");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("status");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("type");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_payment_method_records");
+
+                    b.HasAlternateKey("TenantId", "Id")
+                        .HasName("ak_payment_method_records_tenant_id_id");
+
+                    b.HasIndex("TenantId", "ClientAccountId")
+                        .HasDatabaseName("ix_payment_method_records_tenant_id_client_account_id");
+
+                    b.ToTable("payment_method_records", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Invoicing.Domain.Model.Entities.PaymentProcessRecord", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("ClientAccountId")
+                        .HasColumnType("integer")
+                        .HasColumnName("client_account_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<decimal>("Discount")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("discount");
+
+                    b.Property<decimal>("Igv")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("igv");
+
+                    b.Property<int?>("OrderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("order_id");
+
+                    b.Property<int?>("PaymentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("payment_id");
+
+                    b.Property<int?>("PaymentMethodRecordId")
+                        .HasColumnType("integer")
+                        .HasColumnName("payment_method_record_id");
+
+                    b.Property<decimal>("Shipping")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("shipping");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("status");
+
+                    b.Property<decimal>("Subtotal")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("subtotal");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<decimal>("Total")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("total");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_payment_process_records");
+
+                    b.HasIndex("TenantId", "ClientAccountId")
+                        .HasDatabaseName("ix_payment_process_records_tenant_id_client_account_id");
+
+                    b.HasIndex("TenantId", "OrderId")
+                        .HasDatabaseName("ix_payment_process_records_tenant_id_order_id");
+
+                    b.HasIndex("TenantId", "PaymentId")
+                        .HasDatabaseName("ix_payment_process_records_tenant_id_payment_id");
+
+                    b.HasIndex("TenantId", "PaymentMethodRecordId")
+                        .HasDatabaseName("ix_payment_process_records_tenant_id_payment_method_record_id");
+
+                    b.HasIndex("TenantId", "Status")
+                        .HasDatabaseName("ix_payment_process_records_tenant_id_status");
+
+                    b.ToTable("payment_process_records", (string)null);
                 });
 
             modelBuilder.Entity("King.Nexa.Platform.Logistics.Domain.Model.Aggregates.Shipment", b =>
@@ -373,6 +758,10 @@ namespace King.Nexa.Platform.Migrations
                         .HasColumnType("character varying(24)")
                         .HasColumnName("status");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -380,11 +769,511 @@ namespace King.Nexa.Platform.Migrations
                     b.HasKey("Id")
                         .HasName("pk_shipments");
 
-                    b.HasIndex("ShipmentCode")
+                    b.HasIndex("TenantId", "ShipmentCode")
                         .IsUnique()
-                        .HasDatabaseName("ix_shipments_shipment_code");
+                        .HasDatabaseName("ix_shipments_tenant_id_shipment_code");
 
                     b.ToTable("shipments", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Logistics.Domain.Model.Entities.CustomerPortalTask", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClientAccountId")
+                        .HasColumnType("integer")
+                        .HasColumnName("client_account_id");
+
+                    b.Property<string>("ContactPerson")
+                        .IsRequired()
+                        .HasMaxLength(140)
+                        .HasColumnType("character varying(140)")
+                        .HasColumnName("contact_person");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Owner")
+                        .IsRequired()
+                        .HasMaxLength(140)
+                        .HasColumnType("character varying(140)")
+                        .HasColumnName("owner");
+
+                    b.Property<string>("PortalName")
+                        .IsRequired()
+                        .HasMaxLength(140)
+                        .HasColumnType("character varying(140)")
+                        .HasColumnName("portal_name");
+
+                    b.Property<string>("RequiredDocuments")
+                        .IsRequired()
+                        .HasMaxLength(360)
+                        .HasColumnType("character varying(360)")
+                        .HasColumnName("required_documents");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("status");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("UploadChannel")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("upload_channel");
+
+                    b.HasKey("Id")
+                        .HasName("pk_customer_portal_tasks");
+
+                    b.HasIndex("TenantId", "ClientAccountId", "Status")
+                        .HasDatabaseName("ix_customer_portal_tasks_tenant_id_client_account_id_status");
+
+                    b.ToTable("customer_portal_tasks", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Logistics.Domain.Model.Entities.DispatchEvent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("description");
+
+                    b.Property<int>("DispatchOrderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("dispatch_order_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("status");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<bool>("VisibleToBuyer")
+                        .HasColumnType("boolean")
+                        .HasColumnName("visible_to_buyer");
+
+                    b.HasKey("Id")
+                        .HasName("pk_dispatch_events");
+
+                    b.HasIndex("DispatchOrderId")
+                        .HasDatabaseName("ix_dispatch_events_dispatch_order_id");
+
+                    b.HasIndex("TenantId", "DispatchOrderId")
+                        .HasDatabaseName("ix_dispatch_events_tenant_id_dispatch_order_id");
+
+                    b.ToTable("dispatch_events", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Logistics.Domain.Model.Entities.DispatchOrder", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClientAccountId")
+                        .HasColumnType("integer")
+                        .HasColumnName("client_account_id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("DeliveryWindow")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("delivery_window");
+
+                    b.Property<DateTime?>("Eta")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("eta");
+
+                    b.Property<int>("OrderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("order_id");
+
+                    b.Property<string>("Responsible")
+                        .IsRequired()
+                        .HasMaxLength(140)
+                        .HasColumnType("character varying(140)")
+                        .HasColumnName("responsible");
+
+                    b.Property<string>("RouteName")
+                        .IsRequired()
+                        .HasMaxLength(140)
+                        .HasColumnType("character varying(140)")
+                        .HasColumnName("route_name");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("status");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_dispatch_orders");
+
+                    b.HasAlternateKey("TenantId", "Id")
+                        .HasName("ak_dispatch_orders_tenant_id_id");
+
+                    b.HasIndex("TenantId", "ClientAccountId")
+                        .HasDatabaseName("ix_dispatch_orders_tenant_id_client_account_id");
+
+                    b.HasIndex("TenantId", "Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_dispatch_orders_tenant_id_code");
+
+                    b.HasIndex("TenantId", "OrderId")
+                        .HasDatabaseName("ix_dispatch_orders_tenant_id_order_id");
+
+                    b.HasIndex("TenantId", "Status")
+                        .HasDatabaseName("ix_dispatch_orders_tenant_id_status");
+
+                    b.ToTable("dispatch_orders", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Logistics.Domain.Model.Entities.ProofOfDeliveryRecord", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_at");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("DispatchOrderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("dispatch_order_id");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("notes");
+
+                    b.Property<bool>("PhotoReference")
+                        .HasColumnType("boolean")
+                        .HasColumnName("photo_reference");
+
+                    b.Property<string>("ReceivedBy")
+                        .IsRequired()
+                        .HasMaxLength(140)
+                        .HasColumnType("character varying(140)")
+                        .HasColumnName("received_by");
+
+                    b.Property<bool>("SignatureReference")
+                        .HasColumnType("boolean")
+                        .HasColumnName("signature_reference");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("status");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_proof_of_delivery_records");
+
+                    b.HasIndex("DispatchOrderId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_proof_of_delivery_records_dispatch_order_id");
+
+                    b.HasIndex("TenantId", "DispatchOrderId")
+                        .HasDatabaseName("ix_proof_of_delivery_records_tenant_id_dispatch_order_id");
+
+                    b.ToTable("proof_of_delivery_records", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Logistics.Domain.Model.Entities.TemperatureLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Celsius")
+                        .HasPrecision(5, 2)
+                        .HasColumnType("numeric(5,2)")
+                        .HasColumnName("celsius");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("DispatchOrderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("dispatch_order_id");
+
+                    b.Property<int?>("OrderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("order_id");
+
+                    b.Property<DateTime>("RecordedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("recorded_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("status");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("Zone")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("zone");
+
+                    b.HasKey("Id")
+                        .HasName("pk_temperature_logs");
+
+                    b.HasIndex("TenantId", "DispatchOrderId")
+                        .HasDatabaseName("ix_temperature_logs_tenant_id_dispatch_order_id");
+
+                    b.HasIndex("TenantId", "OrderId")
+                        .HasDatabaseName("ix_temperature_logs_tenant_id_order_id");
+
+                    b.HasIndex("TenantId", "Status")
+                        .HasDatabaseName("ix_temperature_logs_tenant_id_status");
+
+                    b.ToTable("temperature_logs", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Sales.Domain.Model.Aggregates.ClientAccount", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(240)
+                        .HasColumnType("character varying(240)")
+                        .HasColumnName("address");
+
+                    b.Property<string>("BusinessName")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)")
+                        .HasColumnName("business_name");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("code");
+
+                    b.Property<string>("CommercialName")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("commercial_name");
+
+                    b.Property<string>("Contact")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("contact");
+
+                    b.Property<string>("ContactEmail")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("contact_email");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("DeliveryPreference")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("delivery_preference");
+
+                    b.Property<string>("DeliveryReference")
+                        .IsRequired()
+                        .HasMaxLength(240)
+                        .HasColumnType("character varying(240)")
+                        .HasColumnName("delivery_reference");
+
+                    b.Property<string>("District")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("district");
+
+                    b.Property<string>("DocumentProfile")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("document_profile");
+
+                    b.Property<decimal>("MonthlyCreditLimit")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("monthly_credit_limit");
+
+                    b.Property<string>("MonthlyCreditStatus")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("monthly_credit_status");
+
+                    b.Property<decimal>("MonthlyCreditUsed")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("monthly_credit_used");
+
+                    b.Property<string>("PaymentCondition")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("payment_condition");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("phone");
+
+                    b.Property<bool>("PortalAccess")
+                        .HasColumnType("boolean")
+                        .HasColumnName("portal_access");
+
+                    b.Property<string>("Province")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("province");
+
+                    b.Property<string>("Ruc")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("ruc");
+
+                    b.Property<string>("Segment")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("segment");
+
+                    b.Property<string>("SellerWorkspaceEmail")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("seller_workspace_email");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("status");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_client_accounts");
+
+                    b.HasAlternateKey("TenantId", "Id")
+                        .HasName("ak_client_accounts_tenant_id_id");
+
+                    b.HasIndex("TenantId", "Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_client_accounts_tenant_id_code");
+
+                    b.HasIndex("TenantId", "Ruc")
+                        .HasDatabaseName("ix_client_accounts_tenant_id_ruc");
+
+                    b.ToTable("client_accounts", (string)null);
                 });
 
             modelBuilder.Entity("King.Nexa.Platform.Sales.Domain.Model.Aggregates.Order", b =>
@@ -395,6 +1284,10 @@ namespace King.Nexa.Platform.Migrations
                         .HasColumnName("id");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("ClientAccountId")
+                        .HasColumnType("integer")
+                        .HasColumnName("client_account_id");
 
                     b.Property<DateTimeOffset?>("ConfirmedAt")
                         .HasColumnType("timestamp with time zone")
@@ -415,6 +1308,12 @@ namespace King.Nexa.Platform.Migrations
                         .HasColumnType("character varying(120)")
                         .HasColumnName("inventory_reservation");
 
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasMaxLength(1200)
+                        .HasColumnType("character varying(1200)")
+                        .HasColumnName("notes");
+
                     b.Property<string>("OrderNumber")
                         .IsRequired()
                         .HasMaxLength(32)
@@ -425,6 +1324,12 @@ namespace King.Nexa.Platform.Migrations
                         .HasMaxLength(120)
                         .HasColumnType("character varying(120)")
                         .HasColumnName("payment_confirmation");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)")
+                        .HasColumnName("priority");
 
                     b.Property<string>("RejectionReason")
                         .HasMaxLength(240)
@@ -437,6 +1342,10 @@ namespace King.Nexa.Platform.Migrations
                         .HasColumnType("character varying(24)")
                         .HasColumnName("status");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -444,11 +1353,167 @@ namespace King.Nexa.Platform.Migrations
                     b.HasKey("Id")
                         .HasName("pk_orders");
 
-                    b.HasIndex("OrderNumber")
+                    b.HasAlternateKey("TenantId", "Id")
+                        .HasName("ak_orders_tenant_id_id");
+
+                    b.HasIndex("TenantId", "ClientAccountId")
+                        .HasDatabaseName("ix_orders_tenant_id_client_account_id");
+
+                    b.HasIndex("TenantId", "OrderNumber")
                         .IsUnique()
-                        .HasDatabaseName("ix_orders_order_number");
+                        .HasDatabaseName("ix_orders_tenant_id_order_number");
 
                     b.ToTable("orders", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Sales.Domain.Model.Entities.ConversationMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasMaxLength(1200)
+                        .HasColumnType("character varying(1200)")
+                        .HasColumnName("body");
+
+                    b.Property<int?>("ClientAccountId")
+                        .HasColumnType("integer")
+                        .HasColumnName("client_account_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("OrderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("order_id");
+
+                    b.Property<int?>("PurchaseRequestId")
+                        .HasColumnType("integer")
+                        .HasColumnName("purchase_request_id");
+
+                    b.Property<string>("SenderName")
+                        .IsRequired()
+                        .HasMaxLength(140)
+                        .HasColumnType("character varying(140)")
+                        .HasColumnName("sender_name");
+
+                    b.Property<string>("SenderRole")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("sender_role");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<bool>("VisibleToBuyer")
+                        .HasColumnType("boolean")
+                        .HasColumnName("visible_to_buyer");
+
+                    b.HasKey("Id")
+                        .HasName("pk_conversation_messages");
+
+                    b.HasIndex("TenantId", "ClientAccountId")
+                        .HasDatabaseName("ix_conversation_messages_tenant_id_client_account_id");
+
+                    b.HasIndex("TenantId", "OrderId")
+                        .HasDatabaseName("ix_conversation_messages_tenant_id_order_id");
+
+                    b.HasIndex("TenantId", "PurchaseRequestId")
+                        .HasDatabaseName("ix_conversation_messages_tenant_id_purchase_request_id");
+
+                    b.ToTable("conversation_messages", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Sales.Domain.Model.Entities.CreditRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClientAccountId")
+                        .HasColumnType("integer")
+                        .HasColumnName("client_account_id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("CreatedByUserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("created_by_user_id");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(600)
+                        .HasColumnType("character varying(600)")
+                        .HasColumnName("reason");
+
+                    b.Property<decimal>("RequestedAmount")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("requested_amount");
+
+                    b.Property<string>("ResolutionNote")
+                        .IsRequired()
+                        .HasMaxLength(600)
+                        .HasColumnType("character varying(600)")
+                        .HasColumnName("resolution_note");
+
+                    b.Property<string>("ReviewedBy")
+                        .IsRequired()
+                        .HasMaxLength(140)
+                        .HasColumnType("character varying(140)")
+                        .HasColumnName("reviewed_by");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("status");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_credit_requests");
+
+                    b.HasIndex("TenantId", "ClientAccountId")
+                        .HasDatabaseName("ix_credit_requests_tenant_id_client_account_id");
+
+                    b.HasIndex("TenantId", "Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_credit_requests_tenant_id_code");
+
+                    b.HasIndex("TenantId", "Status")
+                        .HasDatabaseName("ix_credit_requests_tenant_id_status");
+
+                    b.ToTable("credit_requests", (string)null);
                 });
 
             modelBuilder.Entity("King.Nexa.Platform.Sales.Domain.Model.Entities.OrderItem", b =>
@@ -486,13 +1551,1450 @@ namespace King.Nexa.Platform.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("quantity");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
                     b.HasKey("Id")
                         .HasName("pk_order_items");
 
-                    b.HasIndex("OrderId")
-                        .HasDatabaseName("ix_order_items_order_id");
+                    b.HasIndex("TenantId", "OrderId")
+                        .HasDatabaseName("ix_order_items_tenant_id_order_id");
 
                     b.ToTable("order_items", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Sales.Domain.Model.Entities.Promotion", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AdjustmentType")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("adjustment_type");
+
+                    b.Property<string>("Campaign")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("campaign");
+
+                    b.Property<string>("CatalogScope")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("catalog_scope");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("code");
+
+                    b.Property<string>("CommercialRule")
+                        .IsRequired()
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("commercial_rule");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(800)
+                        .HasColumnType("character varying(800)")
+                        .HasColumnName("description");
+
+                    b.Property<string>("DiscountLabel")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("discount_label");
+
+                    b.Property<DateOnly?>("EndsOn")
+                        .HasColumnType("date")
+                        .HasColumnName("ends_on");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasMaxLength(800)
+                        .HasColumnType("character varying(800)")
+                        .HasColumnName("notes");
+
+                    b.Property<DateOnly?>("StartsOn")
+                        .HasColumnType("date")
+                        .HasColumnName("starts_on");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("TargetSegment")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("target_segment");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("Visibility")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("visibility");
+
+                    b.HasKey("Id")
+                        .HasName("pk_promotions");
+
+                    b.HasAlternateKey("TenantId", "Id")
+                        .HasName("ak_promotions_tenant_id_id");
+
+                    b.HasIndex("TenantId", "Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_promotions_tenant_id_code");
+
+                    b.HasIndex("TenantId", "Status")
+                        .HasDatabaseName("ix_promotions_tenant_id_status");
+
+                    b.ToTable("promotions", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Sales.Domain.Model.Entities.PromotionCatalogItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CatalogItemId")
+                        .HasColumnType("integer")
+                        .HasColumnName("catalog_item_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("PromotionId")
+                        .HasColumnType("integer")
+                        .HasColumnName("promotion_id");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_promotion_catalog_items");
+
+                    b.HasIndex("TenantId", "CatalogItemId")
+                        .HasDatabaseName("ix_promotion_catalog_items_tenant_id_catalog_item_id");
+
+                    b.HasIndex("TenantId", "PromotionId", "CatalogItemId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_promotion_catalog_items_tenant_id_promotion_id_catalog_item~");
+
+                    b.ToTable("promotion_catalog_items", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Sales.Domain.Model.Entities.PurchaseRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClientAccountId")
+                        .HasColumnType("integer")
+                        .HasColumnName("client_account_id");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("code");
+
+                    b.Property<string>("Comments")
+                        .IsRequired()
+                        .HasMaxLength(600)
+                        .HasColumnType("character varying(600)")
+                        .HasColumnName("comments");
+
+                    b.Property<string>("CommercialOwner")
+                        .IsRequired()
+                        .HasMaxLength(140)
+                        .HasColumnType("character varying(140)")
+                        .HasColumnName("commercial_owner");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("DeliveryAddress")
+                        .IsRequired()
+                        .HasMaxLength(240)
+                        .HasColumnType("character varying(240)")
+                        .HasColumnName("delivery_address");
+
+                    b.Property<string>("DeliveryCity")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("delivery_city");
+
+                    b.Property<string>("DeliveryDistrict")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("delivery_district");
+
+                    b.Property<string>("DeliveryProvince")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("delivery_province");
+
+                    b.Property<string>("DeliveryReference")
+                        .IsRequired()
+                        .HasMaxLength(240)
+                        .HasColumnType("character varying(240)")
+                        .HasColumnName("delivery_reference");
+
+                    b.Property<string>("Origin")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("origin");
+
+                    b.Property<string>("PaymentOption")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("payment_option");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("priority");
+
+                    b.Property<DateOnly?>("RequestedDeliveryDate")
+                        .HasColumnType("date")
+                        .HasColumnName("requested_delivery_date");
+
+                    b.Property<decimal?>("ShippingEstimate")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("shipping_estimate");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("status");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_purchase_requests");
+
+                    b.HasAlternateKey("TenantId", "Id")
+                        .HasName("ak_purchase_requests_tenant_id_id");
+
+                    b.HasIndex("TenantId", "ClientAccountId")
+                        .HasDatabaseName("ix_purchase_requests_tenant_id_client_account_id");
+
+                    b.HasIndex("TenantId", "Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_purchase_requests_tenant_id_code");
+
+                    b.HasIndex("TenantId", "Status")
+                        .HasDatabaseName("ix_purchase_requests_tenant_id_status");
+
+                    b.ToTable("purchase_requests", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Sales.Domain.Model.Entities.PurchaseRequestLine", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CatalogItemId")
+                        .HasColumnType("integer")
+                        .HasColumnName("catalog_item_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<decimal>("EstimatedWeightKg")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("estimated_weight_kg");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasMaxLength(360)
+                        .HasColumnType("character varying(360)")
+                        .HasColumnName("notes");
+
+                    b.Property<int>("PurchaseRequestId")
+                        .HasColumnType("integer")
+                        .HasColumnName("purchase_request_id");
+
+                    b.Property<decimal>("Quantity")
+                        .HasPrecision(12, 2)
+                        .HasColumnType("numeric(12,2)")
+                        .HasColumnName("quantity");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<string>("Unit")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("unit");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_purchase_request_lines");
+
+                    b.HasIndex("PurchaseRequestId")
+                        .HasDatabaseName("ix_purchase_request_lines_purchase_request_id");
+
+                    b.HasIndex("TenantId", "CatalogItemId")
+                        .HasDatabaseName("ix_purchase_request_lines_tenant_id_catalog_item_id");
+
+                    b.HasIndex("TenantId", "PurchaseRequestId")
+                        .HasDatabaseName("ix_purchase_request_lines_tenant_id_purchase_request_id");
+
+                    b.ToTable("purchase_request_lines", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Shared.Domain.Model.Entities.AuditLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("action");
+
+                    b.Property<int?>("ActorMembershipId")
+                        .HasColumnType("integer")
+                        .HasColumnName("actor_membership_id");
+
+                    b.Property<int>("ActorUserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("actor_user_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("IpAddress")
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("ip_address");
+
+                    b.Property<string>("MetadataJson")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("metadata_json");
+
+                    b.Property<string>("ResourceId")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("resource_id");
+
+                    b.Property<string>("ResourceType")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("resource_type");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("UserAgent")
+                        .HasMaxLength(360)
+                        .HasColumnType("character varying(360)")
+                        .HasColumnName("user_agent");
+
+                    b.Property<int?>("WorkspaceId")
+                        .HasColumnType("integer")
+                        .HasColumnName("workspace_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_audit_logs");
+
+                    b.HasIndex("TenantId", "Action", "CreatedAt")
+                        .HasDatabaseName("ix_audit_logs_tenant_id_action_created_at");
+
+                    b.HasIndex("TenantId", "ResourceType", "ResourceId")
+                        .HasDatabaseName("ix_audit_logs_tenant_id_resource_type_resource_id");
+
+                    b.ToTable("audit_logs", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Shared.Domain.Model.Entities.Country", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("label");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_countries");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_countries_code");
+
+                    b.ToTable("countries", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Shared.Domain.Model.Entities.Department", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("code");
+
+                    b.Property<int>("CountryId")
+                        .HasColumnType("integer")
+                        .HasColumnName("country_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("label");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_departments");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_departments_code");
+
+                    b.HasIndex("CountryId")
+                        .HasDatabaseName("ix_departments_country_id");
+
+                    b.ToTable("departments", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Shared.Domain.Model.Entities.District", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("label");
+
+                    b.Property<int>("ProvinceId")
+                        .HasColumnType("integer")
+                        .HasColumnName("province_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_districts");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_districts_code");
+
+                    b.HasIndex("ProvinceId")
+                        .HasDatabaseName("ix_districts_province_id");
+
+                    b.ToTable("districts", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Shared.Domain.Model.Entities.DocumentType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("key");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("label");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_document_types");
+
+                    b.HasIndex("Key")
+                        .IsUnique()
+                        .HasDatabaseName("ix_document_types_key");
+
+                    b.ToTable("document_types", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Shared.Domain.Model.Entities.PaymentOption", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("key");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("label");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_payment_options");
+
+                    b.HasIndex("Key")
+                        .IsUnique()
+                        .HasDatabaseName("ix_payment_options_key");
+
+                    b.ToTable("payment_options", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Shared.Domain.Model.Entities.Province", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("DepartmentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("department_id");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("label");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_provinces");
+
+                    b.HasIndex("Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_provinces_code");
+
+                    b.HasIndex("DepartmentId")
+                        .HasDatabaseName("ix_provinces_department_id");
+
+                    b.ToTable("provinces", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Shared.Domain.Model.Entities.UnitOfMeasure", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("key");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("label");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_unit_of_measures");
+
+                    b.HasIndex("Key")
+                        .IsUnique()
+                        .HasDatabaseName("ix_unit_of_measures_key");
+
+                    b.ToTable("unit_of_measures", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("character varying(8)")
+                        .HasColumnName("country");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("EmailDomain")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("email_domain");
+
+                    b.Property<string>("LegalName")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)")
+                        .HasColumnName("legal_name");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Plan")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("plan");
+
+                    b.Property<string>("Ruc")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("ruc");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("slug");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("status");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("WorkspaceUrl")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("workspace_url");
+
+                    b.HasKey("Id")
+                        .HasName("pk_tenants");
+
+                    b.HasIndex("Ruc")
+                        .HasDatabaseName("ix_tenants_ruc");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasDatabaseName("ix_tenants_slug");
+
+                    b.ToTable("tenants", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.TenantManagement.Domain.Model.Entities.OrganizationRegistrationRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AdminEmail")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)")
+                        .HasColumnName("admin_email");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasMaxLength(180)
+                        .HasColumnType("character varying(180)")
+                        .HasColumnName("company_name");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("ExternalId")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("external_id");
+
+                    b.Property<string>("PayloadJson")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("payload_json");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)")
+                        .HasColumnName("status");
+
+                    b.Property<DateTime>("SubmittedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("submitted_at");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("WorkspaceName")
+                        .IsRequired()
+                        .HasMaxLength(140)
+                        .HasColumnType("character varying(140)")
+                        .HasColumnName("workspace_name");
+
+                    b.Property<string>("WorkspaceSlug")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("workspace_slug");
+
+                    b.HasKey("Id")
+                        .HasName("pk_organization_registration_requests");
+
+                    b.HasIndex("AdminEmail")
+                        .HasDatabaseName("ix_organization_registration_requests_admin_email");
+
+                    b.HasIndex("ExternalId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_organization_registration_requests_external_id");
+
+                    b.HasIndex("WorkspaceSlug", "Status")
+                        .HasDatabaseName("ix_organization_registration_requests_workspace_slug_status");
+
+                    b.ToTable("organization_registration_requests", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.TenantManagement.Domain.Model.Entities.TenantCustomField", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("enabled");
+
+                    b.Property<string>("FieldType")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("field_type");
+
+                    b.Property<string>("Label")
+                        .IsRequired()
+                        .HasMaxLength(140)
+                        .HasColumnType("character varying(140)")
+                        .HasColumnName("label");
+
+                    b.Property<bool>("Required")
+                        .HasColumnType("boolean")
+                        .HasColumnName("required");
+
+                    b.Property<string>("TargetResource")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("target_resource");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_tenant_custom_fields");
+
+                    b.HasIndex("TenantId", "Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_tenant_custom_fields_tenant_id_code");
+
+                    b.ToTable("tenant_custom_fields", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.TenantManagement.Domain.Model.Entities.TenantMember", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Department")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("department");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("email");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(140)
+                        .HasColumnType("character varying(140)")
+                        .HasColumnName("full_name");
+
+                    b.Property<bool>("PortalAccess")
+                        .HasColumnType("boolean")
+                        .HasColumnName("portal_access");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("role");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("status");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_tenant_members");
+
+                    b.HasIndex("TenantId", "Email")
+                        .IsUnique()
+                        .HasDatabaseName("ix_tenant_members_tenant_id_email");
+
+                    b.ToTable("tenant_members", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.TenantManagement.Domain.Model.Entities.TenantRule", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("category");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(360)
+                        .HasColumnType("character varying(360)")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("enabled");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(140)
+                        .HasColumnType("character varying(140)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_tenant_rules");
+
+                    b.HasIndex("TenantId", "Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_tenant_rules_tenant_id_code");
+
+                    b.ToTable("tenant_rules", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.TenantManagement.Domain.Model.Entities.TenantSubscription", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BillingContact")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("billing_contact");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateOnly?>("NextBillingDate")
+                        .HasColumnType("date")
+                        .HasColumnName("next_billing_date");
+
+                    b.Property<string>("PaymentStatus")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("payment_status");
+
+                    b.Property<string>("Plan")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("plan");
+
+                    b.Property<int>("Seats")
+                        .HasColumnType("integer")
+                        .HasColumnName("seats");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("Warehouses")
+                        .HasColumnType("integer")
+                        .HasColumnName("warehouses");
+
+                    b.HasKey("Id")
+                        .HasName("pk_tenant_subscriptions");
+
+                    b.HasIndex("TenantId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_tenant_subscriptions_tenant_id");
+
+                    b.ToTable("tenant_subscriptions", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.TenantManagement.Domain.Model.Entities.UserWorkspaceMembership", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("ClientAccountId")
+                        .HasColumnType("integer")
+                        .HasColumnName("client_account_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Department")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("department");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("email");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(140)
+                        .HasColumnType("character varying(140)")
+                        .HasColumnName("full_name");
+
+                    b.Property<bool>("PortalAccess")
+                        .HasColumnType("boolean")
+                        .HasColumnName("portal_access");
+
+                    b.Property<string>("Role")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("role");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("status");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer")
+                        .HasColumnName("user_id");
+
+                    b.Property<int>("WorkspaceId")
+                        .HasColumnType("integer")
+                        .HasColumnName("workspace_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_user_workspace_memberships");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_user_workspace_memberships_user_id");
+
+                    b.HasIndex("TenantId", "ClientAccountId")
+                        .HasDatabaseName("ix_user_workspace_memberships_tenant_id_client_account_id");
+
+                    b.HasIndex("TenantId", "Email")
+                        .HasDatabaseName("ix_user_workspace_memberships_tenant_id_email");
+
+                    b.HasIndex("TenantId", "WorkspaceId")
+                        .HasDatabaseName("ix_user_workspace_memberships_tenant_id_workspace_id");
+
+                    b.HasIndex("WorkspaceId", "UserId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_user_workspace_memberships_workspace_id_user_id");
+
+                    b.ToTable("user_workspace_memberships", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.TenantManagement.Domain.Model.Entities.Workspace", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("EmailDomain")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("email_domain");
+
+                    b.Property<bool>("IsPrimary")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_primary");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(140)
+                        .HasColumnType("character varying(140)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("slug");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("status");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("url");
+
+                    b.HasKey("Id")
+                        .HasName("pk_workspaces");
+
+                    b.HasAlternateKey("TenantId", "Id")
+                        .HasName("ak_workspaces_tenant_id_id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasDatabaseName("ix_workspaces_slug");
+
+                    b.HasIndex("TenantId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_workspaces_tenant_id")
+                        .HasFilter("is_primary = true");
+
+                    b.ToTable("workspaces", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.TenantManagement.Domain.Model.Entities.WorkspaceFeature", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("boolean")
+                        .HasColumnName("enabled");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(140)
+                        .HasColumnType("character varying(140)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("PlanRequired")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("plan_required");
+
+                    b.Property<string>("Segment")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("segment");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_workspace_features");
+
+                    b.HasIndex("TenantId", "Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_workspace_features_tenant_id_code");
+
+                    b.ToTable("workspace_features", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.TenantManagement.Domain.Model.Entities.WorkspacePreference", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("key");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("value");
+
+                    b.Property<string>("ValueType")
+                        .IsRequired()
+                        .HasMaxLength(24)
+                        .HasColumnType("character varying(24)")
+                        .HasColumnName("value_type");
+
+                    b.Property<int>("WorkspaceId")
+                        .HasColumnType("integer")
+                        .HasColumnName("workspace_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_workspace_preferences");
+
+                    b.HasIndex("TenantId", "WorkspaceId", "Key")
+                        .IsUnique()
+                        .HasDatabaseName("ix_workspace_preferences_tenant_id_workspace_id_key");
+
+                    b.ToTable("workspace_preferences", (string)null);
                 });
 
             modelBuilder.Entity("King.Nexa.Platform.Warehouse.Domain.Model.Aggregates.InventoryItem", b =>
@@ -528,6 +3030,10 @@ namespace King.Nexa.Platform.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("reserved_quantity");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -541,9 +3047,15 @@ namespace King.Nexa.Platform.Migrations
                     b.HasKey("Id")
                         .HasName("pk_inventory_items");
 
-                    b.HasIndex("CatalogItemId")
+                    b.HasAlternateKey("TenantId", "Id")
+                        .HasName("ak_inventory_items_tenant_id_id");
+
+                    b.HasIndex("TenantId", "CatalogItemId")
                         .IsUnique()
-                        .HasDatabaseName("ix_inventory_items_catalog_item_id");
+                        .HasDatabaseName("ix_inventory_items_tenant_id_catalog_item_id");
+
+                    b.HasIndex("TenantId", "ProductId")
+                        .HasDatabaseName("ix_inventory_items_tenant_id_product_id");
 
                     b.ToTable("inventory_items", (string)null);
                 });
@@ -577,6 +3089,10 @@ namespace King.Nexa.Platform.Migrations
                         .HasColumnType("character varying(120)")
                         .HasColumnName("name");
 
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -584,15 +3100,297 @@ namespace King.Nexa.Platform.Migrations
                     b.HasKey("Id")
                         .HasName("pk_warehouses");
 
-                    b.HasIndex("Location")
+                    b.HasAlternateKey("TenantId", "Id")
+                        .HasName("ak_warehouses_tenant_id_id");
+
+                    b.HasIndex("TenantId", "Location")
                         .IsUnique()
-                        .HasDatabaseName("ix_warehouses_location");
+                        .HasDatabaseName("ix_warehouses_tenant_id_location");
 
                     b.ToTable("warehouses", (string)null);
                 });
 
+            modelBuilder.Entity("King.Nexa.Platform.Warehouse.Domain.Model.Entities.InventoryLot", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateOnly>("EntryDate")
+                        .HasColumnType("date")
+                        .HasColumnName("entry_date");
+
+                    b.Property<DateOnly?>("ExpirationDate")
+                        .HasColumnType("date")
+                        .HasColumnName("expiration_date");
+
+                    b.Property<int>("InventoryItemId")
+                        .HasColumnType("integer")
+                        .HasColumnName("inventory_item_id");
+
+                    b.Property<string>("LotCode")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("lot_code");
+
+                    b.Property<decimal?>("MaximumTemperature")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)")
+                        .HasColumnName("maximum_temperature");
+
+                    b.Property<decimal?>("MinimumTemperature")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)")
+                        .HasColumnName("minimum_temperature");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer")
+                        .HasColumnName("quantity");
+
+                    b.Property<int>("ReservedQuantity")
+                        .HasColumnType("integer")
+                        .HasColumnName("reserved_quantity");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("status");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("WarehouseId")
+                        .HasColumnType("integer")
+                        .HasColumnName("warehouse_id");
+
+                    b.Property<string>("Zone")
+                        .IsRequired()
+                        .HasMaxLength(120)
+                        .HasColumnType("character varying(120)")
+                        .HasColumnName("zone");
+
+                    b.HasKey("Id")
+                        .HasName("pk_inventory_lots");
+
+                    b.HasAlternateKey("TenantId", "Id")
+                        .HasName("ak_inventory_lots_tenant_id_id");
+
+                    b.HasIndex("TenantId", "ExpirationDate")
+                        .HasDatabaseName("ix_inventory_lots_tenant_id_expiration_date");
+
+                    b.HasIndex("TenantId", "InventoryItemId")
+                        .HasDatabaseName("ix_inventory_lots_tenant_id_inventory_item_id");
+
+                    b.HasIndex("TenantId", "LotCode")
+                        .IsUnique()
+                        .HasDatabaseName("ix_inventory_lots_tenant_id_lot_code");
+
+                    b.HasIndex("TenantId", "WarehouseId")
+                        .HasDatabaseName("ix_inventory_lots_tenant_id_warehouse_id");
+
+                    b.ToTable("inventory_lots", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Warehouse.Domain.Model.Entities.InventoryMovement", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("InventoryItemId")
+                        .HasColumnType("integer")
+                        .HasColumnName("inventory_item_id");
+
+                    b.Property<int?>("InventoryLotId")
+                        .HasColumnType("integer")
+                        .HasColumnName("inventory_lot_id");
+
+                    b.Property<string>("MovementType")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("movement_type");
+
+                    b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("occurred_at");
+
+                    b.Property<int?>("OrderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("order_id");
+
+                    b.Property<string>("PerformedBy")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("character varying(160)")
+                        .HasColumnName("performed_by");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer")
+                        .HasColumnName("quantity");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("reason");
+
+                    b.Property<decimal?>("TemperatureReading")
+                        .HasPrecision(6, 2)
+                        .HasColumnType("numeric(6,2)")
+                        .HasColumnName("temperature_reading");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int?>("WarehouseId")
+                        .HasColumnType("integer")
+                        .HasColumnName("warehouse_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_inventory_movements");
+
+                    b.HasIndex("TenantId", "Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_inventory_movements_tenant_id_code");
+
+                    b.HasIndex("TenantId", "InventoryItemId")
+                        .HasDatabaseName("ix_inventory_movements_tenant_id_inventory_item_id");
+
+                    b.HasIndex("TenantId", "InventoryLotId")
+                        .HasDatabaseName("ix_inventory_movements_tenant_id_inventory_lot_id");
+
+                    b.HasIndex("TenantId", "OccurredAt")
+                        .HasDatabaseName("ix_inventory_movements_tenant_id_occurred_at");
+
+                    b.HasIndex("TenantId", "OrderId")
+                        .HasDatabaseName("ix_inventory_movements_tenant_id_order_id");
+
+                    b.HasIndex("TenantId", "WarehouseId")
+                        .HasDatabaseName("ix_inventory_movements_tenant_id_warehouse_id");
+
+                    b.ToTable("inventory_movements", (string)null);
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Warehouse.Domain.Model.Entities.InventoryReservationRecord", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(80)
+                        .HasColumnType("character varying(80)")
+                        .HasColumnName("code");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("InventoryItemId")
+                        .HasColumnType("integer")
+                        .HasColumnName("inventory_item_id");
+
+                    b.Property<int?>("InventoryLotId")
+                        .HasColumnType("integer")
+                        .HasColumnName("inventory_lot_id");
+
+                    b.Property<int?>("OrderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("order_id");
+
+                    b.Property<int?>("PurchaseRequestId")
+                        .HasColumnType("integer")
+                        .HasColumnName("purchase_request_id");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(40)
+                        .HasColumnType("character varying(40)")
+                        .HasColumnName("status");
+
+                    b.Property<int>("TenantId")
+                        .HasColumnType("integer")
+                        .HasColumnName("tenant_id");
+
+                    b.Property<int>("Units")
+                        .HasColumnType("integer")
+                        .HasColumnName("units");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_inventory_reservation_records");
+
+                    b.HasIndex("TenantId", "Code")
+                        .IsUnique()
+                        .HasDatabaseName("ix_inventory_reservation_records_tenant_id_code");
+
+                    b.HasIndex("TenantId", "InventoryItemId")
+                        .HasDatabaseName("ix_inventory_reservation_records_tenant_id_inventory_item_id");
+
+                    b.HasIndex("TenantId", "InventoryLotId")
+                        .HasDatabaseName("ix_inventory_reservation_records_tenant_id_inventory_lot_id");
+
+                    b.HasIndex("TenantId", "OrderId")
+                        .HasDatabaseName("ix_inventory_reservation_records_tenant_id_order_id");
+
+                    b.HasIndex("TenantId", "PurchaseRequestId")
+                        .HasDatabaseName("ix_inventory_reservation_records_tenant_id_purchase_request_id");
+
+                    b.HasIndex("TenantId", "Status")
+                        .HasDatabaseName("ix_inventory_reservation_records_tenant_id_status");
+
+                    b.ToTable("inventory_reservation_records", (string)null);
+                });
+
             modelBuilder.Entity("King.Nexa.Platform.CatalogManagement.Domain.Model.Aggregates.CatalogItem", b =>
                 {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_catalog_items_tenants_tenant_id");
+
                     b.OwnsOne("King.Nexa.Platform.CatalogManagement.Domain.Model.ValueObjects.Money", "UnitPrice", b1 =>
                         {
                             b1.Property<int>("CatalogItemId")
@@ -623,6 +3421,13 @@ namespace King.Nexa.Platform.Migrations
 
             modelBuilder.Entity("King.Nexa.Platform.Invoicing.Domain.Model.Aggregates.Invoice", b =>
                 {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_invoices_tenants_tenant_id");
+
                     b.OwnsOne("King.Nexa.Platform.Invoicing.Domain.Model.ValueObjects.BillingAmount", "BillingAmount", b1 =>
                         {
                             b1.Property<int>("InvoiceId")
@@ -653,6 +3458,47 @@ namespace King.Nexa.Platform.Migrations
 
             modelBuilder.Entity("King.Nexa.Platform.Invoicing.Domain.Model.Aggregates.Payment", b =>
                 {
+                    b.HasOne("King.Nexa.Platform.Shared.Domain.Model.Entities.PaymentOption", null)
+                        .WithMany()
+                        .HasForeignKey("PaymentOptionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_payments_payment_options_payment_option_id");
+
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_payments_tenants_tenant_id");
+
+                    b.HasOne("King.Nexa.Platform.Sales.Domain.Model.Aggregates.ClientAccount", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "ClientAccountId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_payments_client_accounts_tenant_id_client_account_id");
+
+                    b.HasOne("King.Nexa.Platform.Invoicing.Domain.Model.Aggregates.Invoice", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "InvoiceId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_payments_invoices_tenant_id_invoice_id");
+
+                    b.HasOne("King.Nexa.Platform.Sales.Domain.Model.Aggregates.Order", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "OrderId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_payments_orders_tenant_id_order_id");
+
+                    b.HasOne("King.Nexa.Platform.Invoicing.Domain.Model.Entities.PaymentMethodRecord", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "PaymentMethodRecordId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_payments_payment_method_records_tenant_id_payment_method_re~");
+
                     b.OwnsOne("King.Nexa.Platform.Invoicing.Domain.Model.ValueObjects.BillingAmount", "BillingAmount", b1 =>
                         {
                             b1.Property<int>("PaymentId")
@@ -681,8 +3527,118 @@ namespace King.Nexa.Platform.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("King.Nexa.Platform.Invoicing.Domain.Model.Entities.BusinessDocument", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.Shared.Domain.Model.Entities.DocumentType", null)
+                        .WithMany()
+                        .HasForeignKey("DocumentTypeId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_business_documents_document_types_document_type_id");
+
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_business_documents_tenants_tenant_id");
+
+                    b.HasOne("King.Nexa.Platform.Sales.Domain.Model.Aggregates.ClientAccount", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "ClientAccountId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_business_documents_client_accounts_tenant_id_client_account~");
+
+                    b.HasOne("King.Nexa.Platform.Sales.Domain.Model.Aggregates.Order", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "OrderId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_business_documents_orders_tenant_id_order_id");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Invoicing.Domain.Model.Entities.NotificationRecord", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_notification_records_tenants_tenant_id");
+
+                    b.HasOne("King.Nexa.Platform.Sales.Domain.Model.Aggregates.ClientAccount", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "ClientAccountId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_notification_records_client_accounts_tenant_id_client_accou~");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Invoicing.Domain.Model.Entities.PaymentMethodRecord", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_payment_method_records_tenants_tenant_id");
+
+                    b.HasOne("King.Nexa.Platform.Sales.Domain.Model.Aggregates.ClientAccount", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "ClientAccountId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_payment_method_records_client_accounts_tenant_id_client_acc~");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Invoicing.Domain.Model.Entities.PaymentProcessRecord", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_payment_process_records_tenants_tenant_id");
+
+                    b.HasOne("King.Nexa.Platform.Sales.Domain.Model.Aggregates.ClientAccount", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "ClientAccountId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_payment_process_records_client_accounts_tenant_id_client_ac~");
+
+                    b.HasOne("King.Nexa.Platform.Sales.Domain.Model.Aggregates.Order", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "OrderId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_payment_process_records_orders_tenant_id_order_id");
+
+                    b.HasOne("King.Nexa.Platform.Invoicing.Domain.Model.Aggregates.Payment", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "PaymentId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_payment_process_records_payments_tenant_id_payment_id");
+
+                    b.HasOne("King.Nexa.Platform.Invoicing.Domain.Model.Entities.PaymentMethodRecord", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "PaymentMethodRecordId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_payment_process_records_payment_method_records_tenant_id_pa~");
+                });
+
             modelBuilder.Entity("King.Nexa.Platform.Logistics.Domain.Model.Aggregates.Shipment", b =>
                 {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_shipments_tenants_tenant_id");
+
                     b.OwnsOne("King.Nexa.Platform.Logistics.Domain.Model.ValueObjects.TemperatureRecord", "LastTemperatureRecord", b1 =>
                         {
                             b1.Property<int>("ShipmentId")
@@ -708,8 +3664,136 @@ namespace King.Nexa.Platform.Migrations
                     b.Navigation("LastTemperatureRecord");
                 });
 
+            modelBuilder.Entity("King.Nexa.Platform.Logistics.Domain.Model.Entities.CustomerPortalTask", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_customer_portal_tasks_tenants_tenant_id");
+
+                    b.HasOne("King.Nexa.Platform.Sales.Domain.Model.Aggregates.ClientAccount", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "ClientAccountId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_customer_portal_tasks_client_accounts_tenant_id_client_acco~");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Logistics.Domain.Model.Entities.DispatchEvent", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_dispatch_events_tenants_tenant_id");
+
+                    b.HasOne("King.Nexa.Platform.Logistics.Domain.Model.Entities.DispatchOrder", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "DispatchOrderId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_dispatch_events_dispatch_orders_tenant_id_dispatch_order_id");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Logistics.Domain.Model.Entities.DispatchOrder", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_dispatch_orders_tenants_tenant_id");
+
+                    b.HasOne("King.Nexa.Platform.Sales.Domain.Model.Aggregates.ClientAccount", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "ClientAccountId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_dispatch_orders_client_accounts_tenant_id_client_account_id");
+
+                    b.HasOne("King.Nexa.Platform.Sales.Domain.Model.Aggregates.Order", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "OrderId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_dispatch_orders_orders_tenant_id_order_id");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Logistics.Domain.Model.Entities.ProofOfDeliveryRecord", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_proof_of_delivery_records_tenants_tenant_id");
+
+                    b.HasOne("King.Nexa.Platform.Logistics.Domain.Model.Entities.DispatchOrder", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "DispatchOrderId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_proof_of_delivery_records_dispatch_orders_tenant_id_dispatc~");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Logistics.Domain.Model.Entities.TemperatureLog", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_temperature_logs_tenants_tenant_id");
+
+                    b.HasOne("King.Nexa.Platform.Logistics.Domain.Model.Entities.DispatchOrder", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "DispatchOrderId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_temperature_logs_dispatch_orders_tenant_id_dispatch_order_id");
+
+                    b.HasOne("King.Nexa.Platform.Sales.Domain.Model.Aggregates.Order", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "OrderId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_temperature_logs_orders_tenant_id_order_id");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Sales.Domain.Model.Aggregates.ClientAccount", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_client_accounts_tenants_tenant_id");
+                });
+
             modelBuilder.Entity("King.Nexa.Platform.Sales.Domain.Model.Aggregates.Order", b =>
                 {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_orders_tenants_tenant_id");
+
+                    b.HasOne("King.Nexa.Platform.Sales.Domain.Model.Aggregates.ClientAccount", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "ClientAccountId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_orders_client_accounts_tenant_id_client_account_id");
+
                     b.OwnsOne("King.Nexa.Platform.Sales.Domain.Model.ValueObjects.Money", "Total", b1 =>
                         {
                             b1.Property<int>("OrderId")
@@ -734,18 +3818,137 @@ namespace King.Nexa.Platform.Migrations
                                 .HasForeignKey("OrderId");
                         });
 
+                    b.OwnsOne("King.Nexa.Platform.Sales.Domain.Model.ValueObjects.DeliveryDetails", "Delivery", b1 =>
+                        {
+                            b1.Property<int>("OrderId")
+                                .HasColumnType("integer");
+
+                            b1.Property<string>("Address")
+                                .IsRequired()
+                                .HasMaxLength(240)
+                                .HasColumnType("character varying(240)")
+                                .HasColumnName("delivery_address");
+
+                            b1.Property<string>("AddressType")
+                                .IsRequired()
+                                .HasMaxLength(24)
+                                .HasColumnType("character varying(24)")
+                                .HasColumnName("delivery_address_type");
+
+                            b1.Property<string>("City")
+                                .IsRequired()
+                                .HasMaxLength(120)
+                                .HasColumnType("character varying(120)")
+                                .HasColumnName("delivery_city");
+
+                            b1.Property<string>("DispatchNote")
+                                .IsRequired()
+                                .HasMaxLength(600)
+                                .HasColumnType("character varying(600)")
+                                .HasColumnName("dispatch_note");
+
+                            b1.Property<string>("District")
+                                .IsRequired()
+                                .HasMaxLength(120)
+                                .HasColumnType("character varying(120)")
+                                .HasColumnName("delivery_district");
+
+                            b1.Property<string>("Province")
+                                .IsRequired()
+                                .HasMaxLength(120)
+                                .HasColumnType("character varying(120)")
+                                .HasColumnName("delivery_province");
+
+                            b1.Property<string>("Reference")
+                                .IsRequired()
+                                .HasMaxLength(240)
+                                .HasColumnType("character varying(240)")
+                                .HasColumnName("delivery_reference");
+
+                            b1.Property<DateOnly?>("RequestedDate")
+                                .HasColumnType("date")
+                                .HasColumnName("requested_delivery_date");
+
+                            b1.HasKey("OrderId");
+
+                            b1.ToTable("orders");
+
+                            b1.WithOwner()
+                                .HasForeignKey("OrderId");
+                        });
+
+                    b.Navigation("Delivery")
+                        .IsRequired();
+
                     b.Navigation("Total")
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("King.Nexa.Platform.Sales.Domain.Model.Entities.OrderItem", b =>
+            modelBuilder.Entity("King.Nexa.Platform.Sales.Domain.Model.Entities.ConversationMessage", b =>
                 {
-                    b.HasOne("King.Nexa.Platform.Sales.Domain.Model.Aggregates.Order", null)
-                        .WithMany("Items")
-                        .HasForeignKey("OrderId")
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_order_items_orders_order_id");
+                        .HasConstraintName("fk_conversation_messages_tenants_tenant_id");
+
+                    b.HasOne("King.Nexa.Platform.Sales.Domain.Model.Aggregates.ClientAccount", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "ClientAccountId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_conversation_messages_client_accounts_tenant_id_client_acco~");
+
+                    b.HasOne("King.Nexa.Platform.Sales.Domain.Model.Aggregates.Order", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "OrderId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_conversation_messages_orders_tenant_id_order_id");
+
+                    b.HasOne("King.Nexa.Platform.Sales.Domain.Model.Entities.PurchaseRequest", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "PurchaseRequestId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_conversation_messages_purchase_requests_tenant_id_purchase_~");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Sales.Domain.Model.Entities.CreditRequest", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_credit_requests_tenants_tenant_id");
+
+                    b.HasOne("King.Nexa.Platform.Sales.Domain.Model.Aggregates.ClientAccount", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "ClientAccountId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_credit_requests_client_accounts_tenant_id_client_account_id");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Sales.Domain.Model.Entities.OrderItem", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_order_items_tenants_tenant_id");
+
+                    b.HasOne("King.Nexa.Platform.Sales.Domain.Model.Aggregates.Order", null)
+                        .WithMany("Items")
+                        .HasForeignKey("TenantId", "OrderId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_order_items_orders_tenant_id_order_id");
 
                     b.OwnsOne("King.Nexa.Platform.Sales.Domain.Model.ValueObjects.Money", "Subtotal", b1 =>
                         {
@@ -802,8 +4005,238 @@ namespace King.Nexa.Platform.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("King.Nexa.Platform.Sales.Domain.Model.Entities.Promotion", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_promotions_tenants_tenant_id");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Sales.Domain.Model.Entities.PromotionCatalogItem", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_promotion_catalog_items_tenants_tenant_id");
+
+                    b.HasOne("King.Nexa.Platform.CatalogManagement.Domain.Model.Aggregates.CatalogItem", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CatalogItemId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_promotion_catalog_items_catalog_items_tenant_id_catalog_ite~");
+
+                    b.HasOne("King.Nexa.Platform.Sales.Domain.Model.Entities.Promotion", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "PromotionId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_promotion_catalog_items_promotions_tenant_id_promotion_id");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Sales.Domain.Model.Entities.PurchaseRequest", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_purchase_requests_tenants_tenant_id");
+
+                    b.HasOne("King.Nexa.Platform.Sales.Domain.Model.Aggregates.ClientAccount", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "ClientAccountId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_purchase_requests_client_accounts_tenant_id_client_account_~");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Sales.Domain.Model.Entities.PurchaseRequestLine", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_purchase_request_lines_tenants_tenant_id");
+
+                    b.HasOne("King.Nexa.Platform.CatalogManagement.Domain.Model.Aggregates.CatalogItem", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "CatalogItemId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_purchase_request_lines_catalog_items_tenant_id_catalog_item~");
+
+                    b.HasOne("King.Nexa.Platform.Sales.Domain.Model.Entities.PurchaseRequest", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "PurchaseRequestId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_purchase_request_lines_purchase_requests_tenant_id_purchase~");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Shared.Domain.Model.Entities.AuditLog", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_audit_logs_tenants_tenant_id");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Shared.Domain.Model.Entities.Department", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.Shared.Domain.Model.Entities.Country", null)
+                        .WithMany()
+                        .HasForeignKey("CountryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_departments_countries_country_id");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Shared.Domain.Model.Entities.District", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.Shared.Domain.Model.Entities.Province", null)
+                        .WithMany()
+                        .HasForeignKey("ProvinceId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_districts_provinces_province_id");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Shared.Domain.Model.Entities.Province", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.Shared.Domain.Model.Entities.Department", null)
+                        .WithMany()
+                        .HasForeignKey("DepartmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_provinces_departments_department_id");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.TenantManagement.Domain.Model.Entities.TenantCustomField", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_tenant_custom_fields_tenants_tenant_id");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.TenantManagement.Domain.Model.Entities.TenantMember", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_tenant_members_tenants_tenant_id");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.TenantManagement.Domain.Model.Entities.TenantRule", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_tenant_rules_tenants_tenant_id");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.TenantManagement.Domain.Model.Entities.TenantSubscription", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_tenant_subscriptions_tenants_tenant_id");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.TenantManagement.Domain.Model.Entities.UserWorkspaceMembership", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_workspace_memberships_tenants_tenant_id");
+
+                    b.HasOne("King.Nexa.Platform.Iam.Domain.Model.Aggregates.User", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_workspace_memberships_users_user_id");
+
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Entities.Workspace", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "WorkspaceId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_user_workspace_memberships_workspaces_tenant_id_workspace_id");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.TenantManagement.Domain.Model.Entities.Workspace", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_workspaces_tenants_tenant_id");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.TenantManagement.Domain.Model.Entities.WorkspaceFeature", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_workspace_features_tenants_tenant_id");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.TenantManagement.Domain.Model.Entities.WorkspacePreference", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_workspace_preferences_tenants_tenant_id");
+
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Entities.Workspace", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "WorkspaceId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_workspace_preferences_workspaces_tenant_id_workspace_id");
+                });
+
             modelBuilder.Entity("King.Nexa.Platform.Warehouse.Domain.Model.Aggregates.InventoryItem", b =>
                 {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_inventory_items_tenants_tenant_id");
+
                     b.OwnsOne("King.Nexa.Platform.Warehouse.Domain.Model.ValueObjects.TemperatureRange", "TemperatureRange", b1 =>
                         {
                             b1.Property<int>("InventoryItemId")
@@ -833,6 +4266,13 @@ namespace King.Nexa.Platform.Migrations
 
             modelBuilder.Entity("King.Nexa.Platform.Warehouse.Domain.Model.Aggregates.Warehouse", b =>
                 {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_warehouses_tenants_tenant_id");
+
                     b.OwnsOne("King.Nexa.Platform.Warehouse.Domain.Model.ValueObjects.TemperatureRange", "TemperatureRange", b1 =>
                         {
                             b1.Property<int>("WarehouseId")
@@ -858,6 +4298,110 @@ namespace King.Nexa.Platform.Migrations
 
                     b.Navigation("TemperatureRange")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Warehouse.Domain.Model.Entities.InventoryLot", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_inventory_lots_tenants_tenant_id");
+
+                    b.HasOne("King.Nexa.Platform.Warehouse.Domain.Model.Aggregates.InventoryItem", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "InventoryItemId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_inventory_lots_inventory_items_tenant_id_inventory_item_id");
+
+                    b.HasOne("King.Nexa.Platform.Warehouse.Domain.Model.Aggregates.Warehouse", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "WarehouseId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_inventory_lots_warehouses_tenant_id_warehouse_id");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Warehouse.Domain.Model.Entities.InventoryMovement", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_inventory_movements_tenants_tenant_id");
+
+                    b.HasOne("King.Nexa.Platform.Warehouse.Domain.Model.Aggregates.InventoryItem", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "InventoryItemId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_inventory_movements_inventory_items_tenant_id_inventory_ite~");
+
+                    b.HasOne("King.Nexa.Platform.Warehouse.Domain.Model.Entities.InventoryLot", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "InventoryLotId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_inventory_movements_inventory_lots_tenant_id_inventory_lot_~");
+
+                    b.HasOne("King.Nexa.Platform.Sales.Domain.Model.Aggregates.Order", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "OrderId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_inventory_movements_orders_tenant_id_order_id");
+
+                    b.HasOne("King.Nexa.Platform.Warehouse.Domain.Model.Aggregates.Warehouse", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "WarehouseId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_inventory_movements_warehouses_tenant_id_warehouse_id");
+                });
+
+            modelBuilder.Entity("King.Nexa.Platform.Warehouse.Domain.Model.Entities.InventoryReservationRecord", b =>
+                {
+                    b.HasOne("King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates.Tenant", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_inventory_reservation_records_tenants_tenant_id");
+
+                    b.HasOne("King.Nexa.Platform.Warehouse.Domain.Model.Aggregates.InventoryItem", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "InventoryItemId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_inventory_reservation_records_inventory_items_tenant_id_inv~");
+
+                    b.HasOne("King.Nexa.Platform.Warehouse.Domain.Model.Entities.InventoryLot", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "InventoryLotId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_inventory_reservation_records_inventory_lots_tenant_id_inve~");
+
+                    b.HasOne("King.Nexa.Platform.Sales.Domain.Model.Aggregates.Order", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "OrderId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_inventory_reservation_records_orders_tenant_id_order_id");
+
+                    b.HasOne("King.Nexa.Platform.Sales.Domain.Model.Entities.PurchaseRequest", null)
+                        .WithMany()
+                        .HasForeignKey("TenantId", "PurchaseRequestId")
+                        .HasPrincipalKey("TenantId", "Id")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_inventory_reservation_records_purchase_requests_tenant_id_p~");
                 });
 
             modelBuilder.Entity("King.Nexa.Platform.Sales.Domain.Model.Aggregates.Order", b =>

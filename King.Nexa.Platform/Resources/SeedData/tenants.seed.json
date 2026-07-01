@@ -1,0 +1,13 @@
+[
+  {
+    "name": "ICISA Distribuciones",
+    "legalName": "ICISA Distribuciones S.A.C.",
+    "slug": "icisa",
+    "ruc": "20600000001",
+    "workspaceUrl": "icisa.nexa.com.pe",
+    "emailDomain": "icisa.pe",
+    "plan": "Standard",
+    "status": "active",
+    "country": "PE"
+  }
+]

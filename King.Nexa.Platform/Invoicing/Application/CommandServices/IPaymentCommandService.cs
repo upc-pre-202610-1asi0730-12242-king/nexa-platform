@@ -9,5 +9,11 @@ public interface IPaymentCommandService
 
     Task<Payment?> UpdateAsync(UpdatePaymentCommand command, CancellationToken cancellationToken = default);
 
+    Task<Payment?> ConfirmAsync(ConfirmPaymentCommand command, CancellationToken cancellationToken = default);
+
+    Task<Payment?> RejectAsync(RejectPaymentCommand command, CancellationToken cancellationToken = default);
+
+    Task<Payment?> CancelAsync(CancelPaymentCommand command, CancellationToken cancellationToken = default);
+
     Task<bool> DeleteAsync(DeletePaymentCommand command, CancellationToken cancellationToken = default);
 }

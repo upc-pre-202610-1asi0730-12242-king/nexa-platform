@@ -8,16 +8,16 @@ public class BaseRepository<TEntity>(AppDbContext context) : IBaseRepository<TEn
 {
     protected readonly AppDbContext Context = context;
 
-    public async Task AddAsync(TEntity entity, CancellationToken cancellationToken = default) =>
+    public virtual async Task AddAsync(TEntity entity, CancellationToken cancellationToken = default) =>
         await Context.Set<TEntity>().AddAsync(entity, cancellationToken);
 
-    public async Task<TEntity?> FindByIdAsync(int id, CancellationToken cancellationToken = default) =>
+    public virtual async Task<TEntity?> FindByIdAsync(int id, CancellationToken cancellationToken = default) =>
         await Context.Set<TEntity>().FindAsync([id], cancellationToken);
 
-    public async Task<IEnumerable<TEntity>> ListAsync(CancellationToken cancellationToken = default) =>
+    public virtual async Task<IEnumerable<TEntity>> ListAsync(CancellationToken cancellationToken = default) =>
         await Context.Set<TEntity>().ToListAsync(cancellationToken);
 
-    public void Update(TEntity entity) => Context.Set<TEntity>().Update(entity);
+    public virtual void Update(TEntity entity) => Context.Set<TEntity>().Update(entity);
 
-    public void Remove(TEntity entity) => Context.Set<TEntity>().Remove(entity);
+    public virtual void Remove(TEntity entity) => Context.Set<TEntity>().Remove(entity);
 }

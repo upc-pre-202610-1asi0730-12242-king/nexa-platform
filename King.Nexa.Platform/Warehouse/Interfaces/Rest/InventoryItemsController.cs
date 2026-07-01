@@ -5,11 +5,14 @@ using King.Nexa.Platform.Warehouse.Domain.Model.Queries;
 using King.Nexa.Platform.Warehouse.Domain.Model.ValueObjects;
 using King.Nexa.Platform.Warehouse.Interfaces.Rest.Resources;
 using King.Nexa.Platform.Warehouse.Interfaces.Rest.Transform;
+using King.Nexa.Platform.Shared.Infrastructure.Security.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace King.Nexa.Platform.Warehouse.Interfaces.Rest;
 
 [ApiController]
+[Authorize(Policy = NexaAuthorizationPolicies.WorkspaceMember)]
 [Route("api/v1/[controller]")]
 public class InventoryItemsController(IInventoryItemCommandService inventoryItemCommandService, IInventoryItemQueryService inventoryItemQueryService) : ControllerBase
 {
@@ -67,6 +70,7 @@ public class InventoryItemsController(IInventoryItemCommandService inventoryItem
     /// Creates an inventory item.
     /// </summary>
     [HttpPost]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanManageInventory)]
     public async Task<IActionResult> CreateInventoryItem(CreateInventoryItemResource resource, CancellationToken cancellationToken)
     {
         var command = CreateInventoryItemCommandFromResourceAssembler.ToCommandFromResource(resource);
@@ -78,6 +82,7 @@ public class InventoryItemsController(IInventoryItemCommandService inventoryItem
     /// Updates an inventory item.
     /// </summary>
     [HttpPut("{id:int}")]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanManageInventory)]
     public async Task<IActionResult> UpdateInventoryItem(int id, UpdateInventoryItemResource resource, CancellationToken cancellationToken)
     {
         var command = UpdateInventoryItemCommandFromResourceAssembler.ToCommandFromResource(id, resource);
@@ -89,6 +94,7 @@ public class InventoryItemsController(IInventoryItemCommandService inventoryItem
     /// Deletes an inventory item.
     /// </summary>
     [HttpDelete("{id:int}")]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanManageInventory)]
     public async Task<IActionResult> DeleteInventoryItem(int id, CancellationToken cancellationToken)
     {
         var deleted = await inventoryItemCommandService.DeleteAsync(new DeleteInventoryItemCommand(id), cancellationToken);
@@ -99,6 +105,7 @@ public class InventoryItemsController(IInventoryItemCommandService inventoryItem
     /// Reserves inventory units for a sales order workflow.
     /// </summary>
     [HttpPost("{id:int}/reserve")]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanManageInventory)]
     public async Task<IActionResult> ReserveInventory(int id, ReserveInventoryResource resource, CancellationToken cancellationToken)
     {
         var item = await inventoryItemCommandService.ReserveAsync(
@@ -112,6 +119,7 @@ public class InventoryItemsController(IInventoryItemCommandService inventoryItem
     /// Releases previously reserved inventory units.
     /// </summary>
     [HttpPost("{id:int}/release-reservation")]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanManageInventory)]
     public async Task<IActionResult> ReleaseInventoryReservation(int id, ReserveInventoryResource resource, CancellationToken cancellationToken)
     {
         var item = await inventoryItemCommandService.ReleaseAsync(

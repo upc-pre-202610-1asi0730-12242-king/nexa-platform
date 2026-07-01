@@ -4,11 +4,14 @@ using King.Nexa.Platform.Warehouse.Domain.Model.Commands;
 using King.Nexa.Platform.Warehouse.Domain.Model.Queries;
 using King.Nexa.Platform.Warehouse.Interfaces.Rest.Resources;
 using King.Nexa.Platform.Warehouse.Interfaces.Rest.Transform;
+using King.Nexa.Platform.Shared.Infrastructure.Security.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace King.Nexa.Platform.Warehouse.Interfaces.Rest;
 
 [ApiController]
+[Authorize(Policy = NexaAuthorizationPolicies.WorkspaceMember)]
 [Route("api/v1/[controller]")]
 public class WarehousesController(IWarehouseCommandService warehouseCommandService, IWarehouseQueryService warehouseQueryService) : ControllerBase
 {
@@ -34,6 +37,7 @@ public class WarehousesController(IWarehouseCommandService warehouseCommandServi
     }
 
     [HttpPost]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanManageInventory)]
     public async Task<IActionResult> CreateWarehouse(CreateWarehouseResource resource, CancellationToken cancellationToken)
     {
         var command = CreateWarehouseCommandFromResourceAssembler.ToCommandFromResource(resource);
@@ -42,6 +46,7 @@ public class WarehousesController(IWarehouseCommandService warehouseCommandServi
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanManageInventory)]
     public async Task<IActionResult> UpdateWarehouse(int id, UpdateWarehouseResource resource, CancellationToken cancellationToken)
     {
         var command = UpdateWarehouseCommandFromResourceAssembler.ToCommandFromResource(id, resource);
@@ -50,6 +55,7 @@ public class WarehousesController(IWarehouseCommandService warehouseCommandServi
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanManageInventory)]
     public async Task<IActionResult> DeleteWarehouse(int id, CancellationToken cancellationToken)
     {
         var deleted = await warehouseCommandService.DeleteAsync(new DeleteWarehouseCommand(id), cancellationToken);

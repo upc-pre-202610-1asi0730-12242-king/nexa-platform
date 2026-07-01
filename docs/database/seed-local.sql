@@ -1,4 +1,4 @@
--- Nexa AV2 local/demo seed data.
+-- Nexa AV2 local reference seed data.
 -- Idempotent: natural keys + ON CONFLICT / WHERE NOT EXISTS.
 -- No DROP, TRUNCATE, or broad DELETE statements.
 
@@ -70,85 +70,10 @@ SELECT * FROM (
 ) AS src
 WHERE NOT EXISTS (SELECT 1 FROM inventory_items i WHERE i.catalog_item_id = src.catalog_item_id);
 
--- 6. Orders
-INSERT INTO orders (order_number, customer_id, status, total_amount, total_currency, payment_confirmation, inventory_reservation, rejection_reason, confirmed_at, created_at, updated_at) VALUES
-('AV2-ORD-0001', 'CLI-001', 'Pending', 610.00, 'PEN', NULL, NULL, NULL, NULL, NOW(), NULL),
-('AV2-ORD-0002', 'CLI-002', 'Confirmed', 1075.00, 'PEN', 'BCP-OP-AV2-0002', 'RES-AV2-0002', NULL, NOW(), NOW(), NULL),
-('AV2-ORD-0003', 'CLI-003', 'Paid', 868.00, 'PEN', 'YAPE-AV2-0003', 'RES-AV2-0003', NULL, NOW(), NOW(), NULL),
-('AV2-ORD-0004', 'CLI-004', 'Confirmed', 824.00, 'PEN', 'BBVA-AV2-0004', 'RES-AV2-0004', NULL, NOW(), NOW(), NULL),
-('AV2-ORD-0005', 'CLI-005', 'Pending', 1208.00, 'PEN', NULL, NULL, NULL, NULL, NOW(), NULL)
-ON CONFLICT (order_number) DO NOTHING;
-
--- 7. Order Items
-INSERT INTO order_items (order_id, product_id, catalog_item_id, item_name, quantity, unit_price_amount, unit_price_currency, subtotal_amount, subtotal_currency)
-SELECT o.id, src.product_id, src.catalog_item_id, src.item_name, src.quantity, src.unit_price_amount, 'PEN', src.subtotal_amount, 'PEN'
-FROM orders o
-JOIN (
-    SELECT 'AV2-ORD-0001' order_number, 'AV2-PROD-0001' product_id, 'AV2-CAT-0001' catalog_item_id, 'Influenza Vaccine Pack' item_name, 2 quantity, 185.00 unit_price_amount, 370.00 subtotal_amount
-    UNION ALL SELECT 'AV2-ORD-0001', 'AV2-PROD-0002', 'AV2-CAT-0002', 'Insulin Cold Storage Kit', 1, 240.00, 240.00
-    UNION ALL SELECT 'AV2-ORD-0002', 'AV2-PROD-0003', 'AV2-CAT-0003', 'Fresh Salmon Box', 3, 165.00, 495.00
-    UNION ALL SELECT 'AV2-ORD-0002', 'AV2-PROD-0007', 'AV2-CAT-0007', 'Shrimp Frozen Bag', 4, 145.00, 580.00
-    UNION ALL SELECT 'AV2-ORD-0003', 'AV2-PROD-0005', 'AV2-CAT-0005', 'Greek Yogurt Crate', 6, 68.00, 408.00
-    UNION ALL SELECT 'AV2-ORD-0003', 'AV2-PROD-0006', 'AV2-CAT-0006', 'Blueberry Export Pack', 5, 92.00, 460.00
-    UNION ALL SELECT 'AV2-ORD-0004', 'AV2-PROD-0004', 'AV2-CAT-0004', 'Frozen Chicken Breast', 4, 115.00, 460.00
-    UNION ALL SELECT 'AV2-ORD-0004', 'AV2-PROD-0008', 'AV2-CAT-0008', 'Pharmaceutical Starter Kit', 1, 310.00, 310.00
-    UNION ALL SELECT 'AV2-ORD-0005', 'AV2-PROD-0005', 'AV2-CAT-0005', 'Greek Yogurt Crate', 10, 68.00, 680.00
-    UNION ALL SELECT 'AV2-ORD-0005', 'AV2-PROD-0006', 'AV2-CAT-0006', 'Blueberry Export Pack', 5, 92.00, 460.00
-) src ON src.order_number = o.order_number
-WHERE NOT EXISTS (
-    SELECT 1 FROM order_items oi WHERE oi.order_id = o.id AND oi.catalog_item_id = src.catalog_item_id
-);
-
--- 8. Shipments
-INSERT INTO shipments (shipment_code, order_id, scheduled_at, delivered_at, status, last_temperature_celsius, last_temperature_recorded_at, created_at, updated_at)
-SELECT src.shipment_code, o.id, src.scheduled_at, src.delivered_at, src.status, src.last_temperature_celsius, src.last_temperature_recorded_at, NOW(), NULL
-FROM orders o
-JOIN (
-    SELECT 'AV2-SHP-0001' shipment_code, 'AV2-ORD-0001' order_number, (NOW() + INTERVAL '1 day') scheduled_at, NULL::timestamp with time zone delivered_at, 'Scheduled' status, 4.20 last_temperature_celsius, NOW() last_temperature_recorded_at
-    UNION ALL SELECT 'AV2-SHP-0002', 'AV2-ORD-0002', (NOW() - INTERVAL '2 days'), (NOW() - INTERVAL '1 day'), 'Delivered', -18.70, (NOW() - INTERVAL '1 day')
-    UNION ALL SELECT 'AV2-SHP-0003', 'AV2-ORD-0003', (NOW() - INTERVAL '1 day'), (NOW() - INTERVAL '6 hours'), 'Delivered', 5.10, (NOW() - INTERVAL '6 hours')
-    UNION ALL SELECT 'AV2-SHP-0004', 'AV2-ORD-0004', (NOW() + INTERVAL '2 days'), NULL, 'Scheduled', -19.20, NOW()
-    UNION ALL SELECT 'AV2-SHP-0005', 'AV2-ORD-0005', (NOW() + INTERVAL '3 days'), NULL, 'Scheduled', 6.00, NOW()
-    UNION ALL SELECT 'AV2-SHP-0006', 'ORD-2026-0010', (NOW() + INTERVAL '5 days'), NULL, 'Scheduled', 3.90, NOW()
-) src ON src.order_number = o.order_number
-WHERE NOT EXISTS (SELECT 1 FROM shipments s WHERE s.shipment_code = src.shipment_code);
-
--- 9. Invoices
-INSERT INTO invoices (invoice_number, order_id, amount, currency, payment_status, paid_at, created_at, updated_at)
-SELECT src.invoice_number, o.id, src.amount, 'PEN', src.payment_status, src.paid_at, NOW(), NULL
-FROM orders o
-JOIN (
-    SELECT 'AV2-INV-0001' invoice_number, 'AV2-ORD-0001' order_number, 610.00 amount, 'Pending' payment_status, NULL::timestamp with time zone paid_at
-    UNION ALL SELECT 'AV2-INV-0002', 'AV2-ORD-0002', 1075.00, 'Paid', (NOW() - INTERVAL '1 day')
-    UNION ALL SELECT 'AV2-INV-0003', 'AV2-ORD-0003', 868.00, 'Paid', NOW()
-    UNION ALL SELECT 'AV2-INV-0004', 'AV2-ORD-0004', 824.00, 'Pending', NULL
-    UNION ALL SELECT 'AV2-INV-0005', 'AV2-ORD-0005', 1208.00, 'Pending', NULL
-    UNION ALL SELECT 'AV2-INV-0006', 'ORD-2026-0010', 2062.38, 'Pending', NULL
-) src ON src.order_number = o.order_number
-WHERE NOT EXISTS (SELECT 1 FROM invoices i WHERE i.invoice_number = src.invoice_number);
-
--- 10. Payments
-INSERT INTO payments (invoice_id, amount, currency, reference_code, status, created_at, updated_at)
-SELECT i.id, src.amount, 'PEN', src.reference_code, src.status, NOW(), NULL
-FROM invoices i
-JOIN (
-    SELECT 'AV2-INV-0002' invoice_number, 1075.00 amount, 'AV2-PAY-0001' reference_code, 'Paid' status
-    UNION ALL SELECT 'AV2-INV-0003', 868.00, 'AV2-PAY-0002', 'Paid'
-    UNION ALL SELECT 'AV2-INV-0004', 412.00, 'AV2-PAY-0003', 'Pending'
-    UNION ALL SELECT 'AV2-INV-0005', 604.00, 'AV2-PAY-0004', 'Pending'
-    UNION ALL SELECT 'AV2-INV-0006', 1031.19, 'AV2-PAY-0005', 'Pending'
-) src ON src.invoice_number = i.invoice_number
-WHERE NOT EXISTS (SELECT 1 FROM payments p WHERE p.reference_code = src.reference_code);
-
--- 11. Verification Queries
+-- 6. Verification Queries
 SELECT COUNT(*) AS users_count FROM users;
 SELECT COUNT(*) AS categories_count FROM categories;
 SELECT COUNT(*) AS brands_count FROM brands;
 SELECT COUNT(*) AS warehouses_count FROM warehouses;
 SELECT COUNT(*) AS catalog_items_count FROM catalog_items;
 SELECT COUNT(*) AS inventory_items_count FROM inventory_items;
-SELECT COUNT(*) AS orders_count FROM orders;
-SELECT COUNT(*) AS order_items_count FROM order_items;
-SELECT COUNT(*) AS shipments_count FROM shipments;
-SELECT COUNT(*) AS invoices_count FROM invoices;
-SELECT COUNT(*) AS payments_count FROM payments;

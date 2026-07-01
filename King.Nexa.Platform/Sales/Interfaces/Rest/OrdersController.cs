@@ -5,11 +5,14 @@ using King.Nexa.Platform.Sales.Domain.Model.Queries;
 using King.Nexa.Platform.Sales.Domain.Model.ValueObjects;
 using King.Nexa.Platform.Sales.Interfaces.Rest.Resources;
 using King.Nexa.Platform.Sales.Interfaces.Rest.Transform;
+using King.Nexa.Platform.Shared.Infrastructure.Security.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace King.Nexa.Platform.Sales.Interfaces.Rest;
 
 [ApiController]
+[Authorize(Policy = NexaAuthorizationPolicies.WorkspaceMember)]
 [Route("api/v1/[controller]")]
 public class OrdersController(IOrderCommandService orderCommandService, IOrderQueryService orderQueryService) : ControllerBase
 {
@@ -70,6 +73,7 @@ public class OrdersController(IOrderCommandService orderCommandService, IOrderQu
     /// Creates an order with at least one order item.
     /// </summary>
     [HttpPost]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanCreateOrder)]
     public async Task<IActionResult> CreateOrder(CreateOrderResource resource, CancellationToken cancellationToken)
     {
         var command = CreateOrderCommandFromResourceAssembler.ToCommandFromResource(resource);
@@ -81,6 +85,7 @@ public class OrdersController(IOrderCommandService orderCommandService, IOrderQu
     /// Updates a pending order.
     /// </summary>
     [HttpPut("{id:int}")]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanCreateOrder)]
     public async Task<IActionResult> UpdateOrder(int id, UpdateOrderResource resource, CancellationToken cancellationToken)
     {
         var command = UpdateOrderCommandFromResourceAssembler.ToCommandFromResource(id, resource);
@@ -92,6 +97,7 @@ public class OrdersController(IOrderCommandService orderCommandService, IOrderQu
     /// Confirms an order after payment and inventory reservation are available.
     /// </summary>
     [HttpPost("{id:int}/confirm")]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanCreateOrder)]
     public async Task<IActionResult> ConfirmOrder(int id, ConfirmOrderResource resource, CancellationToken cancellationToken)
     {
         var order = await orderCommandService.ConfirmAsync(
@@ -105,6 +111,7 @@ public class OrdersController(IOrderCommandService orderCommandService, IOrderQu
     /// Rejects an order with the business reason that prevents delivery.
     /// </summary>
     [HttpPost("{id:int}/reject")]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanCreateOrder)]
     public async Task<IActionResult> RejectOrder(int id, RejectOrderResource resource, CancellationToken cancellationToken)
     {
         var order = await orderCommandService.RejectAsync(new RejectOrderCommand(id, new RejectionReason(resource.RejectionReason)), cancellationToken);
@@ -116,6 +123,7 @@ public class OrdersController(IOrderCommandService orderCommandService, IOrderQu
     /// Cancels an order that has not completed the sales workflow.
     /// </summary>
     [HttpPost("{id:int}/cancel")]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanCreateOrder)]
     public async Task<IActionResult> CancelOrder(int id, CancellationToken cancellationToken)
     {
         var order = await orderCommandService.CancelAsync(new CancelOrderCommand(id), cancellationToken);
@@ -127,6 +135,7 @@ public class OrdersController(IOrderCommandService orderCommandService, IOrderQu
     /// Cancels an order through the DELETE semantic.
     /// </summary>
     [HttpDelete("{id:int}")]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanCreateOrder)]
     public async Task<IActionResult> DeleteOrder(int id, CancellationToken cancellationToken)
     {
         var order = await orderCommandService.CancelAsync(new CancelOrderCommand(id), cancellationToken);

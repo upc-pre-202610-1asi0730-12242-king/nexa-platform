@@ -17,6 +17,10 @@ public static class WarehouseServiceCollectionExtensions
         services.AddScoped<IWarehouseRepository, WarehouseRepository>();
         services.AddScoped<IWarehouseCommandService, WarehouseCommandService>();
         services.AddScoped<IWarehouseQueryService, WarehouseQueryService>();
+        services.AddScoped<IInventoryOperationsCommandRepository, InventoryOperationsCommandRepository>();
+        services.AddScoped<IInventoryOperationsReadRepository, InventoryOperationsReadRepository>();
+        services.AddScoped<IInventoryOperationsCommandService, InventoryOperationsCommandService>();
+        services.AddScoped<IInventoryOperationsQueryService, InventoryOperationsQueryService>();
 
         return services;
     }

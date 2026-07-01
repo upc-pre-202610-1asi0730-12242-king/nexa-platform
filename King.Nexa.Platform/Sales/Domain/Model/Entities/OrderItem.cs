@@ -31,6 +31,8 @@ public class OrderItem : Entity
 
     public int OrderId { get; private set; }
 
+    public int TenantId { get; private set; }
+
     public ProductId ProductId { get; private set; }
 
     public CatalogItemId CatalogItemId { get; private set; }
@@ -42,4 +44,10 @@ public class OrderItem : Entity
     public Money UnitPrice { get; private set; }
 
     public Money Subtotal { get; private set; }
+
+    public void AssignTenant(int tenantId)
+    {
+        if (tenantId <= 0) throw new ArgumentException("Tenant id must be positive.", nameof(tenantId));
+        TenantId = tenantId;
+    }
 }

@@ -8,6 +8,8 @@ public interface IOrderRepository : IBaseRepository<Order>
 {
     Task<Order?> FindByOrderNumberAsync(OrderNumber orderNumber, CancellationToken cancellationToken = default);
 
+    Task<bool> ExistsByOrderNumberAsync(OrderNumber orderNumber, CancellationToken cancellationToken = default);
+
     Task<Order?> FindByIdWithItemsAsync(int id, CancellationToken cancellationToken = default);
 
     Task<IEnumerable<Order>> ListWithItemsAsync(CancellationToken cancellationToken = default);

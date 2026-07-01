@@ -39,6 +39,8 @@ public class CatalogItem : AuditableEntity
 
     public CatalogItemId CatalogItemId { get; private set; }
 
+    public int TenantId { get; private set; }
+
     public ProductId ProductId { get; private set; }
 
     public ItemName ItemName { get; private set; }
@@ -59,6 +61,12 @@ public class CatalogItem : AuditableEntity
 
     public bool IsActive { get; private set; }
 
+    public void AssignTenant(int tenantId)
+    {
+        if (tenantId <= 0) throw new ArgumentException("Tenant id must be positive.", nameof(tenantId));
+        TenantId = tenantId;
+    }
+
     public void Update(UpdateCatalogItemCommand command)
     {
         ItemName = command.ItemName;
@@ -69,6 +77,18 @@ public class CatalogItem : AuditableEntity
         UnitPrice = command.UnitPrice;
         AvailableStock = command.AvailableStock;
         ColdChainRequirement = command.ColdChainRequirement;
+    }
+
+    public void ReserveStock(int units)
+    {
+        if (units <= 0) throw new ArgumentOutOfRangeException(nameof(units), "Reserved stock units must be positive.");
+        if (units > AvailableStock.Value) throw new InvalidOperationException("Requested units exceed catalog stock.");
+        AvailableStock = new StockQuantity(AvailableStock.Value - units);
+    }
+
+    public void SynchronizeAvailableStock(int units)
+    {
+        AvailableStock = new StockQuantity(units);
     }
 
     public void Deactivate() => IsActive = false;

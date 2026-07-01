@@ -1,4 +1,5 @@
 using King.Nexa.Platform.Shared.Domain.Repositories;
+using King.Nexa.Platform.Shared.Application.Security;
 using King.Nexa.Platform.Warehouse.Application.CommandServices;
 using King.Nexa.Platform.Warehouse.Domain.Model.Commands;
 using King.Nexa.Platform.Warehouse.Domain.Repositories;
@@ -6,11 +7,16 @@ using WarehouseAggregate = King.Nexa.Platform.Warehouse.Domain.Model.Aggregates.
 
 namespace King.Nexa.Platform.Warehouse.Application.Internal.CommandServices;
 
-public class WarehouseCommandService(IWarehouseRepository warehouseRepository, IUnitOfWork unitOfWork) : IWarehouseCommandService
+public class WarehouseCommandService(
+    IWarehouseRepository warehouseRepository,
+    IUnitOfWork unitOfWork,
+    ICurrentWorkspaceContext workspaceContext) : IWarehouseCommandService
 {
     public async Task<WarehouseAggregate> CreateAsync(CreateWarehouseCommand command, CancellationToken cancellationToken = default)
     {
         var warehouse = new WarehouseAggregate(command);
+        warehouse.AssignTenant(workspaceContext.TenantId
+            ?? throw new InvalidOperationException("Current tenant is required to create warehouses."));
         await warehouseRepository.AddAsync(warehouse, cancellationToken);
         await unitOfWork.CompleteAsync(cancellationToken);
         return warehouse;

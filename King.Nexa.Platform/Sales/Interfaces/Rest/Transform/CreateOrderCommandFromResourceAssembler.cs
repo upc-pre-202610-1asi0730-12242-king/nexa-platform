@@ -15,5 +15,22 @@ public static class CreateOrderCommandFromResourceAssembler
                 new CatalogItemId(item.CatalogItemId),
                 new ItemName(item.ItemName),
                 new Quantity(item.Quantity),
-                new Money(item.UnitPriceAmount, item.UnitPriceCurrency))).ToList());
+                new Money(item.UnitPriceAmount, item.UnitPriceCurrency))).ToList(),
+            resource.Priority ?? "medium",
+            resource.Notes ?? string.Empty,
+            ToValueObject(resource.Delivery),
+            resource.ClientAccountId,
+            resource.ShippingEstimate);
+
+    public static DeliveryDetails ToValueObject(DeliveryDetailsResource? resource) => resource is null
+        ? DeliveryDetails.Empty()
+        : new DeliveryDetails(
+            resource.AddressType,
+            resource.Address,
+            resource.District,
+            resource.City,
+            resource.Province,
+            resource.Reference,
+            resource.RequestedDate,
+            resource.DispatchNote);
 }

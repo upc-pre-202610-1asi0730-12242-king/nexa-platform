@@ -1,4 +1,4 @@
-namespace King.Nexa.Platform.Shared.Infrastructure.Localization;
+namespace King.Nexa.Platform.Resources;
 
 public class SharedResource
 {

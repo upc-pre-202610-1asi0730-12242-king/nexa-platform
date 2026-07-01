@@ -2,7 +2,7 @@ using King.Nexa.Platform.Shared.Domain.Model.Entities;
 
 namespace King.Nexa.Platform.Invoicing.Domain.Model.Entities;
 
-public class BusinessDocument : AuditableEntity
+public class BusinessDocument : AuditableEntity, ITenantScoped
 {
     private static readonly HashSet<string> AllowedStatuses = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -41,7 +41,7 @@ public class BusinessDocument : AuditableEntity
     }
 }
 
-public class PaymentMethodRecord : AuditableEntity
+public class PaymentMethodRecord : AuditableEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public int ClientAccountId { get; set; }
@@ -51,7 +51,7 @@ public class PaymentMethodRecord : AuditableEntity
     public bool IsDefault { get; set; }
 }
 
-public class PaymentProcessRecord : AuditableEntity
+public class PaymentProcessRecord : AuditableEntity, ITenantScoped
 {
     private static readonly HashSet<string> AllowedStatuses = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -87,7 +87,7 @@ public class PaymentProcessRecord : AuditableEntity
     }
 }
 
-public class NotificationRecord : AuditableEntity
+public class NotificationRecord : AuditableEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public int? ClientAccountId { get; set; }

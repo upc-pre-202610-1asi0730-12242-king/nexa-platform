@@ -7,7 +7,7 @@ namespace King.Nexa.Platform.Sales.Domain.Model.Entities;
 /// <summary>
 /// Entity representing one catalog item requested in an order.
 /// </summary>
-public class OrderItem : Entity
+public class OrderItem : Entity, ITenantScoped
 {
     protected OrderItem()
     {

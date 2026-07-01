@@ -2,7 +2,7 @@ using King.Nexa.Platform.Shared.Domain.Model.Entities;
 
 namespace King.Nexa.Platform.Sales.Domain.Model.Aggregates;
 
-public class ClientAccount : AuditableEntity
+public class ClientAccount : AuditableEntity, ITenantScoped
 {
     protected ClientAccount()
     {

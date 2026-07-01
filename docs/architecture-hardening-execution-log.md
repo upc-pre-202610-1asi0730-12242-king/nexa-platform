@@ -20,6 +20,7 @@
 - Baseline setup: completed.
 - Initial validation: completed.
 - Phase 1 REST API consistency: completed for the safest high-impact compatibility routes.
+- Phase 4 multi-tenancy hardening: completed safe interface/guard/helper scope without global EF filters.
 
 ## Files Changed
 
@@ -31,6 +32,11 @@
 - `King.Nexa.Platform/Warehouse/Domain/Repositories/IInventoryOperationsCommandRepository.cs`: added tenant-scoped active reservation lookup by item and code.
 - `King.Nexa.Platform/Warehouse/Infrastructure/Persistence/EntityFrameworkCore/Repositories/InventoryOperationsCommandRepository.cs`: implemented tenant-scoped active reservation lookup.
 - `docs/api-rest-conventions.md`: documented canonical resources, compatibility aliases, collection filters, errors, and tenant scope.
+- `King.Nexa.Platform/Shared/Domain/Model/Entities/ITenantScoped.cs`: added tenant-scoped marker contract.
+- `King.Nexa.Platform/Shared/Infrastructure/Persistence/EntityFrameworkCore/Repositories/BaseRepository.cs`: added fail-closed generic read guard for tenant-scoped entities.
+- `King.Nexa.Platform/Shared/Infrastructure/Persistence/EntityFrameworkCore/Repositories/TenantScopedQueryableExtensions.cs`: added reusable tenant-scoping query helper.
+- Tenant-owned aggregate/entity files: applied `ITenantScoped` to existing models with `TenantId`.
+- `docs/multi-tenancy-hardening-plan.md`: documented deferred global-filter rollout and validation sequence.
 
 ## Risks
 
@@ -42,3 +48,5 @@
 - Backend restore/build/test and frontend production build passed before implementation changes.
 - After Phase 1: `dotnet build nexa-platform.sln --no-restore` passed with 0 warnings and 0 errors.
 - After Phase 1: `dotnet test nexa-platform.sln --no-build` passed with 40/40 tests.
+- After Phase 4 safe hardening: `dotnet build nexa-platform.sln --no-restore` passed with 0 warnings and 0 errors.
+- After Phase 4 safe hardening: `dotnet test nexa-platform.sln --no-build` passed with 40/40 tests.

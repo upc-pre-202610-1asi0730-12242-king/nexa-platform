@@ -8,7 +8,7 @@ namespace King.Nexa.Platform.Sales.Domain.Model.Aggregates;
 /// <summary>
 /// Aggregate root for customer orders and their order items.
 /// </summary>
-public class Order : AuditableEntity
+public class Order : AuditableEntity, ITenantScoped
 {
     protected Order()
     {

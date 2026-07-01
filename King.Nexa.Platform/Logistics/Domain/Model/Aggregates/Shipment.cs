@@ -4,7 +4,7 @@ using King.Nexa.Platform.Shared.Domain.Model.Entities;
 
 namespace King.Nexa.Platform.Logistics.Domain.Model.Aggregates;
 
-public class Shipment : AuditableEntity
+public class Shipment : AuditableEntity, ITenantScoped
 {
     protected Shipment()
     {

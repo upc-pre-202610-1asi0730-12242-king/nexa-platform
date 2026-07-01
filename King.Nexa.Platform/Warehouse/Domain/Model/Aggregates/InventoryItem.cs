@@ -7,7 +7,7 @@ namespace King.Nexa.Platform.Warehouse.Domain.Model.Aggregates;
 /// <summary>
 /// Aggregate root for stock availability and reservation state.
 /// </summary>
-public class InventoryItem : AuditableEntity
+public class InventoryItem : AuditableEntity, ITenantScoped
 {
     protected InventoryItem()
     {

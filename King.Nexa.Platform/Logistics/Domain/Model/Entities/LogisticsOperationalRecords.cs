@@ -2,7 +2,7 @@ using King.Nexa.Platform.Shared.Domain.Model.Entities;
 
 namespace King.Nexa.Platform.Logistics.Domain.Model.Entities;
 
-public class DispatchOrder : AuditableEntity
+public class DispatchOrder : AuditableEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public int OrderId { get; set; }
@@ -90,7 +90,7 @@ public class DispatchOrder : AuditableEntity
     }
 }
 
-public class DispatchEvent : AuditableEntity
+public class DispatchEvent : AuditableEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public int DispatchOrderId { get; set; }
@@ -99,7 +99,7 @@ public class DispatchEvent : AuditableEntity
     public bool VisibleToBuyer { get; set; } = true;
 }
 
-public class ProofOfDeliveryRecord : AuditableEntity
+public class ProofOfDeliveryRecord : AuditableEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public int DispatchOrderId { get; set; }
@@ -111,7 +111,7 @@ public class ProofOfDeliveryRecord : AuditableEntity
     public string Status { get; set; } = "pending";
 }
 
-public class TemperatureLog : AuditableEntity
+public class TemperatureLog : AuditableEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public int? DispatchOrderId { get; set; }
@@ -123,7 +123,7 @@ public class TemperatureLog : AuditableEntity
 }
 
 // Retained only to keep the historical database model migration-compatible.
-public class CustomerPortalTask : AuditableEntity
+public class CustomerPortalTask : AuditableEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public int ClientAccountId { get; set; }

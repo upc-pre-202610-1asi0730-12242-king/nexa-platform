@@ -2,7 +2,7 @@ using King.Nexa.Platform.Shared.Domain.Model.Entities;
 
 namespace King.Nexa.Platform.Warehouse.Domain.Model.Entities;
 
-public class InventoryLot : AuditableEntity
+public class InventoryLot : AuditableEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public int InventoryItemId { get; set; }
@@ -41,7 +41,7 @@ public class InventoryLot : AuditableEntity
     }
 }
 
-public class InventoryMovement : AuditableEntity
+public class InventoryMovement : AuditableEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public int InventoryItemId { get; set; }
@@ -57,7 +57,7 @@ public class InventoryMovement : AuditableEntity
     public DateTime OccurredAt { get; set; } = DateTime.UtcNow;
 }
 
-public class InventoryReservationRecord : AuditableEntity
+public class InventoryReservationRecord : AuditableEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public int InventoryItemId { get; set; }

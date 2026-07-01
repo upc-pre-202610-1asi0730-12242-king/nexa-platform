@@ -4,7 +4,7 @@ using King.Nexa.Platform.Warehouse.Domain.Model.ValueObjects;
 
 namespace King.Nexa.Platform.Warehouse.Domain.Model.Aggregates;
 
-public class Warehouse : AuditableEntity
+public class Warehouse : AuditableEntity, ITenantScoped
 {
     protected Warehouse()
     {

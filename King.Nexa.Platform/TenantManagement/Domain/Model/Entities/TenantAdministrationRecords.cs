@@ -2,7 +2,7 @@ using King.Nexa.Platform.Shared.Domain.Model.Entities;
 
 namespace King.Nexa.Platform.TenantManagement.Domain.Model.Entities;
 
-public class TenantMember : AuditableEntity
+public class TenantMember : AuditableEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public string FullName { get; set; } = string.Empty;
@@ -13,7 +13,7 @@ public class TenantMember : AuditableEntity
     public bool PortalAccess { get; set; }
 }
 
-public class TenantRule : AuditableEntity
+public class TenantRule : AuditableEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public string Code { get; set; } = string.Empty;
@@ -23,7 +23,7 @@ public class TenantRule : AuditableEntity
     public bool Enabled { get; set; } = true;
 }
 
-public class TenantCustomField : AuditableEntity
+public class TenantCustomField : AuditableEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public string Code { get; set; } = string.Empty;
@@ -34,7 +34,7 @@ public class TenantCustomField : AuditableEntity
     public bool Enabled { get; set; } = true;
 }
 
-public class TenantSubscription : AuditableEntity
+public class TenantSubscription : AuditableEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public string Plan { get; set; } = "Standard";
@@ -45,7 +45,7 @@ public class TenantSubscription : AuditableEntity
     public string BillingContact { get; set; } = string.Empty;
 }
 
-public class WorkspaceFeature : AuditableEntity
+public class WorkspaceFeature : AuditableEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public string Code { get; set; } = string.Empty;

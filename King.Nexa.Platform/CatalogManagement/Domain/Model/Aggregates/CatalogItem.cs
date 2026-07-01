@@ -7,7 +7,7 @@ namespace King.Nexa.Platform.CatalogManagement.Domain.Model.Aggregates;
 /// <summary>
 /// Aggregate root for a commercial item published in the Nexa catalog.
 /// </summary>
-public class CatalogItem : AuditableEntity
+public class CatalogItem : AuditableEntity, ITenantScoped
 {
     protected CatalogItem()
     {

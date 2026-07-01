@@ -2,7 +2,7 @@ using King.Nexa.Platform.Shared.Domain.Model.Entities;
 
 namespace King.Nexa.Platform.Sales.Domain.Model.Entities;
 
-public class PurchaseRequest : AuditableEntity
+public class PurchaseRequest : AuditableEntity, ITenantScoped
 {
     private static readonly HashSet<string> AllowedPaymentOptions = new(StringComparer.OrdinalIgnoreCase)
     {
@@ -94,7 +94,7 @@ public class PurchaseRequest : AuditableEntity
     }
 }
 
-public class PurchaseRequestLine : AuditableEntity
+public class PurchaseRequestLine : AuditableEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public int PurchaseRequestId { get; set; }
@@ -105,7 +105,7 @@ public class PurchaseRequestLine : AuditableEntity
     public string Notes { get; set; } = string.Empty;
 }
 
-public class Promotion : AuditableEntity
+public class Promotion : AuditableEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public string Code { get; set; } = string.Empty;
@@ -124,14 +124,14 @@ public class Promotion : AuditableEntity
     public string Status { get; set; } = "draft";
 }
 
-public class PromotionCatalogItem : AuditableEntity
+public class PromotionCatalogItem : AuditableEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public int PromotionId { get; set; }
     public int CatalogItemId { get; set; }
 }
 
-public class ConversationMessage : AuditableEntity
+public class ConversationMessage : AuditableEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public int? ClientAccountId { get; set; }
@@ -143,7 +143,7 @@ public class ConversationMessage : AuditableEntity
     public bool VisibleToBuyer { get; set; } = true;
 }
 
-public class CreditRequest : AuditableEntity
+public class CreditRequest : AuditableEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public int ClientAccountId { get; set; }

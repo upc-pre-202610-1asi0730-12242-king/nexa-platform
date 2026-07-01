@@ -4,7 +4,7 @@ using King.Nexa.Platform.Shared.Domain.Model.Entities;
 
 namespace King.Nexa.Platform.Invoicing.Domain.Model.Aggregates;
 
-public class Payment : AuditableEntity
+public class Payment : AuditableEntity, ITenantScoped
 {
     protected Payment()
     {

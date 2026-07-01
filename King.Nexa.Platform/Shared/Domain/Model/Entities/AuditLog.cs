@@ -1,6 +1,6 @@
 namespace King.Nexa.Platform.Shared.Domain.Model.Entities;
 
-public class AuditLog : AuditableEntity
+public class AuditLog : AuditableEntity, ITenantScoped
 {
     public int TenantId { get; set; }
 

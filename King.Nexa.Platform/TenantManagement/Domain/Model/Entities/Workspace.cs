@@ -2,7 +2,7 @@ using King.Nexa.Platform.Shared.Domain.Model.Entities;
 
 namespace King.Nexa.Platform.TenantManagement.Domain.Model.Entities;
 
-public class Workspace : AuditableEntity
+public class Workspace : AuditableEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public string Name { get; set; } = string.Empty;
@@ -13,7 +13,7 @@ public class Workspace : AuditableEntity
     public bool IsPrimary { get; set; } = true;
 }
 
-public class UserWorkspaceMembership : AuditableEntity
+public class UserWorkspaceMembership : AuditableEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public int WorkspaceId { get; set; }
@@ -27,7 +27,7 @@ public class UserWorkspaceMembership : AuditableEntity
     public int? ClientAccountId { get; set; }
 }
 
-public class WorkspacePreference : AuditableEntity
+public class WorkspacePreference : AuditableEntity, ITenantScoped
 {
     public int TenantId { get; set; }
     public int WorkspaceId { get; set; }

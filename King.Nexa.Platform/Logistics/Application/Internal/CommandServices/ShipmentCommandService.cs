@@ -3,15 +3,21 @@ using King.Nexa.Platform.Logistics.Application.QueryServices;
 using King.Nexa.Platform.Logistics.Domain.Model.Aggregates;
 using King.Nexa.Platform.Logistics.Domain.Model.Commands;
 using King.Nexa.Platform.Logistics.Domain.Repositories;
+using King.Nexa.Platform.Shared.Application.Security;
 using King.Nexa.Platform.Shared.Domain.Repositories;
 
 namespace King.Nexa.Platform.Logistics.Application.Internal.CommandServices;
 
-public class ShipmentCommandService(IShipmentRepository shipmentRepository, IUnitOfWork unitOfWork) : IShipmentCommandService
+public class ShipmentCommandService(
+    IShipmentRepository shipmentRepository,
+    IUnitOfWork unitOfWork,
+    ICurrentWorkspaceContext workspaceContext) : IShipmentCommandService
 {
     public async Task<Shipment> ScheduleAsync(ScheduleShipmentCommand command, CancellationToken cancellationToken = default)
     {
         var shipment = new Shipment(command);
+        shipment.AssignTenant(workspaceContext.TenantId
+            ?? throw new InvalidOperationException("Current tenant is required to create shipments."));
         await shipmentRepository.AddAsync(shipment, cancellationToken);
         await unitOfWork.CompleteAsync(cancellationToken);
         return shipment;

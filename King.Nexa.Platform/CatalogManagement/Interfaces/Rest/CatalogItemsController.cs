@@ -7,6 +7,7 @@ using King.Nexa.Platform.CatalogManagement.Interfaces.Rest.Resources;
 using King.Nexa.Platform.CatalogManagement.Interfaces.Rest.Transform;
 using King.Nexa.Platform.Sales.Application.QueryServices;
 using King.Nexa.Platform.Shared.Application.Pagination;
+using King.Nexa.Platform.Shared.Application.ReadModels;
 using King.Nexa.Platform.Shared.Infrastructure.Security.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,8 @@ namespace King.Nexa.Platform.CatalogManagement.Interfaces.Rest;
 public class CatalogItemsController(
     ICatalogItemCommandService catalogItemCommandService,
     ICatalogItemQueryService catalogItemQueryService,
-    IPromotionQueryService promotionQueryService) : ControllerBase
+    IPromotionQueryService promotionQueryService,
+    IWorkspaceReadModelQueryService readModels) : ControllerBase
 {
     /// <summary>
     /// Gets all catalog items.
@@ -101,6 +103,13 @@ public class CatalogItemsController(
     {
         var catalogItem = await catalogItemQueryService.Handle(new GetCatalogItemByIdQuery(id), cancellationToken);
         return catalogItem is null ? NotFound() : Ok(CatalogItemResourceFromEntityAssembler.ToResourceFromEntity(catalogItem));
+    }
+
+    [HttpGet("{id:int}/availability")]
+    public async Task<IActionResult> GetCatalogItemAvailability(int id, CancellationToken cancellationToken)
+    {
+        var availability = await readModels.GetCatalogItemAvailabilityAsync(id, cancellationToken);
+        return availability is null ? NotFound() : Ok(availability);
     }
 
     /// <summary>

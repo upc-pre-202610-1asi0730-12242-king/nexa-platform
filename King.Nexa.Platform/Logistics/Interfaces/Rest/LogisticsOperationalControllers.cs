@@ -5,6 +5,7 @@ using King.Nexa.Platform.Logistics.Domain.Model.Queries;
 using King.Nexa.Platform.Logistics.Interfaces.Rest.Resources;
 using King.Nexa.Platform.Logistics.Interfaces.Rest.Transform;
 using King.Nexa.Platform.Shared.Application.Pagination;
+using King.Nexa.Platform.Shared.Application.ReadModels;
 using King.Nexa.Platform.Shared.Infrastructure.Security.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +17,8 @@ namespace King.Nexa.Platform.Logistics.Interfaces.Rest;
 [Route("api/v1/dispatch-orders")]
 public class DispatchOrdersController(
     IDispatchOrderQueryService queryService,
-    IDispatchOrderCommandService commandService) : ControllerBase
+    IDispatchOrderCommandService commandService,
+    IWorkspaceReadModelQueryService readModels) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<DispatchOrderResource>), StatusCodes.Status200OK)]
@@ -60,6 +62,13 @@ public class DispatchOrdersController(
     {
         var dispatch = await queryService.GetByIdAsync(id, cancellationToken);
         return dispatch is null ? NotFound() : Ok(DispatchOrderResourceAssembler.ToResourceFromEntity(dispatch));
+    }
+
+    [HttpGet("{id:int}/summary")]
+    public async Task<IActionResult> GetSummary(int id, CancellationToken cancellationToken)
+    {
+        var summary = await readModels.GetDispatchOrderSummaryAsync(id, cancellationToken);
+        return summary is null ? NotFound() : Ok(summary);
     }
 
     [HttpPost]

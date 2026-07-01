@@ -21,6 +21,7 @@
 - Initial validation: completed.
 - Phase 1 REST API consistency: completed for the safest high-impact compatibility routes.
 - Phase 2 optional pagination and filtering: completed for orders, purchase requests, catalog items, invoices, payments, dispatch orders, and inventory items.
+- Phase 3 backend read models: completed additive role-focused endpoints for Buyer, Sales, Logistics, Client financial profiles, and Catalog availability/promotional catalog.
 - Phase 4 multi-tenancy hardening: completed safe interface/guard/helper scope without global EF filters.
 - Phase 6 design pattern cleanup: completed safe domain-event foundation without activating partial event workflow.
 - Phase 7 database hardening: completed safe query indexes and validation documentation.
@@ -42,6 +43,10 @@
 - `King.Nexa.Platform/Shared/Infrastructure/Persistence/EntityFrameworkCore/Queries/PagedQueryableExtensions.cs`: added EF-backed paged query execution.
 - Main collection query contracts and repository methods: added optional filtering/pagination for orders, purchase requests, catalog items, invoices, payments, dispatch orders, and inventory items.
 - Main collection controllers: preserved unpaged array responses and added paged envelopes when `page`, `pageSize`, or supported filters are provided.
+- `King.Nexa.Platform/Shared/Application/ReadModels/IWorkspaceReadModelQueryService.cs`: added role-focused read-model contracts and DTOs.
+- `King.Nexa.Platform/Shared/Infrastructure/ReadModels/WorkspaceReadModelQueryService.cs`: implemented tenant-scoped EF read-model composition.
+- Buyer, Sales, Orders, Clients, Dispatch, and Catalog REST controllers: exposed additive read-model endpoints expected by the Vue API clients.
+- `docs/read-model-endpoints.md`: documented read-model endpoint purposes, scope, and guardrails.
 - `King.Nexa.Platform/Shared/Domain/Model/Entities/ITenantScoped.cs`: added tenant-scoped marker contract.
 - `King.Nexa.Platform/Shared/Infrastructure/Persistence/EntityFrameworkCore/Repositories/BaseRepository.cs`: added fail-closed generic read guard for tenant-scoped entities.
 - `King.Nexa.Platform/Shared/Infrastructure/Persistence/EntityFrameworkCore/Repositories/TenantScopedQueryableExtensions.cs`: added reusable tenant-scoping query helper.
@@ -68,7 +73,7 @@
 - `nexa-platform/ngrok.yml` is an untracked local file containing a real local tunnel token and was intentionally excluded from the baseline commit.
 - The current objective asks for broad hardening. Changes must remain additive, non-destructive, and compatible with current Buyer, Sales, Logistics, and Owner flows.
 - Docker publish reports `NU1903` for `Microsoft.OpenApi` 2.4.1. The package was not upgraded in this pass because dependency changes need an explicit approval window.
-- The full architecture objective is larger than one safe pass. Backend role-specific read-model endpoint implementation, outbox dispatching, and broader facade extraction remain planned work.
+- The full architecture objective is larger than one safe pass. Outbox dispatching, DDD file splitting, and broader frontend facade extraction remain planned work.
 
 ## Validation After Current Phase
 
@@ -80,6 +85,10 @@
 - After Phase 2 pagination: `docker compose -f docker-compose.yml up -d --build api` passed; Docker publish still reports `Microsoft.OpenApi` NU1903.
 - After Phase 2 pagination: paged requests for `/orders`, `/purchase-requests`, `/catalog-items`, `/invoices`, `/payments`, `/dispatch-orders`, and `/inventory-items` returned 200 with `items`, `page`, and `totalItems`.
 - After Phase 2 pagination: unpaged legacy requests for the same seven endpoints returned 200 and array responses.
+- After Phase 3 read models: `dotnet build nexa-platform.sln --no-restore` passed with 0 warnings and 0 errors.
+- After Phase 3 read models: `dotnet test nexa-platform.sln --no-build` passed with 40/40 tests.
+- After Phase 3 read models: `docker compose -f docker-compose.yml up -d --build api` passed; Docker publish still reports `Microsoft.OpenApi` NU1903.
+- After Phase 3 read models: `/sales/order-summaries`, `/sales/purchase-request-inbox`, `/client-accounts/{id}/financial-profile`, `/dispatch-orders/{id}/summary`, `/orders/{id}/timeline`, `/catalog-items/{id}/availability`, `/catalog/promotional-catalog`, `/buyer/dashboard-summary`, `/buyer/financial-profile`, and `/buyer/orders/{id}/lifecycle` returned 200 with real seeded data when called with valid tenant-scoped IDs.
 - After Phase 4 safe hardening: `dotnet build nexa-platform.sln --no-restore` passed with 0 warnings and 0 errors.
 - After Phase 4 safe hardening: `dotnet test nexa-platform.sln --no-build` passed with 40/40 tests.
 - After Phase 6 foundation: `dotnet build nexa-platform.sln --no-restore` passed with 0 warnings and 0 errors.

@@ -6,6 +6,7 @@ using King.Nexa.Platform.Sales.Domain.Model.ValueObjects;
 using King.Nexa.Platform.Sales.Interfaces.Rest.Resources;
 using King.Nexa.Platform.Sales.Interfaces.Rest.Transform;
 using King.Nexa.Platform.Shared.Application.Pagination;
+using King.Nexa.Platform.Shared.Application.ReadModels;
 using King.Nexa.Platform.Shared.Infrastructure.Security.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +16,10 @@ namespace King.Nexa.Platform.Sales.Interfaces.Rest;
 [ApiController]
 [Authorize(Policy = NexaAuthorizationPolicies.WorkspaceMember)]
 [Route("api/v1/[controller]")]
-public class OrdersController(IOrderCommandService orderCommandService, IOrderQueryService orderQueryService) : ControllerBase
+public class OrdersController(
+    IOrderCommandService orderCommandService,
+    IOrderQueryService orderQueryService,
+    IWorkspaceReadModelQueryService readModels) : ControllerBase
 {
     /// <summary>
     /// Gets all orders.
@@ -67,6 +71,13 @@ public class OrdersController(IOrderCommandService orderCommandService, IOrderQu
     {
         var order = await orderQueryService.Handle(new GetOrderByIdQuery(id), cancellationToken);
         return order is null ? NotFound() : Ok(OrderResourceFromEntityAssembler.ToResourceFromEntity(order));
+    }
+
+    [HttpGet("{id:int}/timeline")]
+    public async Task<IActionResult> GetOrderTimeline(int id, CancellationToken cancellationToken)
+    {
+        var timeline = await readModels.GetOrderTimelineAsync(id, cancellationToken);
+        return timeline is null ? NotFound() : Ok(timeline);
     }
 
     /// <summary>

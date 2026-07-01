@@ -2,6 +2,7 @@ using King.Nexa.Platform.Sales.Application.CommandServices;
 using King.Nexa.Platform.Sales.Application.QueryServices;
 using King.Nexa.Platform.Sales.Interfaces.Rest.Resources;
 using King.Nexa.Platform.Sales.Interfaces.Rest.Transform;
+using King.Nexa.Platform.Shared.Application.ReadModels;
 using King.Nexa.Platform.Shared.Application.Security;
 using King.Nexa.Platform.Shared.Infrastructure.Security.Authorization;
 using Microsoft.AspNetCore.Authorization;
@@ -16,7 +17,8 @@ namespace King.Nexa.Platform.Sales.Interfaces.Rest;
 public class ClientsController(
     IClientAccountQueryService queryService,
     IClientAccountCommandService commandService,
-    ICurrentWorkspaceContext workspaceContext) : ControllerBase
+    ICurrentWorkspaceContext workspaceContext,
+    IWorkspaceReadModelQueryService readModels) : ControllerBase
 {
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
@@ -30,6 +32,13 @@ public class ClientsController(
     {
         var client = await queryService.FindByIdAsync(id, cancellationToken);
         return client is null ? NotFound() : Ok(ClientAccountResourceAssembler.ToResource(client));
+    }
+
+    [HttpGet("{id:int}/financial-profile")]
+    public async Task<IActionResult> GetFinancialProfile(int id, CancellationToken cancellationToken)
+    {
+        var profile = await readModels.GetClientFinancialProfileAsync(id, cancellationToken);
+        return profile is null ? NotFound() : Ok(profile);
     }
 
     [HttpGet("by-code/{code}")]

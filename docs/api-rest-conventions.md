@@ -56,6 +56,12 @@ Paged collection endpoints currently implemented:
 
 If the domain model does not support a requested filter directly, prefer a truthful scoped join over a fake field. For example, inventory item `warehouseId` is resolved through inventory lots because the inventory item aggregate has no direct warehouse id column.
 
+## Read Models
+
+Use role-focused read models when a screen needs data from multiple bounded contexts. Read-model endpoints are additive and must be backed by real tenant-scoped data. They live behind application query service contracts and return DTOs, not EF entities.
+
+Current read-model endpoint documentation: `docs/read-model-endpoints.md`.
+
 ## Errors
 
 - Return safe ProblemDetails-compatible errors from centralized middleware where possible.

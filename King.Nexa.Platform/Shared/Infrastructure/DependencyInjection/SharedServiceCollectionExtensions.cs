@@ -1,10 +1,12 @@
 using King.Nexa.Platform.Shared.Domain.Repositories;
 using King.Nexa.Platform.Shared.Application.Auditing;
+using King.Nexa.Platform.Shared.Application.ReadModels;
 using King.Nexa.Platform.Shared.Application.Security;
 using King.Nexa.Platform.Shared.Infrastructure.Auditing;
 using King.Nexa.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
 using King.Nexa.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Interceptors;
 using King.Nexa.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
+using King.Nexa.Platform.Shared.Infrastructure.ReadModels;
 using King.Nexa.Platform.Shared.Infrastructure.Security.Authentication;
 using King.Nexa.Platform.Shared.Infrastructure.Security.Authorization;
 using King.Nexa.Platform.Shared.Infrastructure.Security.Context;
@@ -120,6 +122,7 @@ public static class SharedServiceCollectionExtensions
         services.AddScoped<ISeedDataService, SeedDataService>();
         services.AddScoped<IAuditLogger, EfAuditLogger>();
         services.AddScoped<IAuditLogQueryService, AuditLogQueryService>();
+        services.AddScoped<IWorkspaceReadModelQueryService, WorkspaceReadModelQueryService>();
 
         return services;
     }

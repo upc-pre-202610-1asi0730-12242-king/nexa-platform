@@ -29,6 +29,14 @@ public class DomainHardeningTests
     }
 
     [Fact]
+    public void Dispatch_rejects_unknown_status_changes()
+    {
+        var dispatch = new DispatchOrder { Status = "scheduled" };
+
+        Assert.Throws<InvalidOperationException>(() => dispatch.ChangeStatus("teleported"));
+    }
+
+    [Fact]
     public void Inventory_reservation_rejects_negative_quantity()
     {
         Assert.Throws<ArgumentException>(() => new InventoryReservation("RES-001", -1));

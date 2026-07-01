@@ -4,6 +4,19 @@ namespace King.Nexa.Platform.Logistics.Domain.Model.Entities;
 
 public class DispatchOrder : AuditableEntity, ITenantScoped
 {
+    private static readonly HashSet<string> AllowedStatuses = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "ready_for_operations",
+        "assigned",
+        "scheduled",
+        "ready_for_route",
+        "in_route",
+        "delivered",
+        "incident",
+        "reprogrammed",
+        "cancelled"
+    };
+
     public int TenantId { get; set; }
     public int OrderId { get; set; }
     public int ClientAccountId { get; set; }
@@ -47,9 +60,6 @@ public class DispatchOrder : AuditableEntity, ITenantScoped
             case "incident":
                 Incident();
                 break;
-            case "reprogrammed":
-                SetStatus("reprogrammed");
-                break;
             default:
                 SetStatus(status);
                 break;
@@ -85,52 +95,9 @@ public class DispatchOrder : AuditableEntity, ITenantScoped
     private void SetStatus(string status)
     {
         if (string.IsNullOrWhiteSpace(status)) throw new ArgumentException("Dispatch status is required.", nameof(status));
-        Status = status.Trim().ToLowerInvariant();
+        var normalized = status.Trim().ToLowerInvariant();
+        if (!AllowedStatuses.Contains(normalized)) throw new InvalidOperationException("Dispatch status is not supported.");
+        Status = normalized;
         UpdatedAt = DateTime.UtcNow;
     }
-}
-
-public class DispatchEvent : AuditableEntity, ITenantScoped
-{
-    public int TenantId { get; set; }
-    public int DispatchOrderId { get; set; }
-    public string Status { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
-    public bool VisibleToBuyer { get; set; } = true;
-}
-
-public class ProofOfDeliveryRecord : AuditableEntity, ITenantScoped
-{
-    public int TenantId { get; set; }
-    public int DispatchOrderId { get; set; }
-    public string ReceivedBy { get; set; } = string.Empty;
-    public DateTime? CompletedAt { get; set; }
-    public bool PhotoReference { get; set; }
-    public bool SignatureReference { get; set; }
-    public string Notes { get; set; } = string.Empty;
-    public string Status { get; set; } = "pending";
-}
-
-public class TemperatureLog : AuditableEntity, ITenantScoped
-{
-    public int TenantId { get; set; }
-    public int? DispatchOrderId { get; set; }
-    public int? OrderId { get; set; }
-    public decimal Celsius { get; set; }
-    public string Zone { get; set; } = string.Empty;
-    public string Status { get; set; } = "ok";
-    public DateTime RecordedAt { get; set; } = DateTime.UtcNow;
-}
-
-// Retained only to keep the historical database model migration-compatible.
-public class CustomerPortalTask : AuditableEntity, ITenantScoped
-{
-    public int TenantId { get; set; }
-    public int ClientAccountId { get; set; }
-    public string PortalName { get; set; } = string.Empty;
-    public string ContactPerson { get; set; } = string.Empty;
-    public string UploadChannel { get; set; } = "manual";
-    public string RequiredDocuments { get; set; } = string.Empty;
-    public string Status { get; set; } = "pending";
-    public string Owner { get; set; } = string.Empty;
 }

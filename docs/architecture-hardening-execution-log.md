@@ -23,6 +23,7 @@
 - Phase 2 optional pagination and filtering: completed for orders, purchase requests, catalog items, invoices, payments, dispatch orders, and inventory items.
 - Phase 3 backend read models: completed additive role-focused endpoints for Buyer, Sales, Logistics, Client financial profiles, and Catalog availability/promotional catalog.
 - Phase 4 multi-tenancy hardening: completed safe interface/guard/helper scope without global EF filters.
+- Phase 5 DDD tactical cleanup: completed high-impact domain entity file splits, operational controller splits, and dispatch status invariant hardening.
 - Phase 6 design pattern cleanup: completed safe domain-event foundation without activating partial event workflow.
 - Phase 7 database hardening: completed safe query indexes and validation documentation.
 - Phase 8 Render deploy readiness: completed env-driven port/database/CORS/migration/seed/swagger/health hardening.
@@ -52,6 +53,10 @@
 - `King.Nexa.Platform/Shared/Infrastructure/Persistence/EntityFrameworkCore/Repositories/TenantScopedQueryableExtensions.cs`: added reusable tenant-scoping query helper.
 - Tenant-owned aggregate/entity files: applied `ITenantScoped` to existing models with `TenantId`.
 - `docs/multi-tenancy-hardening-plan.md`: documented deferred global-filter rollout and validation sequence.
+- Sales, Logistics, Invoicing, and Warehouse operational domain records: split multi-entity files into one class per file while preserving namespaces and EF mappings.
+- Logistics, Sales, Invoicing, and Warehouse operational REST controllers: split multi-controller files into focused controller files without route or policy changes.
+- `King.Nexa.Platform/Logistics/Domain/Model/Entities/DispatchOrder.cs`: restricted generic status changes to the supported dispatch state vocabulary.
+- `King.Nexa.Platform.Tests/DomainHardeningTests.cs`: added coverage for rejecting unknown dispatch status changes.
 - `King.Nexa.Platform/Shared/Domain/Model/Events/*`: added domain event contracts and in-memory aggregate event container.
 - `docs/domain-events-outbox-foundation.md`: documented outbox/event candidates and rollout guardrails.
 - `King.Nexa.Platform/*/Infrastructure/Persistence/EntityFrameworkCore/Configuration/Extensions/ModelBuilderExtensions.cs`: added safe tenant-scoped query indexes for orders, requests, dispatches, invoices, payments, and catalog filters.
@@ -73,7 +78,7 @@
 - `nexa-platform/ngrok.yml` is an untracked local file containing a real local tunnel token and was intentionally excluded from the baseline commit.
 - The current objective asks for broad hardening. Changes must remain additive, non-destructive, and compatible with current Buyer, Sales, Logistics, and Owner flows.
 - Docker publish reports `NU1903` for `Microsoft.OpenApi` 2.4.1. The package was not upgraded in this pass because dependency changes need an explicit approval window.
-- The full architecture objective is larger than one safe pass. Outbox dispatching, DDD file splitting, and broader frontend facade extraction remain planned work.
+- The full architecture objective is larger than one safe pass. Outbox dispatching, domain command relocation, tenant/admin controller splitting, and broader frontend facade extraction remain planned work.
 
 ## Validation After Current Phase
 
@@ -91,6 +96,8 @@
 - After Phase 3 read models: `/sales/order-summaries`, `/sales/purchase-request-inbox`, `/client-accounts/{id}/financial-profile`, `/dispatch-orders/{id}/summary`, `/orders/{id}/timeline`, `/catalog-items/{id}/availability`, `/catalog/promotional-catalog`, `/buyer/dashboard-summary`, `/buyer/financial-profile`, and `/buyer/orders/{id}/lifecycle` returned 200 with real seeded data when called with valid tenant-scoped IDs.
 - After Phase 4 safe hardening: `dotnet build nexa-platform.sln --no-restore` passed with 0 warnings and 0 errors.
 - After Phase 4 safe hardening: `dotnet test nexa-platform.sln --no-build` passed with 40/40 tests.
+- After Phase 5 DDD tactical cleanup: repeated `dotnet build nexa-platform.sln --no-restore` after domain/controller splits passed with 0 warnings and 0 errors.
+- After Phase 5 DDD tactical cleanup: `dotnet test nexa-platform.sln --no-build` passed with 41/41 tests.
 - After Phase 6 foundation: `dotnet build nexa-platform.sln --no-restore` passed with 0 warnings and 0 errors.
 - After Phase 6 foundation: `dotnet test nexa-platform.sln --no-build` passed with 40/40 tests.
 - After Phase 7 database hardening: `dotnet build nexa-platform.sln --no-restore` passed with 0 warnings and 0 errors.

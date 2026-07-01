@@ -40,31 +40,3 @@ public class InventoryLot : AuditableEntity, ITenantScoped
         UpdatedAt = DateTime.UtcNow;
     }
 }
-
-public class InventoryMovement : AuditableEntity, ITenantScoped
-{
-    public int TenantId { get; set; }
-    public int InventoryItemId { get; set; }
-    public int? InventoryLotId { get; set; }
-    public int? WarehouseId { get; set; }
-    public int? OrderId { get; set; }
-    public string Code { get; set; } = string.Empty;
-    public string MovementType { get; set; } = "entry";
-    public int Quantity { get; set; }
-    public string Reason { get; set; } = string.Empty;
-    public decimal? TemperatureReading { get; set; }
-    public string PerformedBy { get; set; } = string.Empty;
-    public DateTime OccurredAt { get; set; } = DateTime.UtcNow;
-}
-
-public class InventoryReservationRecord : AuditableEntity, ITenantScoped
-{
-    public int TenantId { get; set; }
-    public int InventoryItemId { get; set; }
-    public int? InventoryLotId { get; set; }
-    public int? OrderId { get; set; }
-    public int? PurchaseRequestId { get; set; }
-    public string Code { get; set; } = string.Empty;
-    public int Units { get; set; }
-    public string Status { get; set; } = "reserved";
-}

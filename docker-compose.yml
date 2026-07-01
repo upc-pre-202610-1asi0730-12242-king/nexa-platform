@@ -49,6 +49,7 @@ services:
       - api
     environment:
       VITE_NEXA_API_BASE_URL: http://localhost:5068/api/v1
+      VITE_DEV_PROXY_TARGET: http://api:8080
       VITE_CORE_BACKEND_ENABLED: "true"
       VITE_SERVER_OPEN: "false"
     ports:

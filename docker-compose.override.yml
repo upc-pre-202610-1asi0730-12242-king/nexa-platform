@@ -6,6 +6,7 @@ services:
   webapp:
     environment:
       VITE_NEXA_API_BASE_URL: /api/v1
+      VITE_DEV_PROXY_TARGET: http://api:8080
 
   proxy:
     image: caddy:2-alpine

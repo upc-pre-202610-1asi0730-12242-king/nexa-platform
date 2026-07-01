@@ -24,6 +24,8 @@
 - Phase 6 design pattern cleanup: completed safe domain-event foundation without activating partial event workflow.
 - Phase 7 database hardening: completed safe query indexes and validation documentation.
 - Phase 8 Render deploy readiness: completed env-driven port/database/CORS/migration/seed/swagger/health hardening.
+- Frontend coordination: completed safe global data facade hardening, additive read-model API clients, and route/error handling alignment.
+- Final runtime verification: completed Docker compose rebuild, HTTP smoke, and browser login smoke against local backend-backed data.
 
 ## Files Changed
 
@@ -51,11 +53,17 @@
 - `Dockerfile`: documented runtime port and non-root runtime user.
 - `render.yaml`: declared production-safe env variables without hardcoded secrets.
 - `docs/render-deploy-backend.md`: added Render setup, env vars, health checks, migration/seed strategy, and smoke commands.
+- `../nexa-webapp/src/app/application/stores/data.store.js`: added per-collection error state to stop silent facade failures.
+- `../nexa-webapp/src/*/infrastructure/*`: added additive read-model client methods for Buyer, Sales, Catalog, Client, and Dispatch surfaces.
+- `../nexa-webapp/src/shared/infrastructure/http.js`: aligned 401/403 handling with history routing and structured backend error messages.
+- `../nexa-webapp/docs/frontend-store-architecture.md`: documented the global facade boundary and extraction path.
 
 ## Risks
 
 - `nexa-platform/ngrok.yml` is an untracked local file containing a real local tunnel token and was intentionally excluded from the baseline commit.
 - The current objective asks for broad hardening. Changes must remain additive, non-destructive, and compatible with current Buyer, Sales, Logistics, and Owner flows.
+- Docker publish reports `NU1903` for `Microsoft.OpenApi` 2.4.1. The package was not upgraded in this pass because dependency changes need an explicit approval window.
+- The full architecture objective is larger than one safe pass. Backend role-specific read-model endpoints, pagination contracts, outbox dispatching, and broader facade extraction remain planned work.
 
 ## Validation After Current Phase
 
@@ -70,3 +78,10 @@
 - After Phase 7 database hardening: `dotnet test nexa-platform.sln --no-build` passed with 40/40 tests.
 - After Phase 8 deploy hardening: `dotnet build nexa-platform.sln --no-restore` passed with 0 warnings and 0 errors.
 - After Phase 8 deploy hardening: `dotnet test nexa-platform.sln --no-build` passed with 40/40 tests.
+- Final backend tests: `dotnet test nexa-platform.sln --no-build` passed with 40/40 tests.
+- Final frontend build: `npm run build` passed.
+- Final Docker build: `docker build -t nexa-platform:architecture-hardening .` passed; Docker publish surfaced the `Microsoft.OpenApi` NU1903 warning.
+- Final compose rebuild: `docker compose -f docker-compose.yml up -d --build postgres api webapp` passed.
+- Final HTTP smoke: `/health`, `/health/live`, `/health/ready`, `/swagger/v1/swagger.json`, and webapp `/auth/login` returned 200.
+- Final security smoke: anonymous `/api/v1/orders` returned 401; authenticated wrong-tenant request returned 403; authenticated correct-tenant request returned 200.
+- Final browser smoke: Playwright login with `icisa` / `valeria.sanchez@icisa.pe` reached `/ops/operations/company-administration`; console warnings/errors were 0 and backend API requests returned 200.

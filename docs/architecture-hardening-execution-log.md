@@ -111,3 +111,12 @@
 - Final HTTP smoke: `/health`, `/health/live`, `/health/ready`, `/swagger/v1/swagger.json`, and webapp `/auth/login` returned 200.
 - Final security smoke: anonymous `/api/v1/orders` returned 401; authenticated wrong-tenant request returned 403; authenticated correct-tenant request returned 200.
 - Final browser smoke: Playwright login with `icisa` / `valeria.sanchez@icisa.pe` reached `/ops/operations/company-administration`; console warnings/errors were 0 and backend API requests returned 200.
+- Final revalidation after Phase 3/5/10 follow-up commits: `dotnet build nexa-platform.sln --no-restore` passed with 0 warnings and 0 errors.
+- Final revalidation after Phase 3/5/10 follow-up commits: `dotnet test nexa-platform.sln --no-build` passed with 41/41 tests.
+- Final revalidation after Phase 3/5/10 follow-up commits: `npm run build` in `nexa-webapp` passed.
+- Final revalidation after Phase 3/5/10 follow-up commits: `docker compose -f docker-compose.yml up -d --build postgres api webapp` passed; Docker publish still reports `Microsoft.OpenApi` NU1903.
+- Final revalidation after Phase 3/5/10 follow-up commits: `/health`, `/health/live`, `/health/ready`, `/swagger/v1/swagger.json`, and webapp `/auth/login` returned 200.
+- Final revalidation after Phase 3/5/10 follow-up commits: anonymous `/api/v1/orders` returned 401, wrong tenant/workspace returned 403, and correct tenant/workspace returned 200.
+- Final revalidation after Phase 3/5/10 follow-up commits: `/sales/order-summaries`, `/sales/purchase-request-inbox`, `/buyer/dashboard-summary`, `/buyer/financial-profile`, `/orders/{id}/timeline`, `/dispatch-orders/{id}/summary`, `/catalog-items/{id}/availability`, `/catalog/promotional-catalog`, and `/buyer/orders/{id}/lifecycle` returned 200 with valid tenant-scoped users/IDs.
+- Final database validation after Phase 3/5/10 follow-up commits: `information_schema.columns` confirmed critical tables and row counts for purchase requests, order items, orders, dispatch, reservations, invoices, payments, business documents, and audit logs.
+- Final browser automation after Phase 3/5/10 follow-up commits: not re-run because the local Playwright wrapper is unavailable and `npx` module imports did not resolve without downloading additional browser tooling; HTTP/runtime validation was completed instead.

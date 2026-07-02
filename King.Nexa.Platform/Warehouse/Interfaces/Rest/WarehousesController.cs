@@ -30,6 +30,7 @@ public class WarehousesController(IWarehouseCommandService warehouseCommandServi
     }
 
     [HttpGet("by-location/{location}")]
+    [Obsolete("Use GET /api/v1/warehouses?location={location}.")]
     public async Task<IActionResult> GetWarehouseByLocation(string location, CancellationToken cancellationToken)
     {
         var warehouse = await warehouseQueryService.Handle(new GetWarehouseByLocationQuery(location), cancellationToken);

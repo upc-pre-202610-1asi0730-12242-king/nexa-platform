@@ -30,6 +30,7 @@ public class CategoriesController(ICategoryCommandService categoryCommandService
     }
 
     [HttpGet("by-name/{name}")]
+    [Obsolete("Use GET /api/v1/categories?name={name}.")]
     public async Task<IActionResult> GetCategoryByName(string name, CancellationToken cancellationToken)
     {
         var category = await categoryQueryService.Handle(new GetCategoryByNameQuery(name), cancellationToken);

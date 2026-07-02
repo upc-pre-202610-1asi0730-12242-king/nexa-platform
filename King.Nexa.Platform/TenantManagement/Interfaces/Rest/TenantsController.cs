@@ -15,8 +15,14 @@ namespace King.Nexa.Platform.TenantManagement.Interfaces.Rest;
 public class TenantsController(ITenantQueryService tenantQueryService, ITenantCommandService tenantCommandService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+    [AllowAnonymous]
+    public async Task<IActionResult> GetAll([FromQuery] string? slug, CancellationToken cancellationToken)
     {
+        if (!string.IsNullOrWhiteSpace(slug))
+        {
+            var tenant = await tenantQueryService.FindBySlugAsync(slug, cancellationToken);
+            return tenant is null ? NotFound() : Ok(TenantResourceAssembler.ToPreviewResource(tenant));
+        }
         if (CurrentTenantId() is not { } tenantId) return Forbid();
         var tenants = await tenantQueryService.ListAsync(cancellationToken);
         return Ok(tenants
@@ -33,6 +39,7 @@ public class TenantsController(ITenantQueryService tenantQueryService, ITenantCo
 
     [HttpGet("by-slug/{slug}")]
     [AllowAnonymous]
+    [Obsolete("Use GET /api/v1/tenants?slug={slug}.")]
     public async Task<IActionResult> GetBySlug(string slug, CancellationToken cancellationToken)
     {
         var tenant = await tenantQueryService.FindBySlugAsync(slug, cancellationToken);

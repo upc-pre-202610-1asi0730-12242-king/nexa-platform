@@ -74,6 +74,7 @@ public class ApiSurfaceHardeningTests
         {
             $"{typeof(AuthenticationController).FullName}.{nameof(AuthenticationController.SignIn)}",
             $"{typeof(OrganizationRegistrationsController).FullName}.{nameof(OrganizationRegistrationsController.Create)}",
+            $"{typeof(TenantsController).FullName}.{nameof(TenantsController.GetAll)}",
             $"{typeof(TenantsController).FullName}.{nameof(TenantsController.GetBySlug)}",
             $"{typeof(StripePaymentsController).FullName}.{nameof(StripePaymentsController.Webhook)}"
         };

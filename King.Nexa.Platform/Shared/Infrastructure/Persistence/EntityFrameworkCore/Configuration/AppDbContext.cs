@@ -79,6 +79,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
     public DbSet<User> Users => Set<User>();
     public DbSet<AuditLog> AuditLogs => Set<AuditLog>();
+    public DbSet<OutboxMessage> OutboxMessages => Set<OutboxMessage>();
     public DbSet<PaymentOption> PaymentOptions => Set<PaymentOption>();
     public DbSet<DocumentType> DocumentTypes => Set<DocumentType>();
     public DbSet<UnitOfMeasure> UnitsOfMeasure => Set<UnitOfMeasure>();
@@ -125,6 +126,15 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         auditLog.HasIndex(row => new { row.TenantId, row.Action, row.CreatedAt });
         auditLog.HasIndex(row => new { row.TenantId, row.ResourceType, row.ResourceId });
         auditLog.HasOne<Tenant>().WithMany().HasForeignKey(row => row.TenantId).OnDelete(DeleteBehavior.Cascade);
+
+        var outboxMessage = builder.Entity<OutboxMessage>();
+        outboxMessage.ToTable("outbox_messages");
+        outboxMessage.HasKey(row => row.Id);
+        outboxMessage.Property(row => row.Type).HasMaxLength(500).IsRequired();
+        outboxMessage.Property(row => row.Payload).HasColumnType("jsonb").IsRequired();
+        outboxMessage.Property(row => row.Error).HasMaxLength(2000);
+        outboxMessage.HasIndex(row => new { row.ProcessedOnUtc, row.OccurredOnUtc });
+        outboxMessage.HasIndex(row => new { row.TenantId, row.OccurredOnUtc });
 
         var paymentOption = builder.Entity<PaymentOption>();
         paymentOption.ToTable("payment_options");

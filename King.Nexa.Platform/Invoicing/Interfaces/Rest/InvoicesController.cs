@@ -80,6 +80,7 @@ public class InvoicesController(IInvoiceCommandService invoiceCommandService, II
     /// Gets invoices by order identifier.
     /// </summary>
     [HttpGet("by-order/{orderId:int}")]
+    [Obsolete("Use GET /api/v1/invoices?orderId={orderId}.")]
     [ProducesResponseType(typeof(IEnumerable<InvoiceResource>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetInvoicesByOrderId(int orderId, CancellationToken cancellationToken)
     {
@@ -91,6 +92,7 @@ public class InvoicesController(IInvoiceCommandService invoiceCommandService, II
     /// Gets invoices by payment status.
     /// </summary>
     [HttpGet("by-status/{paymentStatus}")]
+    [Obsolete("Use GET /api/v1/invoices?paymentStatus={status}.")]
     [ProducesResponseType(typeof(IEnumerable<InvoiceResource>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> GetInvoicesByPaymentStatus(string paymentStatus, CancellationToken cancellationToken)
@@ -147,9 +149,13 @@ public class InvoicesController(IInvoiceCommandService invoiceCommandService, II
     /// </summary>
     [HttpPost("{id:int}/paid")]
     [Authorize(Policy = NexaAuthorizationPolicies.CanManageDocuments)]
+    [Obsolete("Use POST /api/v1/invoices/{id}/status-changes.")]
     [ProducesResponseType(typeof(InvoiceResource), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> MarkInvoicePaid(int id, CancellationToken cancellationToken)
+        => await MarkInvoicePaidCore(id, cancellationToken);
+
+    private async Task<IActionResult> MarkInvoicePaidCore(int id, CancellationToken cancellationToken)
     {
         var invoice = await invoiceCommandService.MarkPaidAsync(new MarkInvoicePaidCommand(id), cancellationToken);
         if (invoice is null) return NotFound();
@@ -167,10 +173,7 @@ public class InvoicesController(IInvoiceCommandService invoiceCommandService, II
             return BadRequest(new { message = "Invalid payment status." });
 
         if (status == PaymentStatus.Paid)
-        {
-            var invoice = await invoiceCommandService.MarkPaidAsync(new MarkInvoicePaidCommand(id), cancellationToken);
-            return invoice is null ? NotFound() : Ok(InvoiceResourceFromEntityAssembler.ToResourceFromEntity(invoice));
-        }
+            return await MarkInvoicePaidCore(id, cancellationToken);
 
         if (status == PaymentStatus.Cancelled)
         {

@@ -37,12 +37,13 @@ Legacy imperative routes such as `/confirm`, `/reject`, `/cancel`, `/reserve`, `
   - `totalItems`: total matching rows before pagination.
   - `totalPages`: total page count for the filtered result.
 
-Examples:
+Canonical examples use query parameters: `GET /api/v1/catalog-items?brand=FrostKing`,
+`GET /api/v1/orders?status=Pending`, `GET /api/v1/tenants?slug=icisa`, and
+`GET /api/v1/workspaces?slug=icisa`. Published `/by-*` routes remain deprecated
+compatibility aliases only and are marked deprecated in OpenAPI.
 
-- Keep `GET /api/v1/catalog-items/by-brand/{brand}`.
-- Add `GET /api/v1/catalog-items?brand={brand}`.
-- Keep `GET /api/v1/orders/by-status/{status}`.
-- Add `GET /api/v1/orders?status={status}`.
+Canonical resource names are `/client-accounts` and `/notifications`. `/clients`
+and `/notification-records` remain deprecated compatibility aliases.
 
 Paged collection endpoints currently implemented:
 

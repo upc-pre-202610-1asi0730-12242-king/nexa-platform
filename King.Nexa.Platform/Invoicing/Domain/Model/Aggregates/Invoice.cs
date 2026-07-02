@@ -1,6 +1,7 @@
 using King.Nexa.Platform.Invoicing.Domain.Model.Commands;
 using King.Nexa.Platform.Invoicing.Domain.Model.ValueObjects;
 using King.Nexa.Platform.Shared.Domain.Model.Entities;
+using King.Nexa.Platform.Shared.Domain.Model.Events;
 
 namespace King.Nexa.Platform.Invoicing.Domain.Model.Aggregates;
 
@@ -61,5 +62,6 @@ public class Invoice : AuditableEntity, ITenantScoped
 
         PaymentStatus = PaymentStatus.Paid;
         PaidAt = DateTimeOffset.UtcNow;
+        AddDomainEvent(new InvoicePaid(Id, TenantId));
     }
 }

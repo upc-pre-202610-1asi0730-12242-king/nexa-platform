@@ -12,7 +12,6 @@ namespace King.Nexa.Platform.Sales.Interfaces.Rest;
 
 [ApiController]
 [Authorize(Policy = NexaAuthorizationPolicies.WorkspaceMember)]
-[Route("api/v1/clients")]
 [Route("api/v1/client-accounts")]
 public class ClientsController(
     IClientAccountQueryService queryService,
@@ -27,12 +26,20 @@ public class ClientsController(
         return Ok(clients.Select(ClientAccountResourceAssembler.ToResource));
     }
 
+    [HttpGet("/api/v1/clients")]
+    [Obsolete("Use GET /api/v1/client-accounts.")]
+    public Task<IActionResult> GetAllLegacy(CancellationToken cancellationToken) => GetAll(cancellationToken);
+
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
     {
         var client = await queryService.FindByIdAsync(id, cancellationToken);
         return client is null ? NotFound() : Ok(ClientAccountResourceAssembler.ToResource(client));
     }
+
+    [HttpGet("/api/v1/clients/{id:int}")]
+    [Obsolete("Use GET /api/v1/client-accounts/{id}.")]
+    public Task<IActionResult> GetByIdLegacy(int id, CancellationToken cancellationToken) => GetById(id, cancellationToken);
 
     [HttpGet("{id:int}/financial-profile")]
     public async Task<IActionResult> GetFinancialProfile(int id, CancellationToken cancellationToken)
@@ -42,6 +49,7 @@ public class ClientsController(
     }
 
     [HttpGet("by-code/{code}")]
+    [Obsolete("Use GET /api/v1/client-accounts?code={code}.")]
     public async Task<IActionResult> GetByCode(string code, CancellationToken cancellationToken)
     {
         var client = await queryService.FindByCodeAsync(code, cancellationToken);
@@ -58,6 +66,11 @@ public class ClientsController(
         return CreatedAtAction(nameof(GetById), new { id = client.Id }, ClientAccountResourceAssembler.ToResource(client));
     }
 
+    [HttpPost("/api/v1/clients")]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanAcceptPurchaseRequest)]
+    [Obsolete("Use POST /api/v1/client-accounts.")]
+    public Task<IActionResult> CreateLegacy(CreateClientAccountResource resource, CancellationToken cancellationToken) => Create(resource, cancellationToken);
+
     [HttpPut("{id:int}")]
     [HttpPatch("{id:int}")]
     [Authorize(Policy = NexaAuthorizationPolicies.CanAcceptPurchaseRequest)]
@@ -69,6 +82,12 @@ public class ClientsController(
             cancellationToken);
         return client is null ? NotFound() : Ok(ClientAccountResourceAssembler.ToResource(client));
     }
+
+    [HttpPut("/api/v1/clients/{id:int}")]
+    [HttpPatch("/api/v1/clients/{id:int}")]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanAcceptPurchaseRequest)]
+    [Obsolete("Use PUT or PATCH /api/v1/client-accounts/{id}.")]
+    public Task<IActionResult> UpdateLegacy(int id, CreateClientAccountResource resource, CancellationToken cancellationToken) => Update(id, resource, cancellationToken);
 
     private int RequireTenantId() => workspaceContext.TenantId is > 0
         ? workspaceContext.TenantId.Value

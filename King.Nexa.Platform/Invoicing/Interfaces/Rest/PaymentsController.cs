@@ -82,6 +82,7 @@ public class PaymentsController(IPaymentCommandService paymentCommandService, IP
     }
 
     [HttpGet("by-invoice/{invoiceId:int}")]
+    [Obsolete("Use GET /api/v1/payments?invoiceId={invoiceId}.")]
     [ProducesResponseType(typeof(IEnumerable<PaymentResource>), StatusCodes.Status200OK)]
     public Task<IActionResult> GetPaymentsByInvoiceId(int invoiceId, CancellationToken cancellationToken)
     {
@@ -89,6 +90,7 @@ public class PaymentsController(IPaymentCommandService paymentCommandService, IP
     }
 
     [HttpGet("by-status/{status}")]
+    [Obsolete("Use GET /api/v1/payments?status={status}.")]
     [ProducesResponseType(typeof(IEnumerable<PaymentResource>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

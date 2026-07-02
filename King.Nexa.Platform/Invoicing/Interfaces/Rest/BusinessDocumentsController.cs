@@ -134,25 +134,19 @@ public class BusinessDocumentsController(
 
     [HttpPut("{id:int}/mark-ready")]
     [Authorize(Policy = NexaAuthorizationPolicies.CanManageDocuments)]
-    public async Task<ActionResult<BusinessDocumentResource>> MarkReady(int id, CancellationToken cancellationToken)
-    {
-        var document = await commandService.MarkReadyAsync(id, cancellationToken);
-        return document is null ? NotFound() : Ok(BusinessDocumentResourceFromEntityAssembler.ToResourceFromEntity(document));
-    }
+    [Obsolete("Use POST /api/v1/business-documents/{id}/status-changes.")]
+    public Task<ActionResult<BusinessDocumentResource>> MarkReady(int id, CancellationToken cancellationToken) =>
+        CreateStatusChange(id, new ChangeBusinessDocumentStatusResource("ready"), cancellationToken);
 
     [HttpPut("{id:int}/authorize-buyer")]
     [Authorize(Policy = NexaAuthorizationPolicies.CanManageDocuments)]
-    public async Task<ActionResult<BusinessDocumentResource>> AuthorizeBuyer(int id, CancellationToken cancellationToken)
-    {
-        var document = await commandService.AuthorizeBuyerAsync(id, cancellationToken);
-        return document is null ? NotFound() : Ok(BusinessDocumentResourceFromEntityAssembler.ToResourceFromEntity(document));
-    }
+    [Obsolete("Use POST /api/v1/business-documents/{id}/status-changes.")]
+    public Task<ActionResult<BusinessDocumentResource>> AuthorizeBuyer(int id, CancellationToken cancellationToken) =>
+        CreateStatusChange(id, new ChangeBusinessDocumentStatusResource("ready", true), cancellationToken);
 
     [HttpPut("{id:int}/mark-missing")]
     [Authorize(Policy = NexaAuthorizationPolicies.CanManageDocuments)]
-    public async Task<ActionResult<BusinessDocumentResource>> MarkMissing(int id, CancellationToken cancellationToken)
-    {
-        var document = await commandService.MarkMissingAsync(id, cancellationToken);
-        return document is null ? NotFound() : Ok(BusinessDocumentResourceFromEntityAssembler.ToResourceFromEntity(document));
-    }
+    [Obsolete("Use POST /api/v1/business-documents/{id}/status-changes.")]
+    public Task<ActionResult<BusinessDocumentResource>> MarkMissing(int id, CancellationToken cancellationToken) =>
+        CreateStatusChange(id, new ChangeBusinessDocumentStatusResource("missing", false), cancellationToken);
 }

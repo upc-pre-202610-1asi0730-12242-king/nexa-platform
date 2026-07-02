@@ -1,4 +1,5 @@
 using King.Nexa.Platform.Shared.Domain.Model.Entities;
+using King.Nexa.Platform.Shared.Domain.Model.Events;
 
 namespace King.Nexa.Platform.Sales.Domain.Model.Entities;
 
@@ -56,6 +57,7 @@ public class PurchaseRequest : AuditableEntity, ITenantScoped
         if (!string.IsNullOrWhiteSpace(note)) Comments = note.Trim();
         if (!string.IsNullOrWhiteSpace(commercialOwner)) CommercialOwner = commercialOwner.Trim();
         UpdatedAt = DateTime.UtcNow;
+        if (nextStatus == "submitted") AddDomainEvent(new PurchaseRequestSubmitted(Id, TenantId));
     }
 
     public void MarkAcceptedIntoOrder(string orderNumber, string? note = null)
@@ -66,6 +68,7 @@ public class PurchaseRequest : AuditableEntity, ITenantScoped
         Status = "converted_to_order";
         Comments = string.IsNullOrWhiteSpace(note) ? $"Accepted into order {orderNumber}." : note.Trim();
         UpdatedAt = DateTime.UtcNow;
+        AddDomainEvent(new PurchaseRequestAccepted(Id, TenantId, orderNumber));
     }
 
     private void ValidateTransition(string nextStatus)

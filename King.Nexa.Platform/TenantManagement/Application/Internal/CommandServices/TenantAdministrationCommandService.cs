@@ -86,6 +86,7 @@ public class TenantAdministrationCommandService(
         entity.TenantId = TenantId();
         Normalize(entity);
         await EnsureWorkspaceSlugAvailableAsync(entity.TenantId, entity.Slug, null, cancellationToken);
+        entity.RecordCreation();
         return await AddAsync(entity, cancellationToken);
     }
 
@@ -95,7 +96,7 @@ public class TenantAdministrationCommandService(
         var normalizedDraft = new Workspace { TenantId = entity.TenantId, Name = draft.Name, Slug = draft.Slug, Url = draft.Url, EmailDomain = draft.EmailDomain, Status = draft.Status, IsPrimary = draft.IsPrimary };
         Normalize(normalizedDraft);
         await EnsureWorkspaceSlugAvailableAsync(entity.TenantId, normalizedDraft.Slug, entity.Id, cancellationToken);
-        entity.Name = normalizedDraft.Name; entity.Slug = normalizedDraft.Slug; entity.Url = normalizedDraft.Url; entity.EmailDomain = normalizedDraft.EmailDomain; entity.Status = normalizedDraft.Status; entity.IsPrimary = normalizedDraft.IsPrimary;
+        entity.Rename(normalizedDraft.Name); entity.Slug = normalizedDraft.Slug; entity.Url = normalizedDraft.Url; entity.EmailDomain = normalizedDraft.EmailDomain; entity.Status = normalizedDraft.Status; entity.IsPrimary = normalizedDraft.IsPrimary;
         return await SaveAsync(entity, cancellationToken);
     }
 

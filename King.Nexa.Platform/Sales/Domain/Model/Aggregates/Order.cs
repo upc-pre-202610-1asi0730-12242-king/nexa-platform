@@ -2,6 +2,7 @@ using King.Nexa.Platform.Sales.Domain.Model.Commands;
 using King.Nexa.Platform.Sales.Domain.Model.Entities;
 using King.Nexa.Platform.Sales.Domain.Model.ValueObjects;
 using King.Nexa.Platform.Shared.Domain.Model.Entities;
+using King.Nexa.Platform.Shared.Domain.Model.Events;
 
 namespace King.Nexa.Platform.Sales.Domain.Model.Aggregates;
 
@@ -101,6 +102,7 @@ public class Order : AuditableEntity, ITenantScoped
         PaymentConfirmation = paymentConfirmation;
         InventoryReservation = inventoryReservation;
         ConfirmedAt = DateTimeOffset.UtcNow;
+        AddDomainEvent(new OrderConfirmed(Id, TenantId));
     }
 
     public void Reject(RejectionReason rejectionReason)

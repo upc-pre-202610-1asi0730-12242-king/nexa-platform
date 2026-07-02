@@ -30,6 +30,7 @@ public class BrandsController(IBrandCommandService brandCommandService, IBrandQu
     }
 
     [HttpGet("by-name/{name}")]
+    [Obsolete("Use GET /api/v1/brands?name={name}.")]
     public async Task<IActionResult> GetBrandByName(string name, CancellationToken cancellationToken)
     {
         var brand = await brandQueryService.Handle(new GetBrandByNameQuery(name), cancellationToken);

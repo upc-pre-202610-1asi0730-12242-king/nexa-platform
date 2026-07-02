@@ -1,4 +1,5 @@
 using King.Nexa.Platform.Shared.Domain.Model.Entities;
+using King.Nexa.Platform.Shared.Domain.Model.Events;
 
 namespace King.Nexa.Platform.Logistics.Domain.Model.Entities;
 
@@ -110,5 +111,6 @@ public class DispatchOrder : AuditableEntity, ITenantScoped
         if (!AllowedStatuses.Contains(normalized)) throw new InvalidOperationException("Dispatch status is not supported.");
         Status = normalized;
         UpdatedAt = DateTime.UtcNow;
+        AddDomainEvent(new DispatchStatusChanged(Id, TenantId, normalized));
     }
 }

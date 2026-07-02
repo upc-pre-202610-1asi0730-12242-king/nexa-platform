@@ -100,6 +100,7 @@ public static class SharedServiceCollectionExtensions
         services.AddScoped<IAuthorizationHandler, WorkspaceRoleAuthorizationHandler>();
         services.Configure<SeedDataOptions>(configuration.GetSection("SeedData"));
         services.AddScoped<AuditableEntityInterceptor>();
+        services.AddScoped<DomainEventOutboxInterceptor>();
         services.AddDbContext<AppDbContext>((serviceProvider, options) =>
         {
             var connectionStringTemplate = configuration.GetConnectionString("DefaultConnection");
@@ -113,7 +114,9 @@ public static class SharedServiceCollectionExtensions
             options.UseNpgsql(connectionString)
                 .UseLoggerFactory(loggerFactory)
                 .EnableDetailedErrors()
-                .AddInterceptors(serviceProvider.GetRequiredService<AuditableEntityInterceptor>());
+                .AddInterceptors(
+                    serviceProvider.GetRequiredService<AuditableEntityInterceptor>(),
+                    serviceProvider.GetRequiredService<DomainEventOutboxInterceptor>());
 
             if (environment.IsDevelopment())
             {

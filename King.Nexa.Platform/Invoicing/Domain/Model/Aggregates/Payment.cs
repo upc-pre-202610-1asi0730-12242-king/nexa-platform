@@ -1,6 +1,7 @@
 using King.Nexa.Platform.Invoicing.Domain.Model.Commands;
 using King.Nexa.Platform.Invoicing.Domain.Model.ValueObjects;
 using King.Nexa.Platform.Shared.Domain.Model.Entities;
+using King.Nexa.Platform.Shared.Domain.Model.Events;
 
 namespace King.Nexa.Platform.Invoicing.Domain.Model.Aggregates;
 
@@ -80,6 +81,7 @@ public class Payment : AuditableEntity, ITenantScoped
         Status = PaymentStatus.Confirmed;
         ConfirmedAt = DateTimeOffset.UtcNow;
         RejectedAt = null;
+        AddDomainEvent(new PaymentCompleted(Id, TenantId));
     }
 
     public void Reject()

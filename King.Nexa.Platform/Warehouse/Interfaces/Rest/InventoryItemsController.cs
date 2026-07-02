@@ -62,6 +62,7 @@ public class InventoryItemsController(
     /// Gets one inventory item by the catalog item identifier shared with sales.
     /// </summary>
     [HttpGet("by-catalog-item/{catalogItemId}")]
+    [Obsolete("Use GET /api/v1/inventory-items?productId={catalogItemId}.")]
     public async Task<IActionResult> GetInventoryItemByCatalogItemId(string catalogItemId, CancellationToken cancellationToken)
     {
         var item = await inventoryItemQueryService.Handle(new GetInventoryItemByCatalogItemIdQuery(catalogItemId), cancellationToken);
@@ -72,6 +73,7 @@ public class InventoryItemsController(
     /// Gets inventory items by warehouse location.
     /// </summary>
     [HttpGet("by-warehouse-location/{warehouseLocation}")]
+    [Obsolete("Use GET /api/v1/inventory-items?warehouseLocation={warehouseLocation}.")]
     public async Task<IActionResult> GetInventoryItemsByWarehouseLocation(string warehouseLocation, CancellationToken cancellationToken)
     {
         var items = await inventoryItemQueryService.Handle(new GetInventoryItemsByWarehouseLocationQuery(warehouseLocation), cancellationToken);
@@ -129,6 +131,7 @@ public class InventoryItemsController(
     /// </summary>
     [HttpPost("{id:int}/reserve")]
     [Authorize(Policy = NexaAuthorizationPolicies.CanManageInventory)]
+    [Obsolete("Use POST /api/v1/reservations.")]
     public async Task<IActionResult> ReserveInventory(int id, ReserveInventoryResource resource, CancellationToken cancellationToken)
     {
         await inventoryOperationsCommandService.CreateReservationAsync(
@@ -145,6 +148,7 @@ public class InventoryItemsController(
     /// </summary>
     [HttpPost("{id:int}/release-reservation")]
     [Authorize(Policy = NexaAuthorizationPolicies.CanManageInventory)]
+    [Obsolete("Use POST /api/v1/reservations/{id}/releases.")]
     public async Task<IActionResult> ReleaseInventoryReservation(int id, ReserveInventoryResource resource, CancellationToken cancellationToken)
     {
         var reservation = await inventoryOperationsCommandService.ReleaseReservationAsync(

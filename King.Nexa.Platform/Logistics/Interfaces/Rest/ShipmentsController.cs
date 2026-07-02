@@ -40,6 +40,7 @@ public class ShipmentsController(IShipmentCommandService shipmentCommandService,
     /// Gets shipments by order identifier.
     /// </summary>
     [HttpGet("by-order/{orderId:int}")]
+    [Obsolete("Use GET /api/v1/shipments?orderId={orderId}.")]
     public async Task<IActionResult> GetShipmentsByOrderId(int orderId, CancellationToken cancellationToken)
     {
         var shipments = await shipmentQueryService.Handle(new GetShipmentsByOrderIdQuery(orderId), cancellationToken);
@@ -50,6 +51,7 @@ public class ShipmentsController(IShipmentCommandService shipmentCommandService,
     /// Gets shipments by delivery status.
     /// </summary>
     [HttpGet("by-status/{status}")]
+    [Obsolete("Use GET /api/v1/shipments?status={status}.")]
     public async Task<IActionResult> GetShipmentsByStatus(string status, CancellationToken cancellationToken)
     {
         if (!Enum.TryParse<DeliveryStatus>(status, true, out var deliveryStatus))

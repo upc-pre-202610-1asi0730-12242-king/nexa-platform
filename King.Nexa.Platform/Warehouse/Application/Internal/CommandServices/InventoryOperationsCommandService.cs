@@ -141,6 +141,7 @@ public class InventoryOperationsCommandService(
             Units = draft.Units,
             Status = "reserved"
         };
+        reservation.RecordCreation();
         await repository.AddReservationAsync(reservation, cancellationToken);
         await unitOfWork.CompleteAsync(cancellationToken);
         return reservation;

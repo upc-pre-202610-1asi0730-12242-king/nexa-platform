@@ -1,4 +1,5 @@
 using King.Nexa.Platform.Shared.Domain.Model.Entities;
+using King.Nexa.Platform.Shared.Domain.Model.Events;
 
 namespace King.Nexa.Platform.TenantManagement.Domain.Model.Entities;
 
@@ -11,6 +12,14 @@ public class Workspace : AuditableEntity, ITenantScoped
     public string EmailDomain { get; set; } = string.Empty;
     public string Status { get; set; } = "active";
     public bool IsPrimary { get; set; } = true;
+
+    public void RecordCreation() => AddDomainEvent(new WorkspaceCreated(Slug, TenantId));
+
+    public void Rename(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) throw new ArgumentException("Workspace name is required.", nameof(name));
+        Name = name.Trim();
+    }
 }
 
 public class UserWorkspaceMembership : AuditableEntity, ITenantScoped

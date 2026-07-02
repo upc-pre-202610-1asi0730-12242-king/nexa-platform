@@ -116,6 +116,7 @@ public class CatalogItemsController(
     /// Gets a catalog item by its stable catalog item identifier.
     /// </summary>
     [HttpGet("by-catalog-item/{catalogItemId}")]
+    [Obsolete("Use GET /api/v1/catalog-items?catalogItemId={catalogItemId}.")]
     public async Task<IActionResult> GetCatalogItemByCatalogItemId(string catalogItemId, CancellationToken cancellationToken)
     {
         var catalogItem = await catalogItemQueryService.Handle(new GetCatalogItemByCatalogItemIdQuery(catalogItemId), cancellationToken);
@@ -126,6 +127,7 @@ public class CatalogItemsController(
     /// Gets catalog items by category name.
     /// </summary>
     [HttpGet("by-category/{categoryName}")]
+    [Obsolete("Use GET /api/v1/catalog-items?category={categoryName}.")]
     public async Task<IActionResult> GetCatalogItemsByCategoryName(string categoryName, CancellationToken cancellationToken)
     {
         var catalogItems = await catalogItemQueryService.Handle(new GetCatalogItemsByCategoryNameQuery(categoryName), cancellationToken);
@@ -136,6 +138,7 @@ public class CatalogItemsController(
     /// Gets catalog items by brand name.
     /// </summary>
     [HttpGet("by-brand/{brandName}")]
+    [Obsolete("Use GET /api/v1/catalog-items?brand={brandName}.")]
     public async Task<IActionResult> GetCatalogItemsByBrandName(string brandName, CancellationToken cancellationToken)
     {
         var catalogItems = await catalogItemQueryService.Handle(new GetCatalogItemsByBrandNameQuery(brandName), cancellationToken);

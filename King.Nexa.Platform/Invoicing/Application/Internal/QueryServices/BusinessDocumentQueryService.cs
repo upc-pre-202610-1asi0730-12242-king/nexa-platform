@@ -29,7 +29,7 @@ public class BusinessDocumentQueryService(
         var contentType = extension switch
         {
             ".pdf" => "application/pdf",
-            ".xml" => "application/xml",
+            ".xml" => "application/xml; charset=utf-8",
             _ => "application/octet-stream"
         };
         var downloadName = $"{document.Type}{extension}";

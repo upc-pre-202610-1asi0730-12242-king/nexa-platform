@@ -470,21 +470,55 @@ public class SeedDataService(
         foreach (var record in records)
         {
             var catalogItemId = new WarehouseCatalogItemId(record.CatalogItemId);
-            if (await context.InventoryItems.AnyAsync(item =>
-                    item.TenantId == tenant.Id && item.CatalogItemId == catalogItemId,
-                    cancellationToken))
+            var existing = await context.InventoryItems.FirstOrDefaultAsync(item =>
+                item.TenantId == tenant.Id && item.CatalogItemId == catalogItemId,
+                cancellationToken);
+            if (existing is not null)
+            {
+                SynchronizeSeedInventory(existing, record);
                 continue;
+            }
 
             var command = new CreateInventoryItemCommand(
                 new WarehouseProductId(record.ProductId),
                 catalogItemId,
-                new WarehouseStockQuantity(record.AvailableQuantity),
+                new WarehouseStockQuantity(record.AvailableQuantity + record.ReservedQuantity),
                 new WarehouseLocation(record.WarehouseLocation),
                 new WarehouseTemperatureRange(record.MinimumTemperature, record.MaximumTemperature));
 
             var inventoryItem = new InventoryItem(command);
             inventoryItem.AssignTenant(tenant.Id);
+            if (record.ReservedQuantity > 0)
+            {
+                inventoryItem.Reserve(new King.Nexa.Platform.Warehouse.Domain.Model.ValueObjects.InventoryReservation(
+                    $"SEED-{record.ProductId}", record.ReservedQuantity));
+            }
             await inventoryItemRepository.AddAsync(inventoryItem, cancellationToken);
+        }
+    }
+
+    private static void SynchronizeSeedInventory(InventoryItem item, InventoryItemSeedRecord record)
+    {
+        var currentReserved = item.ReservedQuantity.Value;
+        if (currentReserved > record.ReservedQuantity)
+        {
+            item.Release(new King.Nexa.Platform.Warehouse.Domain.Model.ValueObjects.InventoryReservation(
+                $"SEED-RELEASE-{record.ProductId}", currentReserved - record.ReservedQuantity));
+        }
+
+        var reserveDelta = Math.Max(0, record.ReservedQuantity - item.ReservedQuantity.Value);
+        item.Update(new UpdateInventoryItemCommand(
+            item.Id,
+            new WarehouseProductId(record.ProductId),
+            new WarehouseCatalogItemId(record.CatalogItemId),
+            new WarehouseStockQuantity(record.AvailableQuantity + reserveDelta),
+            new WarehouseLocation(record.WarehouseLocation),
+            new WarehouseTemperatureRange(record.MinimumTemperature, record.MaximumTemperature)));
+
+        if (reserveDelta > 0)
+        {
+            item.Reserve(new King.Nexa.Platform.Warehouse.Domain.Model.ValueObjects.InventoryReservation(
+                $"SEED-RESERVE-{record.ProductId}", reserveDelta));
         }
     }
 
@@ -892,20 +926,53 @@ public class SeedDataService(
             await context.TemperatureLogs.AddAsync(new TemperatureLog { TenantId = tenant.Id, DispatchOrderId = dispatchOrder.Id, OrderId = order.Id, Celsius = -18.4m, Zone = "Frozen cargo bay", Status = "ok", RecordedAt = DateTime.UtcNow }, cancellationToken);
         }
 
-        var lot = await context.InventoryLots.FirstOrDefaultAsync(row => row.TenantId == tenant.Id && row.LotCode == "LOT-2026-0001", cancellationToken);
-        if (lot is null)
+        var lotSeeds = new[]
         {
-            lot = new InventoryLot { TenantId = tenant.Id, InventoryItemId = primaryInventoryItem.Id, WarehouseId = warehouse.Id, LotCode = "LOT-2026-0001", Quantity = 120, ReservedQuantity = 12, EntryDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(-5)), ExpirationDate = DateOnly.FromDateTime(DateTime.UtcNow.AddMonths(5)), Zone = "Frozen A1", Status = "active", MinimumTemperature = -22m, MaximumTemperature = -16m };
-            await context.InventoryLots.AddAsync(lot, cancellationToken);
-            await context.SaveChangesAsync(cancellationToken);
-        }
+            ("LOT-2026-0001", "PROD-0001", 108, 12, -12, 6, "Cheese A1", 4m, 8m),
+            ("LOT-2026-0002", "PROD-0004", 8, 2, -8, 4, "Charcuterie C1", 0m, 5m),
+            ("LOT-2026-0003", "PROD-0014", 5, 0, -6, 9, "Cheese B2", 2m, 6m),
+            ("LOT-2026-0004", "PROD-0033", 52, 7, -10, 22, "Dairy D1", 2m, 6m),
+            ("LOT-2026-0005", "PROD-0049", 42, 4, -5, 16, "Dessert D2", 0m, 4m),
+            ("LOT-2026-0006", "PROD-0002", 79, 18, -14, 58, "Cheese A2", 4m, 8m),
+            ("LOT-2026-0007", "PROD-0006", 35, 7, -12, 31, "Charcuterie C2", 0m, 5m),
+            ("LOT-2026-0008", "PROD-0036", 64, 4, -7, 76, "Cheese B1", 2m, 6m)
+        };
+        InventoryLot? lot = null;
+        foreach (var (code, productId, quantity, reserved, entryOffset, expiryOffset, zone, minimum, maximum) in lotSeeds)
+        {
+            var inventoryItem = await context.InventoryItems.FirstOrDefaultAsync(row =>
+                row.TenantId == tenant.Id && row.ProductId == new WarehouseProductId(productId), cancellationToken);
+            if (inventoryItem is null) continue;
 
-        if (!await context.InventoryMovements.AnyAsync(row => row.TenantId == tenant.Id && row.Code == "MOV-2026-0001", cancellationToken))
+            var seededLot = await context.InventoryLots.FirstOrDefaultAsync(row =>
+                row.TenantId == tenant.Id && row.LotCode == code, cancellationToken);
+            if (seededLot is null)
+            {
+                seededLot = new InventoryLot { TenantId = tenant.Id, LotCode = code };
+                await context.InventoryLots.AddAsync(seededLot, cancellationToken);
+            }
+
+            seededLot.InventoryItemId = inventoryItem.Id;
+            seededLot.WarehouseId = warehouse.Id;
+            seededLot.Quantity = quantity;
+            seededLot.ReservedQuantity = reserved;
+            seededLot.EntryDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(entryOffset));
+            seededLot.ExpirationDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(expiryOffset));
+            seededLot.Zone = zone;
+            seededLot.Status = "active";
+            seededLot.MinimumTemperature = minimum;
+            seededLot.MaximumTemperature = maximum;
+            seededLot.UpdatedAt = DateTime.UtcNow;
+            lot ??= seededLot;
+        }
+        await context.SaveChangesAsync(cancellationToken);
+
+        if (lot is not null && !await context.InventoryMovements.AnyAsync(row => row.TenantId == tenant.Id && row.Code == "MOV-2026-0001", cancellationToken))
         {
             await context.InventoryMovements.AddAsync(new InventoryMovement { TenantId = tenant.Id, InventoryItemId = primaryInventoryItem.Id, InventoryLotId = lot.Id, WarehouseId = warehouse.Id, OrderId = order.Id, Code = "MOV-2026-0001", MovementType = "reservation", Quantity = -12, Reason = "Reservation for B2B cold-chain order.", TemperatureReading = -18.4m, PerformedBy = "roberto.garcia@icisa.pe", OccurredAt = DateTime.UtcNow }, cancellationToken);
         }
 
-        if (!await context.InventoryReservations.AnyAsync(row => row.TenantId == tenant.Id && row.Code == "RSV-2026-0001", cancellationToken))
+        if (lot is not null && !await context.InventoryReservations.AnyAsync(row => row.TenantId == tenant.Id && row.Code == "RSV-2026-0001", cancellationToken))
         {
             await context.InventoryReservations.AddAsync(new InventoryReservationRecord { TenantId = tenant.Id, InventoryItemId = primaryInventoryItem.Id, InventoryLotId = lot.Id, OrderId = order.Id, PurchaseRequestId = purchaseRequest.Id, Code = "RSV-2026-0001", Units = 12, Status = "reserved" }, cancellationToken);
         }
@@ -1134,6 +1201,7 @@ public class SeedDataService(
         string ProductId,
         string CatalogItemId,
         int AvailableQuantity,
+        int ReservedQuantity,
         string WarehouseLocation,
         decimal MinimumTemperature,
         decimal MaximumTemperature);

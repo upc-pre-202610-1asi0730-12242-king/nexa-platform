@@ -1,4 +1,5 @@
 using System.Text;
+using System.Xml;
 using System.Xml.Linq;
 using King.Nexa.Platform.Invoicing.Application.OutboundServices;
 using King.Nexa.Platform.Sales.Domain.Model.Aggregates;
@@ -50,7 +51,7 @@ public class BusinessDocumentContentGenerator(AppDbContext context) : IBusinessD
         return new GeneratedBusinessDocumentContent(
             content,
             fileName,
-            extension == "xml" ? "application/xml" : "application/pdf",
+            extension == "xml" ? "application/xml; charset=utf-8" : "application/pdf",
             label,
             client.Id);
     }
@@ -91,7 +92,17 @@ public class BusinessDocumentContentGenerator(AppDbContext context) : IBusinessD
                         new XElement("UnitPrice", item.UnitPrice.Amount),
                         new XElement("Subtotal", item.Subtotal.Amount)))),
                 new XElement("Total", order.Total.Amount)));
-        return Encoding.UTF8.GetBytes(document.ToString());
+        using var stream = new MemoryStream();
+        using (var writer = XmlWriter.Create(stream, new XmlWriterSettings
+        {
+            Encoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false),
+            Indent = true,
+            OmitXmlDeclaration = false
+        }))
+        {
+            document.Save(writer);
+        }
+        return stream.ToArray();
     }
 
     private static byte[] BuildPdf(string title, string supplierName, string supplierRuc, ClientAccount client, Order order)

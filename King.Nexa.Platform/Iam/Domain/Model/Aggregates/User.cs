@@ -61,4 +61,11 @@ public class User : AuditableEntity
         CriticalNotificationsEnabled = criticalNotificationsEnabled;
         UpdatedAt = DateTime.UtcNow;
     }
+
+    public void ChangePasswordHash(string passwordHash)
+    {
+        if (string.IsNullOrWhiteSpace(passwordHash)) throw new InvalidOperationException("Password hash is required.");
+        PasswordHash = passwordHash;
+        UpdatedAt = DateTime.UtcNow;
+    }
 }

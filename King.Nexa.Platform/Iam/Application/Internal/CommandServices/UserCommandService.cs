@@ -74,4 +74,28 @@ public class UserCommandService(
         await unitOfWork.CompleteAsync(cancellationToken);
         return user;
     }
+
+    public async Task<bool> ChangePasswordAsync(int id, string currentPassword, string newPassword, CancellationToken cancellationToken = default)
+    {
+        var user = await userRepository.FindByIdAsync(id, cancellationToken);
+        if (user is null) return false;
+        if (!passwordHashingService.VerifyPassword(currentPassword, user.PasswordHash))
+            throw new InvalidOperationException("Current password is incorrect.");
+        ValidatePasswordPolicy(newPassword);
+        if (passwordHashingService.VerifyPassword(newPassword, user.PasswordHash))
+            throw new InvalidOperationException("New password must differ from the current password.");
+
+        user.ChangePasswordHash(passwordHashingService.HashPassword(newPassword));
+        userRepository.Update(user);
+        await unitOfWork.CompleteAsync(cancellationToken);
+        return true;
+    }
+
+    private static void ValidatePasswordPolicy(string password)
+    {
+        if (string.IsNullOrWhiteSpace(password) || password.Length < 10 ||
+            !password.Any(char.IsUpper) || !password.Any(char.IsLower) ||
+            !password.Any(char.IsDigit) || password.All(char.IsLetterOrDigit))
+            throw new InvalidOperationException("Password must contain at least 10 characters, uppercase, lowercase, number, and symbol.");
+    }
 }

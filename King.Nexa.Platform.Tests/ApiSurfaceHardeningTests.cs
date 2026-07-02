@@ -221,6 +221,32 @@ public class ApiSurfaceHardeningTests
     }
 
     [Fact]
+    public void Profile_password_change_is_authenticated_rest_subresource()
+    {
+        var controller = typeof(ProfileController);
+        var controllerRoute = controller.GetCustomAttribute<RouteAttribute>();
+        var authorization = controller.GetCustomAttribute<AuthorizeAttribute>();
+        var action = controller.GetMethod(nameof(ProfileController.ChangePassword));
+        var route = action?.GetCustomAttribute<HttpPostAttribute>();
+
+        Assert.Equal("api/v1/profile", controllerRoute?.Template);
+        Assert.Equal(NexaAuthorizationPolicies.WorkspaceMember, authorization?.Policy);
+        Assert.Equal("password-changes", route?.Template);
+    }
+
+    [Fact]
+    public void Buyer_profile_update_is_authenticated_rest_resource_without_client_id_input()
+    {
+        var controller = typeof(ClientsController);
+        var authorization = controller.GetCustomAttribute<AuthorizeAttribute>();
+        var action = controller.GetMethod(nameof(ClientsController.UpdateCurrentBuyerProfile));
+        var route = action?.GetCustomAttribute<HttpPutAttribute>();
+
+        Assert.Equal(NexaAuthorizationPolicies.WorkspaceMember, authorization?.Policy);
+        Assert.Equal("/api/v1/profile/client-account", route?.Template);
+    }
+
+    [Fact]
     public void Invoice_controller_is_core_current_api()
     {
         Assert.False(HasRetiredApiMarker(typeof(InvoicesController)));

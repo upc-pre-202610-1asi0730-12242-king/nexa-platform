@@ -83,6 +83,17 @@ public class ClientsController(
         return client is null ? NotFound() : Ok(ClientAccountResourceAssembler.ToResource(client));
     }
 
+    [HttpPut("/api/v1/profile/client-account")]
+    public async Task<IActionResult> UpdateCurrentBuyerProfile(CreateClientAccountResource resource, CancellationToken cancellationToken)
+    {
+        if (workspaceContext.ClientAccountId is not { } clientAccountId) return Forbid();
+        var client = await commandService.UpdateAsync(
+            clientAccountId,
+            ClientAccountResourceAssembler.ToEntity(resource, RequireTenantId()),
+            cancellationToken);
+        return client is null ? NotFound() : Ok(ClientAccountResourceAssembler.ToResource(client));
+    }
+
     [HttpPut("/api/v1/clients/{id:int}")]
     [HttpPatch("/api/v1/clients/{id:int}")]
     [Authorize(Policy = NexaAuthorizationPolicies.CanAcceptPurchaseRequest)]

@@ -6,6 +6,7 @@ using King.Nexa.Platform.Logistics.Interfaces.Rest.Resources;
 using King.Nexa.Platform.Logistics.Interfaces.Rest.Transform;
 using King.Nexa.Platform.Shared.Application.Pagination;
 using King.Nexa.Platform.Shared.Application.ReadModels;
+using King.Nexa.Platform.Shared.Application.Security;
 using King.Nexa.Platform.Shared.Infrastructure.Security.Authorization;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +19,8 @@ namespace King.Nexa.Platform.Logistics.Interfaces.Rest;
 public class DispatchOrdersController(
     IDispatchOrderQueryService queryService,
     IDispatchOrderCommandService commandService,
-    IWorkspaceReadModelQueryService readModels) : ControllerBase
+    IWorkspaceReadModelQueryService readModels,
+    ICurrentWorkspaceContext workspaceContext) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<DispatchOrderResource>), StatusCodes.Status200OK)]
@@ -52,8 +54,13 @@ public class DispatchOrdersController(
 
     [HttpGet("by-tenant/{tenantId:int}")]
     [ProducesResponseType(typeof(IEnumerable<DispatchOrderResource>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetByTenant(int tenantId, CancellationToken cancellationToken) =>
-        await GetAll(null, null, null, null, null, null, null, cancellationToken);
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [Obsolete("Use GET /api/v1/dispatch-orders. This compatibility route now rejects tenant mismatches.")]
+    public async Task<IActionResult> GetByTenant(int tenantId, CancellationToken cancellationToken)
+    {
+        if (workspaceContext.TenantId is not { } currentTenantId || currentTenantId != tenantId) return Forbid();
+        return await GetAll(null, null, null, null, null, null, null, cancellationToken);
+    }
 
     [HttpGet("{id:int}")]
     [ProducesResponseType(typeof(DispatchOrderResource), StatusCodes.Status200OK)]

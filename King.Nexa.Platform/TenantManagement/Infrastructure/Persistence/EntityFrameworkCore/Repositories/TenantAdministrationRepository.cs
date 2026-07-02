@@ -28,6 +28,16 @@ public class TenantAdministrationRepository(AppDbContext context) : ITenantAdmin
     public Task<bool> WorkspaceBelongsToTenantAsync(int tenantId, int workspaceId, CancellationToken cancellationToken = default) =>
         context.Workspaces.AsNoTracking().AnyAsync(row => row.Id == workspaceId && row.TenantId == tenantId, cancellationToken);
 
+    public Task<bool> WorkspaceSlugExistsAsync(int tenantId, string slug, int? exceptWorkspaceId = null, CancellationToken cancellationToken = default)
+    {
+        var normalized = NormalizeSlug(slug);
+        return context.Workspaces.AsNoTracking().AnyAsync(row =>
+            row.TenantId == tenantId &&
+            row.Slug == normalized &&
+            (!exceptWorkspaceId.HasValue || row.Id != exceptWorkspaceId.Value),
+            cancellationToken);
+    }
+
     public Task<bool> ClientAccountBelongsToTenantAsync(int tenantId, int clientAccountId, CancellationToken cancellationToken = default) =>
         context.ClientAccounts.AsNoTracking().AnyAsync(row => row.Id == clientAccountId && row.TenantId == tenantId, cancellationToken);
 
@@ -44,12 +54,25 @@ public class TenantAdministrationRepository(AppDbContext context) : ITenantAdmin
             .Where(row => row.Status == "active")
             .Join(context.Tenants.AsNoTracking(), workspace => workspace.TenantId, tenant => tenant.Id, (workspace, tenant) => new { Workspace = workspace, Tenant = tenant })
             .ToListAsync(cancellationToken);
-        return candidates.FirstOrDefault(row =>
-            row.Workspace.Slug == normalized ||
-            row.Tenant.Slug == normalized ||
-            NormalizeSlug(row.Workspace.Name) == normalized ||
-            NormalizeSlug(row.Tenant.Name) == normalized ||
-            NormalizeSlug(row.Tenant.LegalName) == normalized)?.Workspace;
+        return candidates
+            .Where(row =>
+                row.Workspace.Slug == normalized ||
+                row.Tenant.Slug == normalized ||
+                NormalizeSlug(row.Workspace.Name) == normalized ||
+                NormalizeSlug(row.Tenant.Name) == normalized ||
+                NormalizeSlug(row.Tenant.LegalName) == normalized)
+            .OrderBy(row => WorkspaceMatchRank(row.Workspace, row.Tenant, normalized))
+            .FirstOrDefault()?.Workspace;
+    }
+
+    private static int WorkspaceMatchRank(Workspace workspace, Tenant tenant, string normalized)
+    {
+        if (workspace.Slug == normalized) return 0;
+        if (workspace.IsPrimary && tenant.Slug == normalized) return 1;
+        if (workspace.IsPrimary && NormalizeSlug(tenant.Name) == normalized) return 2;
+        if (workspace.IsPrimary && NormalizeSlug(tenant.LegalName) == normalized) return 3;
+        if (NormalizeSlug(workspace.Name) == normalized) return 4;
+        return 5;
     }
 
     private static string NormalizeSlug(string? value) =>

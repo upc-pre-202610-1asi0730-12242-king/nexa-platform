@@ -83,14 +83,20 @@ public class TenantAdministrationCommandService(
 
     public async Task<Workspace> CreateWorkspaceAsync(Workspace entity, CancellationToken cancellationToken = default)
     {
-        entity.TenantId = TenantId(); Normalize(entity); return await AddAsync(entity, cancellationToken);
+        entity.TenantId = TenantId();
+        Normalize(entity);
+        await EnsureWorkspaceSlugAvailableAsync(entity.TenantId, entity.Slug, null, cancellationToken);
+        return await AddAsync(entity, cancellationToken);
     }
 
     public async Task<Workspace?> UpdateWorkspaceAsync(int id, Workspace draft, CancellationToken cancellationToken = default)
     {
         var entity = await FindAsync<Workspace>(id, cancellationToken); if (entity is null) return null;
-        entity.Name = draft.Name; entity.Slug = draft.Slug; entity.Url = draft.Url; entity.EmailDomain = draft.EmailDomain; entity.Status = draft.Status; entity.IsPrimary = draft.IsPrimary;
-        Normalize(entity); return await SaveAsync(entity, cancellationToken);
+        var normalizedDraft = new Workspace { TenantId = entity.TenantId, Name = draft.Name, Slug = draft.Slug, Url = draft.Url, EmailDomain = draft.EmailDomain, Status = draft.Status, IsPrimary = draft.IsPrimary };
+        Normalize(normalizedDraft);
+        await EnsureWorkspaceSlugAvailableAsync(entity.TenantId, normalizedDraft.Slug, entity.Id, cancellationToken);
+        entity.Name = normalizedDraft.Name; entity.Slug = normalizedDraft.Slug; entity.Url = normalizedDraft.Url; entity.EmailDomain = normalizedDraft.EmailDomain; entity.Status = normalizedDraft.Status; entity.IsPrimary = normalizedDraft.IsPrimary;
+        return await SaveAsync(entity, cancellationToken);
     }
 
     public Task<bool> DeleteWorkspaceAsync(int id, CancellationToken cancellationToken = default) => DeleteAsync<Workspace>(id, cancellationToken);
@@ -141,6 +147,12 @@ public class TenantAdministrationCommandService(
         var tenantId = TenantId();
         if (!await repository.WorkspaceBelongsToTenantAsync(tenantId, workspaceId, cancellationToken))
             throw new InvalidOperationException("Workspace does not belong to the current tenant.");
+    }
+
+    private async Task EnsureWorkspaceSlugAvailableAsync(int tenantId, string slug, int? exceptWorkspaceId, CancellationToken cancellationToken)
+    {
+        if (await repository.WorkspaceSlugExistsAsync(tenantId, slug, exceptWorkspaceId, cancellationToken))
+            throw new InvalidOperationException("Workspace slug is already in use.");
     }
 
     private async Task<T> AddAsync<T>(T entity, CancellationToken cancellationToken) where T : class

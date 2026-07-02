@@ -10,6 +10,7 @@ public interface ITenantAdministrationRepository
     Task<IEnumerable<T>> ListAsync<T>(int tenantId, CancellationToken cancellationToken = default) where T : class;
     void Remove<T>(T entity) where T : class;
     Task<bool> WorkspaceBelongsToTenantAsync(int tenantId, int workspaceId, CancellationToken cancellationToken = default);
+    Task<bool> WorkspaceSlugExistsAsync(int tenantId, string slug, int? exceptWorkspaceId = null, CancellationToken cancellationToken = default);
     Task<bool> ClientAccountBelongsToTenantAsync(int tenantId, int clientAccountId, CancellationToken cancellationToken = default);
     Task<TenantUserReference?> FindUserAsync(int userId, CancellationToken cancellationToken = default);
     Task<Workspace?> FindWorkspaceBySlugAsync(string slug, CancellationToken cancellationToken = default);

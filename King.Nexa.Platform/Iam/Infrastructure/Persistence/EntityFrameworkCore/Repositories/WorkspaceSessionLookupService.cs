@@ -17,12 +17,15 @@ public class WorkspaceSessionLookupService(AppDbContext context) : IWorkspaceSes
                 tenantRow => tenantRow.Id,
                 (workspaceRow, tenantRow) => new { Workspace = workspaceRow, Tenant = tenantRow })
             .ToListAsync(cancellationToken);
-        var workspace = workspaceCandidates.FirstOrDefault(row =>
-            row.Workspace.Slug == normalized ||
-            row.Tenant.Slug == normalized ||
-            NormalizeWorkspaceInput(row.Workspace.Name) == normalized ||
-            NormalizeWorkspaceInput(row.Tenant.Name) == normalized ||
-            NormalizeWorkspaceInput(row.Tenant.LegalName) == normalized);
+        var workspace = workspaceCandidates
+            .Where(row =>
+                row.Workspace.Slug == normalized ||
+                row.Tenant.Slug == normalized ||
+                NormalizeWorkspaceInput(row.Workspace.Name) == normalized ||
+                NormalizeWorkspaceInput(row.Tenant.Name) == normalized ||
+                NormalizeWorkspaceInput(row.Tenant.LegalName) == normalized)
+            .OrderBy(row => WorkspaceMatchRank(row.Workspace, row.Tenant, normalized))
+            .FirstOrDefault();
         if (workspace is null) return null;
 
         var membership = await context.UserWorkspaceMemberships.AsNoTracking()
@@ -44,4 +47,14 @@ public class WorkspaceSessionLookupService(AppDbContext context) : IWorkspaceSes
                 .Replace(".", "-")
                 .Replace("_", "-")
                 .Replace(" ", "-");
+
+    private static int WorkspaceMatchRank(TenantManagement.Domain.Model.Entities.Workspace workspace, TenantManagement.Domain.Model.Aggregates.Tenant tenant, string normalized)
+    {
+        if (workspace.Slug == normalized) return 0;
+        if (workspace.IsPrimary && tenant.Slug == normalized) return 1;
+        if (workspace.IsPrimary && NormalizeWorkspaceInput(tenant.Name) == normalized) return 2;
+        if (workspace.IsPrimary && NormalizeWorkspaceInput(tenant.LegalName) == normalized) return 3;
+        if (NormalizeWorkspaceInput(workspace.Name) == normalized) return 4;
+        return 5;
+    }
 }

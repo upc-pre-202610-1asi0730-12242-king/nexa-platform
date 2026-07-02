@@ -18,4 +18,3 @@ public record CreatePaymentMethodRecordResource(
     bool IsDefault);
 
 public record ChangePaymentMethodRecordStatusResource(string Status, bool? IsDefault);
-

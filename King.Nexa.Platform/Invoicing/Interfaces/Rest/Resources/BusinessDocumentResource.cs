@@ -26,4 +26,3 @@ public record CreateBusinessDocumentResource(
     string? FileName = null);
 
 public record GenerateBusinessDocumentResource(int OrderId, string Type);
-

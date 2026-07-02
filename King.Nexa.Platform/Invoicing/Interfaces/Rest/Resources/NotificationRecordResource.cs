@@ -20,4 +20,3 @@ public record UpsertNotificationRecordResource(
     string Title,
     string Body,
     bool Read);
-

@@ -27,4 +27,3 @@ public record CreatePaymentProcessRecordResource(
     decimal Igv,
     decimal Total,
     string? Status);
-

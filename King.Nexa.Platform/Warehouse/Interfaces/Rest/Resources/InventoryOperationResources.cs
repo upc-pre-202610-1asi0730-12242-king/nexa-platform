@@ -113,4 +113,3 @@ public class CreateInventoryReservationResource
     public int Units { get; init; }
     public int? Quantity { get; init; }
 }
-

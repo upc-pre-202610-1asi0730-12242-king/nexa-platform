@@ -78,4 +78,3 @@ public static class InventoryOperationResourceAssembler
             resource.PurchaseRequestId,
             resource.Quantity ?? resource.Units);
 }
-

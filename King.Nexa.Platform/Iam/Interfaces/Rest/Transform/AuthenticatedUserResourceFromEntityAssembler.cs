@@ -14,5 +14,15 @@ public static class AuthenticatedUserResourceFromEntityAssembler
             authenticatedUser.User.Username,
             authenticatedUser.User.Email,
             authenticatedUser.User.Role,
-            authenticatedUser.AccessToken);
+            authenticatedUser.User.FullName,
+            authenticatedUser.User.Phone,
+            authenticatedUser.User.PreferredLanguage,
+            authenticatedUser.User.CriticalNotificationsEnabled,
+            authenticatedUser.AccessToken,
+            authenticatedUser.Tenant?.Id ?? authenticatedUser.Membership?.TenantId,
+            authenticatedUser.Workspace?.Id ?? authenticatedUser.Membership?.WorkspaceId,
+            authenticatedUser.Workspace?.Slug,
+            authenticatedUser.Workspace?.Status,
+            authenticatedUser.Membership?.Status,
+            authenticatedUser.Membership?.ClientAccountId);
 }

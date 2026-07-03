@@ -5,11 +5,14 @@ using King.Nexa.Platform.Logistics.Domain.Model.Queries;
 using King.Nexa.Platform.Logistics.Domain.Model.ValueObjects;
 using King.Nexa.Platform.Logistics.Interfaces.Rest.Resources;
 using King.Nexa.Platform.Logistics.Interfaces.Rest.Transform;
+using King.Nexa.Platform.Shared.Infrastructure.Security.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace King.Nexa.Platform.Logistics.Interfaces.Rest;
 
 [ApiController]
+[Authorize(Policy = NexaAuthorizationPolicies.WorkspaceMember)]
 [Route("api/v1/[controller]")]
 public class ShipmentsController(IShipmentCommandService shipmentCommandService, IShipmentQueryService shipmentQueryService) : ControllerBase
 {
@@ -37,6 +40,7 @@ public class ShipmentsController(IShipmentCommandService shipmentCommandService,
     /// Gets shipments by order identifier.
     /// </summary>
     [HttpGet("by-order/{orderId:int}")]
+    [Obsolete("Use GET /api/v1/shipments?orderId={orderId}.")]
     public async Task<IActionResult> GetShipmentsByOrderId(int orderId, CancellationToken cancellationToken)
     {
         var shipments = await shipmentQueryService.Handle(new GetShipmentsByOrderIdQuery(orderId), cancellationToken);
@@ -47,6 +51,7 @@ public class ShipmentsController(IShipmentCommandService shipmentCommandService,
     /// Gets shipments by delivery status.
     /// </summary>
     [HttpGet("by-status/{status}")]
+    [Obsolete("Use GET /api/v1/shipments?status={status}.")]
     public async Task<IActionResult> GetShipmentsByStatus(string status, CancellationToken cancellationToken)
     {
         if (!Enum.TryParse<DeliveryStatus>(status, true, out var deliveryStatus))
@@ -60,6 +65,7 @@ public class ShipmentsController(IShipmentCommandService shipmentCommandService,
     /// Schedules a shipment for an accepted sales order.
     /// </summary>
     [HttpPost]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanStartDispatch)]
     public async Task<IActionResult> ScheduleShipment(ScheduleShipmentResource resource, CancellationToken cancellationToken)
     {
         var command = ScheduleShipmentCommandFromResourceAssembler.ToCommandFromResource(resource);
@@ -71,6 +77,7 @@ public class ShipmentsController(IShipmentCommandService shipmentCommandService,
     /// Reschedules a shipment.
     /// </summary>
     [HttpPut("{id:int}/schedule")]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanStartDispatch)]
     public async Task<IActionResult> RescheduleShipment(int id, RescheduleShipmentResource resource, CancellationToken cancellationToken)
     {
         var command = RescheduleShipmentCommandFromResourceAssembler.ToCommandFromResource(id, resource);
@@ -82,6 +89,7 @@ public class ShipmentsController(IShipmentCommandService shipmentCommandService,
     /// Marks a shipment as delivered.
     /// </summary>
     [HttpPost("{id:int}/delivered")]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanStartDispatch)]
     public async Task<IActionResult> MarkShipmentDelivered(int id, CancellationToken cancellationToken)
     {
         var shipment = await shipmentCommandService.MarkDeliveredAsync(new MarkShipmentDeliveredCommand(id), cancellationToken);
@@ -93,6 +101,7 @@ public class ShipmentsController(IShipmentCommandService shipmentCommandService,
     /// Cancels a shipment that has not been delivered.
     /// </summary>
     [HttpDelete("{id:int}")]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanStartDispatch)]
     public async Task<IActionResult> CancelShipment(int id, CancellationToken cancellationToken)
     {
         var cancelled = await shipmentCommandService.CancelAsync(new CancelShipmentCommand(id), cancellationToken);

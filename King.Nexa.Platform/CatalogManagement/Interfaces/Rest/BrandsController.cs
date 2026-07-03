@@ -4,11 +4,14 @@ using King.Nexa.Platform.CatalogManagement.Domain.Model.Commands;
 using King.Nexa.Platform.CatalogManagement.Domain.Model.Queries;
 using King.Nexa.Platform.CatalogManagement.Interfaces.Rest.Resources;
 using King.Nexa.Platform.CatalogManagement.Interfaces.Rest.Transform;
+using King.Nexa.Platform.Shared.Infrastructure.Security.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace King.Nexa.Platform.CatalogManagement.Interfaces.Rest;
 
 [ApiController]
+[Authorize(Policy = NexaAuthorizationPolicies.WorkspaceMember)]
 [Route("api/v1/[controller]")]
 public class BrandsController(IBrandCommandService brandCommandService, IBrandQueryService brandQueryService) : ControllerBase
 {
@@ -27,6 +30,7 @@ public class BrandsController(IBrandCommandService brandCommandService, IBrandQu
     }
 
     [HttpGet("by-name/{name}")]
+    [Obsolete("Use GET /api/v1/brands?name={name}.")]
     public async Task<IActionResult> GetBrandByName(string name, CancellationToken cancellationToken)
     {
         var brand = await brandQueryService.Handle(new GetBrandByNameQuery(name), cancellationToken);
@@ -34,6 +38,7 @@ public class BrandsController(IBrandCommandService brandCommandService, IBrandQu
     }
 
     [HttpPost]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanManageSharedReferenceData)]
     public async Task<IActionResult> CreateBrand(CreateBrandResource resource, CancellationToken cancellationToken)
     {
         var command = CreateBrandCommandFromResourceAssembler.ToCommandFromResource(resource);
@@ -42,6 +47,7 @@ public class BrandsController(IBrandCommandService brandCommandService, IBrandQu
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanManageSharedReferenceData)]
     public async Task<IActionResult> UpdateBrand(int id, UpdateBrandResource resource, CancellationToken cancellationToken)
     {
         var command = UpdateBrandCommandFromResourceAssembler.ToCommandFromResource(id, resource);
@@ -50,6 +56,7 @@ public class BrandsController(IBrandCommandService brandCommandService, IBrandQu
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanManageSharedReferenceData)]
     public async Task<IActionResult> DeleteBrand(int id, CancellationToken cancellationToken)
     {
         var deleted = await brandCommandService.DeleteAsync(new DeleteBrandCommand(id), cancellationToken);

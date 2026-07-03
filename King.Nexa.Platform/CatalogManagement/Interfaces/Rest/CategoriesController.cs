@@ -4,11 +4,14 @@ using King.Nexa.Platform.CatalogManagement.Domain.Model.Commands;
 using King.Nexa.Platform.CatalogManagement.Domain.Model.Queries;
 using King.Nexa.Platform.CatalogManagement.Interfaces.Rest.Resources;
 using King.Nexa.Platform.CatalogManagement.Interfaces.Rest.Transform;
+using King.Nexa.Platform.Shared.Infrastructure.Security.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace King.Nexa.Platform.CatalogManagement.Interfaces.Rest;
 
 [ApiController]
+[Authorize(Policy = NexaAuthorizationPolicies.WorkspaceMember)]
 [Route("api/v1/[controller]")]
 public class CategoriesController(ICategoryCommandService categoryCommandService, ICategoryQueryService categoryQueryService) : ControllerBase
 {
@@ -27,6 +30,7 @@ public class CategoriesController(ICategoryCommandService categoryCommandService
     }
 
     [HttpGet("by-name/{name}")]
+    [Obsolete("Use GET /api/v1/categories?name={name}.")]
     public async Task<IActionResult> GetCategoryByName(string name, CancellationToken cancellationToken)
     {
         var category = await categoryQueryService.Handle(new GetCategoryByNameQuery(name), cancellationToken);
@@ -34,6 +38,7 @@ public class CategoriesController(ICategoryCommandService categoryCommandService
     }
 
     [HttpPost]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanManageSharedReferenceData)]
     public async Task<IActionResult> CreateCategory(CreateCategoryResource resource, CancellationToken cancellationToken)
     {
         var command = CreateCategoryCommandFromResourceAssembler.ToCommandFromResource(resource);
@@ -42,6 +47,7 @@ public class CategoriesController(ICategoryCommandService categoryCommandService
     }
 
     [HttpPut("{id:int}")]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanManageSharedReferenceData)]
     public async Task<IActionResult> UpdateCategory(int id, UpdateCategoryResource resource, CancellationToken cancellationToken)
     {
         var command = UpdateCategoryCommandFromResourceAssembler.ToCommandFromResource(id, resource);
@@ -50,6 +56,7 @@ public class CategoriesController(ICategoryCommandService categoryCommandService
     }
 
     [HttpDelete("{id:int}")]
+    [Authorize(Policy = NexaAuthorizationPolicies.CanManageSharedReferenceData)]
     public async Task<IActionResult> DeleteCategory(int id, CancellationToken cancellationToken)
     {
         var deleted = await categoryCommandService.DeleteAsync(new DeleteCategoryCommand(id), cancellationToken);

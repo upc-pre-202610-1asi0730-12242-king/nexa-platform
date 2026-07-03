@@ -1,5 +1,6 @@
 using King.Nexa.Platform.CatalogManagement.Domain.Model.Aggregates;
 using King.Nexa.Platform.CatalogManagement.Domain.Model.ValueObjects;
+using King.Nexa.Platform.TenantManagement.Domain.Model.Aggregates;
 using Microsoft.EntityFrameworkCore;
 
 namespace King.Nexa.Platform.CatalogManagement.Infrastructure.Persistence.EntityFrameworkCore.Configuration.Extensions;
@@ -12,11 +13,13 @@ public static class ModelBuilderExtensions
 
         catalogItem.ToTable("catalog_items");
         catalogItem.HasKey(item => item.Id);
+        catalogItem.HasAlternateKey(item => new { item.TenantId, item.Id });
         catalogItem.Property(item => item.CatalogItemId)
             .HasConversion(value => value.Value, value => new CatalogItemId(value))
             .HasColumnName("catalog_item_id")
             .HasMaxLength(64)
             .IsRequired();
+        catalogItem.Property(item => item.TenantId).HasColumnName("tenant_id").IsRequired();
         catalogItem.Property(item => item.ProductId)
             .HasConversion(value => value.Value, value => new ProductId(value))
             .HasColumnName("product_id")
@@ -60,7 +63,11 @@ public static class ModelBuilderExtensions
             .HasMaxLength(32)
             .IsRequired();
         catalogItem.Property(item => item.IsActive).HasColumnName("is_active").IsRequired();
-        catalogItem.HasIndex(item => item.CatalogItemId).IsUnique();
+        catalogItem.HasIndex(item => new { item.TenantId, item.CatalogItemId }).IsUnique();
+        catalogItem.HasIndex(item => new { item.TenantId, item.ProductId }).IsUnique();
+        catalogItem.HasIndex(item => new { item.TenantId, item.BrandName });
+        catalogItem.HasIndex(item => new { item.TenantId, item.CategoryName });
+        catalogItem.HasOne<Tenant>().WithMany().HasForeignKey(item => item.TenantId).OnDelete(DeleteBehavior.Cascade);
 
         var category = builder.Entity<Category>();
         category.ToTable("categories");

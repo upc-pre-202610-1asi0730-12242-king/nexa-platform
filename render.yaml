@@ -1,0 +1,40 @@
+services:
+  - type: web
+    name: nexa-platform
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /health/live
+    envVars:
+      - key: ASPNETCORE_URLS
+        value: http://+:8080
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__DefaultConnection
+        fromDatabase:
+          name: nexa-platform-db
+          property: connectionString
+      - key: APPLY_MIGRATIONS_ON_STARTUP
+        value: false
+      - key: SEED_DEMO_DATA
+        value: false
+      - key: ENABLE_SWAGGER
+        value: false
+      - key: NEXA_JWT_SECRET
+        sync: false
+      - key: NEXA_JWT_ISSUER
+        value: nexa-platform
+      - key: NEXA_JWT_AUDIENCE
+        value: nexa-webapp
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+
+databases:
+  - name: nexa-platform-db
+    plan: free
+    databaseName: nexa_platform_db
+    user: nexa

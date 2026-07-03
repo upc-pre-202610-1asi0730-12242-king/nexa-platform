@@ -2,7 +2,7 @@
 
 <br/>
 
-<img src="./docs/assets/nexa-logo.svg" alt="Nexa" width="200"/>
+<img src="https://upc-pre-202610-1asi0730-12242-king.github.io/nexa-website/assets/img/nexa.svg" alt="Nexa" width="200"/>
 
 <br/><br/>
 
@@ -24,7 +24,7 @@
 ![Cycle](https://img.shields.io/badge/Cycle-2026--10-0a2540?style=flat-square)
 ![University](https://img.shields.io/badge/University-UPC-0a2540?style=flat-square)
 ![Team](https://img.shields.io/badge/Team-King-2a67d9?style=flat-square)
-![Status](https://img.shields.io/badge/Status-Release%201.0.0-22c55e?style=flat-square)
+![Status](https://img.shields.io/badge/Status-Release%202.0.0-22c55e?style=flat-square)
 
 <br/>
 
@@ -71,7 +71,7 @@ The `nexa-platform` repository houses the ASP.NET Core backend service layer for
     <td width="50%">
       <p><a href="https://github.com/upc-pre-202610-1asi0730-12242-king/nexa-platform">nexa-platform</a> (This Repository)</p>
       <p>Platform and backend work area for API, domain, and infrastructure concerns.</p>
-      <p><a href="https://github.com/upc-pre-202610-1asi0730-12242-king/nexa-platform/wiki">Open Engineering Wiki</a></p>
+      <p><a href="https://github.com/upc-pre-202610-1asi0730-12242-king/nexa-platform">Open Platform Repository</a></p>
       <p>
         <img alt="Platform" src="https://img.shields.io/badge/Platform-backend%20workspace-512BD4?style=flat-square" />
         <img alt="API" src="https://img.shields.io/badge/API-domain%20services-0EA5E9?style=flat-square" />
@@ -226,11 +226,8 @@ To keep development organized, specific contexts are assigned to primary owners:
 
 ## Documentation
 
-Full backend specifications, database guides, and developer workflows are maintained in:
-- **[Nexa Platform Wiki Index](https://github.com/upc-pre-202610-1asi0730-12242-king/nexa-platform/wiki)**
-- [Backend Clean Architecture Guidelines](https://github.com/upc-pre-202610-1asi0730-12242-king/nexa-platform/wiki/Backend-Architecture)
-- [REST API Design Guidelines](https://github.com/upc-pre-202610-1asi0730-12242-king/nexa-platform/wiki/API-Design-Guidelines)
-- [Security Policy (SECURITY.md)](SECURITY.md)
+- **[Security Policy (SECURITY.md)](SECURITY.md)**
+- **[Main Website](https://upc-pre-202610-1asi0730-12242-king.github.io/nexa-website/)**
 
 ---
 

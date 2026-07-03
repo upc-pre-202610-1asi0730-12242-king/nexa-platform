@@ -16,10 +16,10 @@ services:
           property: connectionString
       - key: APPLY_MIGRATIONS_ON_STARTUP
         value: false
-      - key: SEED_DEMO_DATA
+      - key: SEED_REFERENCE_DATA
         value: false
       - key: ENABLE_SWAGGER
-        value: false
+        value: true
       - key: NEXA_JWT_SECRET
         sync: false
       - key: NEXA_JWT_ISSUER

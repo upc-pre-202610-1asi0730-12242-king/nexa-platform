@@ -1,55 +1,66 @@
 # Contributing to Nexa Platform
 
-Thank you for your interest in contributing to Nexa Platform! This document outlines the standards, guidelines, and workflows for contributing to our C#/.NET Clean Architecture and Domain-Driven Design (DDD) codebase.
+## Repository Context
 
-## Code of Conduct
+`nexa-platform` is the RESTful backend for the Nexa TB2 delivery.
 
-By participating in this project, you agree to abide by our [Code of Conduct](CODE_OF_CONDUCT.md) at all times.
+| Field | Value |
+|---|---|
+| Current release | `v2.0.1` |
+| Delivery | TB2 |
+| Runtime | .NET 10 / ASP.NET Core |
+| Persistence | PostgreSQL / EF Core |
+| Live API | https://nexa-platform-20wt.onrender.com |
+| Swagger UI | https://nexa-platform-20wt.onrender.com/swagger/index.html |
 
-## Architectural Guidelines
+## Workflow
 
-The Nexa Platform backend is built using a **Modular Monolith** pattern following **Clean Architecture** and **DDD** principles. When adding or modifying code, please respect the boundaries of each Bounded Context:
+1. Create a branch from `develop` unless the maintainer requests a release correction from `main`.
+2. Keep changes scoped to one bounded context or one documentation concern.
+3. Use conventional commits.
+4. Validate locally before opening a pull request.
+5. Do not commit local credentials, `.env` files, `appsettings.Local.json`, database dumps, or generated build output.
 
-1. **Domain Layer:**
-   - Aggregates must not be anemic. Encapsulate business logic and validate domain invariants within aggregate methods using private/protected setters.
-   - Separate audit fields (`CreatedAt`, `UpdatedAt`) using partial classes implementing `IAuditableEntity` (e.g. `OrderAudit.cs` for the `Order` aggregate).
-   - Implement Value Objects as immutable `record` types and perform internal validation in their constructors, throwing `ArgumentException` for invalid states.
-   
-2. **Application Layer:**
-   - Orchestrate use cases using Command and Query Services.
-   - Use the `Result` pattern to return success or error states instead of throwing business exceptions for control flow.
+## Branch Names
 
-3. **Infrastructure Layer:**
-   - Confine all database/EF Core mapping, queries, and migrations details to this layer.
-   - Follow pluralized `snake_case` naming conventions for tables and columns in PostgreSQL.
+| Prefix | Use |
+|---|---|
+| `feature/` | New backend capability |
+| `fix/` | Bug fix |
+| `docs/` | Documentation update |
+| `refactor/` | Internal restructuring without contract change |
+| `chore/` | Configuration, tooling, release maintenance |
 
-4. **Interfaces Layer:**
-   - Keep REST API controllers thin. Use resources/DTOs for contracts, and translate them to Domain models using Assemblers.
-   - Return RFC 7807 `ProblemDetails` format for error responses.
+## Architecture Rules
 
-## Development Workflow
+- Keep controllers thin and route through command/query services.
+- Keep domain behavior inside aggregates, entities, value objects, and domain services.
+- Keep EF Core mapping, migrations, and repository implementations in Infrastructure.
+- Use resources and assemblers for REST contracts.
+- Preserve tenant/workspace authorization checks.
+- Do not expose secrets, connection strings, or production credentials in source control.
 
-### Setup Local Environment
-For instructions on setting up your local PostgreSQL database, environment variables, and running the application, see [Environment Setup](docs/database-setup.md).
+## Validation Checklist
 
-### Branch Naming Conventions
-Always create a new branch from `develop` using one of the following prefixes:
-- `feature/` for new functionality (e.g. `feature/low-stock-alert`)
-- `fix/` for bug fixes (e.g. `fix/jwt-expiration-check`)
-- `docs/` for documentation updates (e.g. `docs/api-routes`)
-- `refactor/` for code restructuring (e.g. `refactor/order-aggregate`)
+Before requesting review:
 
-### Commits Convention
-We follow Conventional Commits format:
-- `feat(sales): add order cancellation endpoint`
-- `fix(iam): resolve password hashing salt issues`
-- `docs(wiki): update local deployment steps`
+```bash
+dotnet build nexa-platform.sln
+dotnet test nexa-platform.sln
+```
 
-## Pull Request Process
+For API-facing work, also verify Swagger and relevant protected endpoints with the correct JWT and workspace headers.
 
-1. Ensure your code compiles cleanly using `dotnet build` with zero errors.
-2. Run database migrations locally and check database counts.
-3. Exclude any local credentials (`appsettings.Local.json`, `.env`) from version control.
-4. Open a pull request against the `develop` branch.
-5. Provide a summary of the changes and local testing results (e.g. Swagger queries).
-6. Request a review from at least one backend team member.
+## Pull Request Notes
+
+Each pull request should include:
+
+- Scope and bounded context.
+- REST contract impact, if any.
+- Database migration impact, if any.
+- Validation commands and results.
+- Deployment or environment notes, if any.
+
+---
+
+Team King · UPC · Aplicaciones Web · TB2 · 2026-10

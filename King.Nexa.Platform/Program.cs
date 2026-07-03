@@ -36,7 +36,7 @@ if (!string.IsNullOrEmpty(connectionString))
     builder.Configuration["ConnectionStrings:DefaultConnection"] = connectionString;
 }
 
-var seedDataEnabled = Environment.GetEnvironmentVariable("SEED_DEMO_DATA")
+var seedDataEnabled = Environment.GetEnvironmentVariable("SEED_REFERENCE_DATA")
                      ?? Environment.GetEnvironmentVariable("SEED_DATA__ENABLED")
                      ?? Environment.GetEnvironmentVariable("SEEDDATA__ENABLED");
 if (!string.IsNullOrEmpty(seedDataEnabled))
@@ -187,9 +187,9 @@ using (var scope = app.Services.CreateScope())
             logger.LogInformation("Database migrations were skipped. Set APPLY_MIGRATIONS_ON_STARTUP=true to enable startup migrations.");
         }
 
-        var seedDemoData = app.Environment.IsDevelopment() &&
+        var seedReferenceData = app.Environment.IsDevelopment() &&
                            string.Equals(builder.Configuration["SeedData:Enabled"], "true", StringComparison.OrdinalIgnoreCase);
-        if (seedDemoData)
+        if (seedReferenceData)
         {
             var seedDataService = services.GetRequiredService<ISeedDataService>();
             await seedDataService.SeedAsync();

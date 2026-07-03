@@ -17,8 +17,7 @@ namespace King.Nexa.Platform.Warehouse.Interfaces.Rest;
 [Route("api/v1/[controller]")]
 public class InventoryItemsController(
     IInventoryItemCommandService inventoryItemCommandService,
-    IInventoryItemQueryService inventoryItemQueryService,
-    IInventoryOperationsCommandService inventoryOperationsCommandService) : ControllerBase
+    IInventoryItemQueryService inventoryItemQueryService) : ControllerBase
 {
     /// <summary>
     /// Gets all inventory items.
@@ -29,9 +28,24 @@ public class InventoryItemsController(
         [FromQuery] int? pageSize,
         [FromQuery] string? search,
         [FromQuery] string? productId,
+        [FromQuery] string? catalogItemId,
         [FromQuery] int? warehouseId,
+        [FromQuery] string? warehouseLocation,
         CancellationToken cancellationToken)
     {
+        var itemIdentifier = catalogItemId ?? productId;
+        if (!string.IsNullOrWhiteSpace(itemIdentifier))
+        {
+            var item = await inventoryItemQueryService.Handle(new GetInventoryItemByCatalogItemIdQuery(itemIdentifier), cancellationToken);
+            return item is null ? NotFound() : Ok(InventoryItemResourceFromEntityAssembler.ToResourceFromEntity(item));
+        }
+
+        if (!string.IsNullOrWhiteSpace(warehouseLocation))
+        {
+            var byLocation = await inventoryItemQueryService.Handle(new GetInventoryItemsByWarehouseLocationQuery(warehouseLocation), cancellationToken);
+            return Ok(byLocation.Select(InventoryItemResourceFromEntityAssembler.ToResourceFromEntity));
+        }
+
         if (HasCollectionQuery(page, pageSize, search, productId, warehouseId))
         {
             var paged = await inventoryItemQueryService.SearchAsync(
@@ -56,28 +70,6 @@ public class InventoryItemsController(
     {
         var item = await inventoryItemQueryService.Handle(new GetInventoryItemByIdQuery(id), cancellationToken);
         return item is null ? NotFound() : Ok(InventoryItemResourceFromEntityAssembler.ToResourceFromEntity(item));
-    }
-
-    /// <summary>
-    /// Gets one inventory item by the catalog item identifier shared with sales.
-    /// </summary>
-    [HttpGet("by-catalog-item/{catalogItemId}")]
-    [Obsolete("Use GET /api/v1/inventory-items?productId={catalogItemId}.")]
-    public async Task<IActionResult> GetInventoryItemByCatalogItemId(string catalogItemId, CancellationToken cancellationToken)
-    {
-        var item = await inventoryItemQueryService.Handle(new GetInventoryItemByCatalogItemIdQuery(catalogItemId), cancellationToken);
-        return item is null ? NotFound() : Ok(InventoryItemResourceFromEntityAssembler.ToResourceFromEntity(item));
-    }
-
-    /// <summary>
-    /// Gets inventory items by warehouse location.
-    /// </summary>
-    [HttpGet("by-warehouse-location/{warehouseLocation}")]
-    [Obsolete("Use GET /api/v1/inventory-items?warehouseLocation={warehouseLocation}.")]
-    public async Task<IActionResult> GetInventoryItemsByWarehouseLocation(string warehouseLocation, CancellationToken cancellationToken)
-    {
-        var items = await inventoryItemQueryService.Handle(new GetInventoryItemsByWarehouseLocationQuery(warehouseLocation), cancellationToken);
-        return Ok(items.Select(InventoryItemResourceFromEntityAssembler.ToResourceFromEntity));
     }
 
     /// <summary>
@@ -123,41 +115,6 @@ public class InventoryItemsController(
     {
         var deleted = await inventoryItemCommandService.DeleteAsync(new DeleteInventoryItemCommand(id), cancellationToken);
         return deleted ? NoContent() : NotFound();
-    }
-
-    /// <summary>
-    /// Reserves inventory units for a sales order workflow.
-    /// This legacy item action is a compatibility alias over the canonical reservations resource service.
-    /// </summary>
-    [HttpPost("{id:int}/reserve")]
-    [Authorize(Policy = NexaAuthorizationPolicies.CanManageInventory)]
-    [Obsolete("Use POST /api/v1/reservations.")]
-    public async Task<IActionResult> ReserveInventory(int id, ReserveInventoryResource resource, CancellationToken cancellationToken)
-    {
-        await inventoryOperationsCommandService.CreateReservationAsync(
-            new InventoryReservationDraft(resource.ReservationCode, id, null, null, null, null, resource.Units),
-            cancellationToken);
-        var item = await inventoryItemQueryService.Handle(new GetInventoryItemByIdQuery(id), cancellationToken);
-        if (item is null) return NotFound();
-        return Ok(InventoryItemResourceFromEntityAssembler.ToResourceFromEntity(item));
-    }
-
-    /// <summary>
-    /// Releases previously reserved inventory units.
-    /// This legacy item action is a compatibility alias over the canonical reservations release service.
-    /// </summary>
-    [HttpPost("{id:int}/release-reservation")]
-    [Authorize(Policy = NexaAuthorizationPolicies.CanManageInventory)]
-    [Obsolete("Use POST /api/v1/reservations/{id}/releases.")]
-    public async Task<IActionResult> ReleaseInventoryReservation(int id, ReserveInventoryResource resource, CancellationToken cancellationToken)
-    {
-        var reservation = await inventoryOperationsCommandService.ReleaseReservationAsync(
-            new InventoryReservationDraft(resource.ReservationCode, id, null, null, null, null, resource.Units),
-            cancellationToken);
-        if (reservation is null) return NotFound();
-        var item = await inventoryItemQueryService.Handle(new GetInventoryItemByIdQuery(id), cancellationToken);
-        if (item is null) return NotFound();
-        return Ok(InventoryItemResourceFromEntityAssembler.ToResourceFromEntity(item));
     }
 
     private static bool HasCollectionQuery(int? page, int? pageSize, params object?[] filters) =>

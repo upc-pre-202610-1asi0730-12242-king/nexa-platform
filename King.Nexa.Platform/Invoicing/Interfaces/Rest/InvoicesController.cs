@@ -77,34 +77,6 @@ public class InvoicesController(IInvoiceCommandService invoiceCommandService, II
     }
 
     /// <summary>
-    /// Gets invoices by order identifier.
-    /// </summary>
-    [HttpGet("by-order/{orderId:int}")]
-    [Obsolete("Use GET /api/v1/invoices?orderId={orderId}.")]
-    [ProducesResponseType(typeof(IEnumerable<InvoiceResource>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetInvoicesByOrderId(int orderId, CancellationToken cancellationToken)
-    {
-        var invoices = await invoiceQueryService.Handle(new GetInvoicesByOrderIdQuery(orderId), cancellationToken);
-        return Ok(invoices.Select(InvoiceResourceFromEntityAssembler.ToResourceFromEntity));
-    }
-
-    /// <summary>
-    /// Gets invoices by payment status.
-    /// </summary>
-    [HttpGet("by-status/{paymentStatus}")]
-    [Obsolete("Use GET /api/v1/invoices?paymentStatus={status}.")]
-    [ProducesResponseType(typeof(IEnumerable<InvoiceResource>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> GetInvoicesByPaymentStatus(string paymentStatus, CancellationToken cancellationToken)
-    {
-        if (!Enum.TryParse<PaymentStatus>(paymentStatus, true, out var status))
-            return BadRequest(new { message = "Invalid payment status." });
-
-        var invoices = await invoiceQueryService.Handle(new GetInvoicesByPaymentStatusQuery(status), cancellationToken);
-        return Ok(invoices.Select(InvoiceResourceFromEntityAssembler.ToResourceFromEntity));
-    }
-
-    /// <summary>
     /// Generates an invoice for a completed order.
     /// </summary>
     [HttpPost]
@@ -143,17 +115,6 @@ public class InvoicesController(IInvoiceCommandService invoiceCommandService, II
     {
         return UpdateInvoice(id, resource, cancellationToken);
     }
-
-    /// <summary>
-    /// Marks an invoice as paid.
-    /// </summary>
-    [HttpPost("{id:int}/paid")]
-    [Authorize(Policy = NexaAuthorizationPolicies.CanManageDocuments)]
-    [Obsolete("Use POST /api/v1/invoices/{id}/status-changes.")]
-    [ProducesResponseType(typeof(InvoiceResource), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> MarkInvoicePaid(int id, CancellationToken cancellationToken)
-        => await MarkInvoicePaidCore(id, cancellationToken);
 
     private async Task<IActionResult> MarkInvoicePaidCore(int id, CancellationToken cancellationToken)
     {

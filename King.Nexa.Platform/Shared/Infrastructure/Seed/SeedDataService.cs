@@ -664,9 +664,9 @@ public class SeedDataService(
         if (!await context.TenantMembers.AnyAsync(member => member.TenantId == tenant.Id, cancellationToken))
         {
             await context.TenantMembers.AddRangeAsync([
-                new TenantMember { TenantId = tenant.Id, FullName = "Juan Pérez", Email = "juan.perez@icisa.pe", Role = "Company Owner", Department = "Executive Office", Status = "active" },
+                new TenantMember { TenantId = tenant.Id, FullName = "Carlos Ríos", Email = "carlos.rios@icisa.pe", Role = "Company Owner", Department = "Executive Office", Status = "active" },
+                new TenantMember { TenantId = tenant.Id, FullName = "Valeria Sánchez", Email = "valeria.sanchez@icisa.pe", Role = "Sales", Department = "Sales", Status = "active" },
                 new TenantMember { TenantId = tenant.Id, FullName = "Roberto García", Email = "roberto.garcia@icisa.pe", Role = "Logistics Manager", Department = "Operations", Status = "active" },
-                new TenantMember { TenantId = tenant.Id, FullName = "Carlos Ríos", Email = "carlos.rios@icisa.pe", Role = "Sales", Department = "Sales", Status = "active" },
                 new TenantMember { TenantId = tenant.Id, FullName = "Elena Litano", Email = "elena.litano@icisa.pe", Role = "B2B Buyer", Department = "Buyer Portal", Status = "invited", PortalAccess = true }
             ], cancellationToken);
         }
@@ -875,7 +875,7 @@ public class SeedDataService(
                 PaymentOption = "credit_line",
                 ShippingEstimate = 85m,
                 Comments = "Buyer request for Sales review and cold-chain dispatch coordination.",
-                CommercialOwner = "carlos.rios@icisa.pe"
+                CommercialOwner = "valeria.sanchez@icisa.pe"
             };
             purchaseRequest.ValidateStructuredFields();
             await context.PurchaseRequests.AddAsync(purchaseRequest, cancellationToken);
@@ -892,7 +892,7 @@ public class SeedDataService(
 
         if (!await context.ConversationMessages.AnyAsync(row => row.TenantId == tenant.Id && row.PurchaseRequestId == purchaseRequest.Id, cancellationToken))
         {
-            await context.ConversationMessages.AddAsync(new ConversationMessage { TenantId = tenant.Id, ClientAccountId = firstClient.Id, PurchaseRequestId = purchaseRequest.Id, SenderRole = "sales", SenderName = "Carlos Rios", Body = "Solicitud recibida. Validaremos disponibilidad y ventana de despacho.", VisibleToBuyer = true }, cancellationToken);
+            await context.ConversationMessages.AddAsync(new ConversationMessage { TenantId = tenant.Id, ClientAccountId = firstClient.Id, PurchaseRequestId = purchaseRequest.Id, SenderRole = "sales", SenderName = "Valeria Sanchez", Body = "Solicitud recibida. Validaremos disponibilidad y ventana de despacho.", VisibleToBuyer = true }, cancellationToken);
         }
 
         if (!await context.CreditRequests.AnyAsync(row => row.TenantId == tenant.Id && row.Code == "CRQ-2026-0001", cancellationToken))

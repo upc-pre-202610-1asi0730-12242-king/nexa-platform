@@ -30,12 +30,19 @@ public class OrdersController(
         [FromQuery] int? pageSize,
         [FromQuery] string? status,
         [FromQuery] int? clientAccountId,
+        [FromQuery] string? orderNumber,
         [FromQuery] string? search,
         [FromQuery] DateOnly? createdFrom,
         [FromQuery] DateOnly? createdTo,
         [FromQuery] string? sort,
         CancellationToken cancellationToken)
     {
+        if (!string.IsNullOrWhiteSpace(orderNumber))
+        {
+            var order = await orderQueryService.Handle(new GetOrderByOrderNumberQuery(orderNumber), cancellationToken);
+            return order is null ? NotFound() : Ok(OrderResourceFromEntityAssembler.ToResourceFromEntity(order));
+        }
+
         if (HasCollectionQuery(page, pageSize, status, clientAccountId, search, createdFrom, createdTo, sort))
         {
             OrderStatus? orderStatus = null;
@@ -81,42 +88,6 @@ public class OrdersController(
     }
 
     /// <summary>
-    /// Gets an order by its business order number.
-    /// </summary>
-    [HttpGet("by-order-number/{orderNumber}")]
-    [Obsolete("Use GET /api/v1/orders?search={orderNumber}.")]
-    public async Task<IActionResult> GetOrderByOrderNumber(string orderNumber, CancellationToken cancellationToken)
-    {
-        var order = await orderQueryService.Handle(new GetOrderByOrderNumberQuery(orderNumber), cancellationToken);
-        return order is null ? NotFound() : Ok(OrderResourceFromEntityAssembler.ToResourceFromEntity(order));
-    }
-
-    /// <summary>
-    /// Gets orders by B2B customer identifier.
-    /// </summary>
-    [HttpGet("by-customer/{customerId}")]
-    [Obsolete("Use GET /api/v1/orders?clientAccountId={id}.")]
-    public async Task<IActionResult> GetOrdersByCustomerId(string customerId, CancellationToken cancellationToken)
-    {
-        var orders = await orderQueryService.Handle(new GetOrdersByCustomerIdQuery(customerId), cancellationToken);
-        return Ok(orders.Select(OrderResourceFromEntityAssembler.ToResourceFromEntity));
-    }
-
-    /// <summary>
-    /// Gets orders by order status.
-    /// </summary>
-    [HttpGet("by-status/{status}")]
-    [Obsolete("Use GET /api/v1/orders?status={status}.")]
-    public async Task<IActionResult> GetOrdersByStatus(string status, CancellationToken cancellationToken)
-    {
-        if (!Enum.TryParse<OrderStatus>(status, true, out var orderStatus))
-            return BadRequest(new { message = "Invalid order status." });
-
-        var orders = await orderQueryService.Handle(new GetOrdersByStatusQuery(orderStatus), cancellationToken);
-        return Ok(orders.Select(OrderResourceFromEntityAssembler.ToResourceFromEntity));
-    }
-
-    /// <summary>
     /// Creates an order with at least one order item.
     /// </summary>
     [HttpPost]
@@ -149,12 +120,6 @@ public class OrdersController(
     public async Task<IActionResult> ConfirmOrder(int id, ConfirmOrderResource resource, CancellationToken cancellationToken)
         => await ConfirmOrderCore(id, resource, cancellationToken);
 
-    [HttpPost("{id:int}/confirm")]
-    [Authorize(Policy = NexaAuthorizationPolicies.CanCreateOrder)]
-    [Obsolete("Use POST /api/v1/orders/{id}/confirmations.")]
-    public Task<IActionResult> ConfirmOrderLegacy(int id, ConfirmOrderResource resource, CancellationToken cancellationToken)
-        => ConfirmOrderCore(id, resource, cancellationToken);
-
     private async Task<IActionResult> ConfirmOrderCore(int id, ConfirmOrderResource resource, CancellationToken cancellationToken)
     {
         var order = await orderCommandService.ConfirmAsync(
@@ -173,12 +138,6 @@ public class OrdersController(
     public async Task<IActionResult> RejectOrder(int id, RejectOrderResource resource, CancellationToken cancellationToken)
         => await RejectOrderCore(id, resource, cancellationToken);
 
-    [HttpPost("{id:int}/reject")]
-    [Authorize(Policy = NexaAuthorizationPolicies.CanCreateOrder)]
-    [Obsolete("Use POST /api/v1/orders/{id}/rejections.")]
-    public Task<IActionResult> RejectOrderLegacy(int id, RejectOrderResource resource, CancellationToken cancellationToken)
-        => RejectOrderCore(id, resource, cancellationToken);
-
     private async Task<IActionResult> RejectOrderCore(int id, RejectOrderResource resource, CancellationToken cancellationToken)
     {
         var order = await orderCommandService.RejectAsync(new RejectOrderCommand(id, new RejectionReason(resource.RejectionReason)), cancellationToken);
@@ -194,12 +153,6 @@ public class OrdersController(
     [Authorize(Policy = NexaAuthorizationPolicies.CanCreateOrder)]
     public async Task<IActionResult> CancelOrder(int id, CancellationToken cancellationToken)
         => await CancelOrderCore(id, cancellationToken);
-
-    [HttpPost("{id:int}/cancel")]
-    [Authorize(Policy = NexaAuthorizationPolicies.CanCreateOrder)]
-    [Obsolete("Use POST /api/v1/orders/{id}/cancellations.")]
-    public Task<IActionResult> CancelOrderLegacy(int id, CancellationToken cancellationToken)
-        => CancelOrderCore(id, cancellationToken);
 
     private async Task<IActionResult> CancelOrderCore(int id, CancellationToken cancellationToken)
     {

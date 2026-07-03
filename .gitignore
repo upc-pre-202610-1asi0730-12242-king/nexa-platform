@@ -35,6 +35,3 @@ appsettings.Local.json
 *.pfx
 *.p12
 secrets/
-
-# History folders
-/nexa-platform history/

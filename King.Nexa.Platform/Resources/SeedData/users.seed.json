@@ -4,14 +4,14 @@
     "fullName": "Valeria Sanchez",
     "email": "valeria.sanchez@icisa.pe",
     "password": "Password123!",
-    "role": "Company Owner"
+    "role": "Sales"
   },
   {
     "username": "carlos.rios@icisa.pe",
     "fullName": "Carlos Rios",
     "email": "carlos.rios@icisa.pe",
     "password": "Password123!",
-    "role": "Sales"
+    "role": "Company Owner"
   },
   {
     "username": "roberto.garcia@icisa.pe",

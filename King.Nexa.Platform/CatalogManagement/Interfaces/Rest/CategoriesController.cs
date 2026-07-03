@@ -16,8 +16,14 @@ namespace King.Nexa.Platform.CatalogManagement.Interfaces.Rest;
 public class CategoriesController(ICategoryCommandService categoryCommandService, ICategoryQueryService categoryQueryService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAllCategories(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllCategories([FromQuery] string? name, CancellationToken cancellationToken)
     {
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            var category = await categoryQueryService.Handle(new GetCategoryByNameQuery(name), cancellationToken);
+            return category is null ? NotFound() : Ok(CategoryResourceFromEntityAssembler.ToResourceFromEntity(category));
+        }
+
         var categories = await categoryQueryService.Handle(new GetAllCategoriesQuery(), cancellationToken);
         return Ok(categories.Select(CategoryResourceFromEntityAssembler.ToResourceFromEntity));
     }
@@ -26,14 +32,6 @@ public class CategoriesController(ICategoryCommandService categoryCommandService
     public async Task<IActionResult> GetCategoryById(int id, CancellationToken cancellationToken)
     {
         var category = await categoryQueryService.Handle(new GetCategoryByIdQuery(id), cancellationToken);
-        return category is null ? NotFound() : Ok(CategoryResourceFromEntityAssembler.ToResourceFromEntity(category));
-    }
-
-    [HttpGet("by-name/{name}")]
-    [Obsolete("Use GET /api/v1/categories?name={name}.")]
-    public async Task<IActionResult> GetCategoryByName(string name, CancellationToken cancellationToken)
-    {
-        var category = await categoryQueryService.Handle(new GetCategoryByNameQuery(name), cancellationToken);
         return category is null ? NotFound() : Ok(CategoryResourceFromEntityAssembler.ToResourceFromEntity(category));
     }
 

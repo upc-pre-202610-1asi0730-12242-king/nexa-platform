@@ -32,6 +32,7 @@ public class CatalogItemsController(
         [FromQuery] int? page,
         [FromQuery] int? pageSize,
         [FromQuery] string? search,
+        [FromQuery] string? catalogItemId,
         [FromQuery] string? brand,
         [FromQuery] string? category,
         [FromQuery] string? coldChain,
@@ -40,6 +41,12 @@ public class CatalogItemsController(
         [FromQuery] DateOnly? createdTo,
         CancellationToken cancellationToken)
     {
+        if (!string.IsNullOrWhiteSpace(catalogItemId))
+        {
+            var catalogItem = await catalogItemQueryService.Handle(new GetCatalogItemByCatalogItemIdQuery(catalogItemId), cancellationToken);
+            return catalogItem is null ? NotFound() : Ok(CatalogItemResourceFromEntityAssembler.ToResourceFromEntity(catalogItem));
+        }
+
         if (!includePromotions && HasCollectionQuery(page, pageSize, search, brand, category, coldChain, active, createdFrom, createdTo))
         {
             ColdChainRequirement? coldChainRequirement = null;
@@ -110,39 +117,6 @@ public class CatalogItemsController(
     {
         var availability = await readModels.GetCatalogItemAvailabilityAsync(id, cancellationToken);
         return availability is null ? NotFound() : Ok(availability);
-    }
-
-    /// <summary>
-    /// Gets a catalog item by its stable catalog item identifier.
-    /// </summary>
-    [HttpGet("by-catalog-item/{catalogItemId}")]
-    [Obsolete("Use GET /api/v1/catalog-items?catalogItemId={catalogItemId}.")]
-    public async Task<IActionResult> GetCatalogItemByCatalogItemId(string catalogItemId, CancellationToken cancellationToken)
-    {
-        var catalogItem = await catalogItemQueryService.Handle(new GetCatalogItemByCatalogItemIdQuery(catalogItemId), cancellationToken);
-        return catalogItem is null ? NotFound() : Ok(CatalogItemResourceFromEntityAssembler.ToResourceFromEntity(catalogItem));
-    }
-
-    /// <summary>
-    /// Gets catalog items by category name.
-    /// </summary>
-    [HttpGet("by-category/{categoryName}")]
-    [Obsolete("Use GET /api/v1/catalog-items?category={categoryName}.")]
-    public async Task<IActionResult> GetCatalogItemsByCategoryName(string categoryName, CancellationToken cancellationToken)
-    {
-        var catalogItems = await catalogItemQueryService.Handle(new GetCatalogItemsByCategoryNameQuery(categoryName), cancellationToken);
-        return Ok(catalogItems.Select(CatalogItemResourceFromEntityAssembler.ToResourceFromEntity));
-    }
-
-    /// <summary>
-    /// Gets catalog items by brand name.
-    /// </summary>
-    [HttpGet("by-brand/{brandName}")]
-    [Obsolete("Use GET /api/v1/catalog-items?brand={brandName}.")]
-    public async Task<IActionResult> GetCatalogItemsByBrandName(string brandName, CancellationToken cancellationToken)
-    {
-        var catalogItems = await catalogItemQueryService.Handle(new GetCatalogItemsByBrandNameQuery(brandName), cancellationToken);
-        return Ok(catalogItems.Select(CatalogItemResourceFromEntityAssembler.ToResourceFromEntity));
     }
 
     /// <summary>

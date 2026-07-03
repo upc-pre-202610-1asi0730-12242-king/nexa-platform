@@ -16,8 +16,14 @@ namespace King.Nexa.Platform.Warehouse.Interfaces.Rest;
 public class WarehousesController(IWarehouseCommandService warehouseCommandService, IWarehouseQueryService warehouseQueryService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAllWarehouses(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllWarehouses([FromQuery] string? location, CancellationToken cancellationToken)
     {
+        if (!string.IsNullOrWhiteSpace(location))
+        {
+            var warehouse = await warehouseQueryService.Handle(new GetWarehouseByLocationQuery(location), cancellationToken);
+            return warehouse is null ? NotFound() : Ok(WarehouseResourceFromEntityAssembler.ToResourceFromEntity(warehouse));
+        }
+
         var warehouses = await warehouseQueryService.Handle(new GetAllWarehousesQuery(), cancellationToken);
         return Ok(warehouses.Select(WarehouseResourceFromEntityAssembler.ToResourceFromEntity));
     }
@@ -26,14 +32,6 @@ public class WarehousesController(IWarehouseCommandService warehouseCommandServi
     public async Task<IActionResult> GetWarehouseById(int id, CancellationToken cancellationToken)
     {
         var warehouse = await warehouseQueryService.Handle(new GetWarehouseByIdQuery(id), cancellationToken);
-        return warehouse is null ? NotFound() : Ok(WarehouseResourceFromEntityAssembler.ToResourceFromEntity(warehouse));
-    }
-
-    [HttpGet("by-location/{location}")]
-    [Obsolete("Use GET /api/v1/warehouses?location={location}.")]
-    public async Task<IActionResult> GetWarehouseByLocation(string location, CancellationToken cancellationToken)
-    {
-        var warehouse = await warehouseQueryService.Handle(new GetWarehouseByLocationQuery(location), cancellationToken);
         return warehouse is null ? NotFound() : Ok(WarehouseResourceFromEntityAssembler.ToResourceFromEntity(warehouse));
     }
 

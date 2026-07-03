@@ -19,8 +19,7 @@ namespace King.Nexa.Platform.Logistics.Interfaces.Rest;
 public class DispatchOrdersController(
     IDispatchOrderQueryService queryService,
     IDispatchOrderCommandService commandService,
-    IWorkspaceReadModelQueryService readModels,
-    ICurrentWorkspaceContext workspaceContext) : ControllerBase
+    IWorkspaceReadModelQueryService readModels) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<DispatchOrderResource>), StatusCodes.Status200OK)]
@@ -50,16 +49,6 @@ public class DispatchOrdersController(
 
         var dispatches = await queryService.ListAsync(cancellationToken);
         return Ok(dispatches.Select(DispatchOrderResourceAssembler.ToResourceFromEntity));
-    }
-
-    [HttpGet("by-tenant/{tenantId:int}")]
-    [ProducesResponseType(typeof(IEnumerable<DispatchOrderResource>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    [Obsolete("Use GET /api/v1/dispatch-orders. This compatibility route now rejects tenant mismatches.")]
-    public async Task<IActionResult> GetByTenant(int tenantId, CancellationToken cancellationToken)
-    {
-        if (workspaceContext.TenantId is not { } currentTenantId || currentTenantId != tenantId) return Forbid();
-        return await GetAll(null, null, null, null, null, null, null, cancellationToken);
     }
 
     [HttpGet("{id:int}")]

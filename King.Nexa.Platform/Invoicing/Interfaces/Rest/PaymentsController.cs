@@ -81,29 +81,6 @@ public class PaymentsController(IPaymentCommandService paymentCommandService, IP
         return Ok(payments.Select(PaymentResourceFromEntityAssembler.ToResourceFromEntity));
     }
 
-    [HttpGet("by-invoice/{invoiceId:int}")]
-    [Obsolete("Use GET /api/v1/payments?invoiceId={invoiceId}.")]
-    [ProducesResponseType(typeof(IEnumerable<PaymentResource>), StatusCodes.Status200OK)]
-    public Task<IActionResult> GetPaymentsByInvoiceId(int invoiceId, CancellationToken cancellationToken)
-    {
-        return GetPaymentsByInvoiceSubresource(invoiceId, cancellationToken);
-    }
-
-    [HttpGet("by-status/{status}")]
-    [Obsolete("Use GET /api/v1/payments?status={status}.")]
-    [ProducesResponseType(typeof(IEnumerable<PaymentResource>), StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<IActionResult> GetPaymentsByStatus(string status, CancellationToken cancellationToken)
-    {
-        if (!Enum.TryParse<PaymentStatus>(status, true, out var paymentStatus))
-            return BadRequest(new { message = "Invalid payment status.", allowed = new[] { "pending", "confirmed", "failed", "rejected", "cancelled" } });
-
-        var payments = await paymentQueryService.Handle(new GetPaymentsByStatusQuery(paymentStatus), cancellationToken);
-        return Ok(payments.Select(PaymentResourceFromEntityAssembler.ToResourceFromEntity));
-    }
-
     [HttpPost]
     [Authorize(Policy = NexaAuthorizationPolicies.CanManageDocuments)]
     [ProducesResponseType(typeof(PaymentResource), StatusCodes.Status201Created)]

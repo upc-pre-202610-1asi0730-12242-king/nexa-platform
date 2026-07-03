@@ -132,21 +132,4 @@ public class BusinessDocumentsController(
         return document is null ? NotFound() : Ok(BusinessDocumentResourceFromEntityAssembler.ToResourceFromEntity(document));
     }
 
-    [HttpPut("{id:int}/mark-ready")]
-    [Authorize(Policy = NexaAuthorizationPolicies.CanManageDocuments)]
-    [Obsolete("Use POST /api/v1/business-documents/{id}/status-changes.")]
-    public Task<ActionResult<BusinessDocumentResource>> MarkReady(int id, CancellationToken cancellationToken) =>
-        CreateStatusChange(id, new ChangeBusinessDocumentStatusResource("ready"), cancellationToken);
-
-    [HttpPut("{id:int}/authorize-buyer")]
-    [Authorize(Policy = NexaAuthorizationPolicies.CanManageDocuments)]
-    [Obsolete("Use POST /api/v1/business-documents/{id}/status-changes.")]
-    public Task<ActionResult<BusinessDocumentResource>> AuthorizeBuyer(int id, CancellationToken cancellationToken) =>
-        CreateStatusChange(id, new ChangeBusinessDocumentStatusResource("ready", true), cancellationToken);
-
-    [HttpPut("{id:int}/mark-missing")]
-    [Authorize(Policy = NexaAuthorizationPolicies.CanManageDocuments)]
-    [Obsolete("Use POST /api/v1/business-documents/{id}/status-changes.")]
-    public Task<ActionResult<BusinessDocumentResource>> MarkMissing(int id, CancellationToken cancellationToken) =>
-        CreateStatusChange(id, new ChangeBusinessDocumentStatusResource("missing", false), cancellationToken);
 }

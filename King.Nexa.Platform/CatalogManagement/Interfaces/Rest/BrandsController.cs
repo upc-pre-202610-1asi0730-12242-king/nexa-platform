@@ -16,8 +16,14 @@ namespace King.Nexa.Platform.CatalogManagement.Interfaces.Rest;
 public class BrandsController(IBrandCommandService brandCommandService, IBrandQueryService brandQueryService) : ControllerBase
 {
     [HttpGet]
-    public async Task<IActionResult> GetAllBrands(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllBrands([FromQuery] string? name, CancellationToken cancellationToken)
     {
+        if (!string.IsNullOrWhiteSpace(name))
+        {
+            var brand = await brandQueryService.Handle(new GetBrandByNameQuery(name), cancellationToken);
+            return brand is null ? NotFound() : Ok(BrandResourceFromEntityAssembler.ToResourceFromEntity(brand));
+        }
+
         var brands = await brandQueryService.Handle(new GetAllBrandsQuery(), cancellationToken);
         return Ok(brands.Select(BrandResourceFromEntityAssembler.ToResourceFromEntity));
     }
@@ -26,14 +32,6 @@ public class BrandsController(IBrandCommandService brandCommandService, IBrandQu
     public async Task<IActionResult> GetBrandById(int id, CancellationToken cancellationToken)
     {
         var brand = await brandQueryService.Handle(new GetBrandByIdQuery(id), cancellationToken);
-        return brand is null ? NotFound() : Ok(BrandResourceFromEntityAssembler.ToResourceFromEntity(brand));
-    }
-
-    [HttpGet("by-name/{name}")]
-    [Obsolete("Use GET /api/v1/brands?name={name}.")]
-    public async Task<IActionResult> GetBrandByName(string name, CancellationToken cancellationToken)
-    {
-        var brand = await brandQueryService.Handle(new GetBrandByNameQuery(name), cancellationToken);
         return brand is null ? NotFound() : Ok(BrandResourceFromEntityAssembler.ToResourceFromEntity(brand));
     }
 

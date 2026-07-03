@@ -44,12 +44,12 @@ public class SecurityIntegrationTests
         Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync("/api/v1/orders")).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync("/api/v1/catalog-items")).StatusCode);
         Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync("/api/v1/payments")).StatusCode);
-        Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync("/api/v1/dispatch-orders/by-tenant/1")).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync("/api/v1/dispatch-orders")).StatusCode);
 
         var seed = await SeedMinimumWorkspaceAsync(factory);
         Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync($"/api/v1/tenants/{seed.TenantBId}")).StatusCode);
-        Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync("/api/v1/workspaces/by-slug/icisa")).StatusCode);
-        var publicTenantPreview = await client.GetAsync("/api/v1/tenants/by-slug/icisa");
+        Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync("/api/v1/workspaces?slug=icisa")).StatusCode);
+        var publicTenantPreview = await client.GetAsync("/api/v1/tenants?slug=icisa");
         Assert.Equal(HttpStatusCode.OK, publicTenantPreview.StatusCode);
         using (var previewJson = JsonDocument.Parse(await publicTenantPreview.Content.ReadAsStringAsync()))
         {
@@ -100,7 +100,7 @@ public class SecurityIntegrationTests
         UseSession(client, session, 999999);
         Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync("/api/v1/orders")).StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync("/api/v1/payments")).StatusCode);
-        Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync("/api/v1/dispatch-orders/by-tenant/999999")).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync("/api/v1/dispatch-orders")).StatusCode);
 
         UseSession(client, session, session.TenantId);
         var ordersJson = await client.GetStringAsync("/api/v1/orders");
@@ -108,11 +108,11 @@ public class SecurityIntegrationTests
         var paymentsJson = await client.GetStringAsync("/api/v1/payments");
         Assert.Contains("PAY-TENANT-A", paymentsJson, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("PAY-TENANT-B", paymentsJson, StringComparison.OrdinalIgnoreCase);
-        var clientsJson = await client.GetStringAsync("/api/v1/clients");
+        var clientsJson = await client.GetStringAsync("/api/v1/client-accounts");
         Assert.DoesNotContain("Tenant B client", clientsJson, StringComparison.OrdinalIgnoreCase);
-        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync($"/api/v1/clients/{seed.TenantBClientId}")).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync($"/api/v1/client-accounts/{seed.TenantBClientId}")).StatusCode);
 
-        var createdClient = await client.PostAsJsonAsync("/api/v1/clients", new
+        var createdClient = await client.PostAsJsonAsync("/api/v1/client-accounts", new
         {
             tenantId = seed.TenantBId,
             code = "CLIENT-AUDIT-A",
@@ -139,7 +139,7 @@ public class SecurityIntegrationTests
         var buyerSession = await SignInAsync(client, "buyer@icisa.pe");
         UseSession(client, buyerSession, buyerSession.TenantId);
         Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync("/api/v1/sales/order-summaries")).StatusCode);
-        var buyerClients = await client.GetStringAsync("/api/v1/clients");
+        var buyerClients = await client.GetStringAsync("/api/v1/client-accounts");
         Assert.Contains("Buyer assigned client", buyerClients, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("Buyer unassigned client", buyerClients, StringComparison.OrdinalIgnoreCase);
         var buyerOrdersResponse = await client.GetAsync("/api/v1/orders");

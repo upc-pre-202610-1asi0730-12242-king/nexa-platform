@@ -20,8 +20,26 @@ public class ShipmentsController(IShipmentCommandService shipmentCommandService,
     /// Gets all shipments scheduled in the logistics workflow.
     /// </summary>
     [HttpGet]
-    public async Task<IActionResult> GetAllShipments(CancellationToken cancellationToken)
+    public async Task<IActionResult> GetAllShipments(
+        [FromQuery] int? orderId,
+        [FromQuery] string? status,
+        CancellationToken cancellationToken)
     {
+        if (orderId.HasValue)
+        {
+            var byOrder = await shipmentQueryService.Handle(new GetShipmentsByOrderIdQuery(orderId.Value), cancellationToken);
+            return Ok(byOrder.Select(ShipmentResourceFromEntityAssembler.ToResourceFromEntity));
+        }
+
+        if (!string.IsNullOrWhiteSpace(status))
+        {
+            if (!Enum.TryParse<DeliveryStatus>(status, true, out var deliveryStatus))
+                return BadRequest(new { message = "Invalid delivery status." });
+
+            var byStatus = await shipmentQueryService.Handle(new GetShipmentsByStatusQuery(deliveryStatus), cancellationToken);
+            return Ok(byStatus.Select(ShipmentResourceFromEntityAssembler.ToResourceFromEntity));
+        }
+
         var shipments = await shipmentQueryService.Handle(new GetAllShipmentsQuery(), cancellationToken);
         return Ok(shipments.Select(ShipmentResourceFromEntityAssembler.ToResourceFromEntity));
     }
@@ -34,31 +52,6 @@ public class ShipmentsController(IShipmentCommandService shipmentCommandService,
     {
         var shipment = await shipmentQueryService.Handle(new GetShipmentByIdQuery(id), cancellationToken);
         return shipment is null ? NotFound() : Ok(ShipmentResourceFromEntityAssembler.ToResourceFromEntity(shipment));
-    }
-
-    /// <summary>
-    /// Gets shipments by order identifier.
-    /// </summary>
-    [HttpGet("by-order/{orderId:int}")]
-    [Obsolete("Use GET /api/v1/shipments?orderId={orderId}.")]
-    public async Task<IActionResult> GetShipmentsByOrderId(int orderId, CancellationToken cancellationToken)
-    {
-        var shipments = await shipmentQueryService.Handle(new GetShipmentsByOrderIdQuery(orderId), cancellationToken);
-        return Ok(shipments.Select(ShipmentResourceFromEntityAssembler.ToResourceFromEntity));
-    }
-
-    /// <summary>
-    /// Gets shipments by delivery status.
-    /// </summary>
-    [HttpGet("by-status/{status}")]
-    [Obsolete("Use GET /api/v1/shipments?status={status}.")]
-    public async Task<IActionResult> GetShipmentsByStatus(string status, CancellationToken cancellationToken)
-    {
-        if (!Enum.TryParse<DeliveryStatus>(status, true, out var deliveryStatus))
-            return BadRequest(new { message = "Invalid delivery status." });
-
-        var shipments = await shipmentQueryService.Handle(new GetShipmentsByStatusQuery(deliveryStatus), cancellationToken);
-        return Ok(shipments.Select(ShipmentResourceFromEntityAssembler.ToResourceFromEntity));
     }
 
     /// <summary>

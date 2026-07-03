@@ -37,15 +37,6 @@ public class TenantsController(ITenantQueryService tenantQueryService, ITenantCo
         return tenant is null ? NotFound() : Ok(TenantResourceAssembler.ToResource(tenant));
     }
 
-    [HttpGet("by-slug/{slug}")]
-    [AllowAnonymous]
-    [Obsolete("Use GET /api/v1/tenants?slug={slug}.")]
-    public async Task<IActionResult> GetBySlug(string slug, CancellationToken cancellationToken)
-    {
-        var tenant = await tenantQueryService.FindBySlugAsync(slug, cancellationToken);
-        return tenant is null ? NotFound() : Ok(TenantResourceAssembler.ToPreviewResource(tenant));
-    }
-
     [HttpPut("{id:int}")]
     [Authorize(Policy = NexaAuthorizationPolicies.CanManageWorkspace)]
     public async Task<IActionResult> Update(int id, CreateTenantResource resource, CancellationToken cancellationToken)

@@ -8,4 +8,3 @@ public sealed record DispatchStatusChanged(int DispatchOrderId, int TenantId, st
 public sealed record InvoicePaid(int InvoiceId, int TenantId) : DomainEvent;
 public sealed record PaymentCompleted(int PaymentId, int TenantId) : DomainEvent;
 public sealed record WorkspaceCreated(string Slug, int TenantId) : DomainEvent;
-

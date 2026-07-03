@@ -14,4 +14,3 @@ public static class WarehouseResourceFromEntityAssembler
             entity.TemperatureRange.MaximumTemperature,
             entity.IsActive);
 }
-

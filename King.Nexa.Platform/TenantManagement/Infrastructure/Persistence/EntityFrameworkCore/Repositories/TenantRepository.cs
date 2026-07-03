@@ -11,4 +11,3 @@ public class TenantRepository(AppDbContext context) : BaseRepository<Tenant>(con
     public Task<Tenant?> FindBySlugAsync(string slug, CancellationToken cancellationToken = default) =>
         Context.Set<Tenant>().FirstOrDefaultAsync(tenant => tenant.Slug == slug.ToLower(), cancellationToken);
 }
-

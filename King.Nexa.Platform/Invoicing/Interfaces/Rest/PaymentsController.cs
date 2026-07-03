@@ -232,4 +232,3 @@ file static class PaymentControllerQuery
             _ => true
         });
 }
-

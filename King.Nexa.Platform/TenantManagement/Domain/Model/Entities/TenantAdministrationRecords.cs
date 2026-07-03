@@ -54,4 +54,3 @@ public class WorkspaceFeature : AuditableEntity, ITenantScoped
     public bool Enabled { get; set; } = true;
     public string PlanRequired { get; set; } = "Starter";
 }
-

@@ -19,4 +19,3 @@ public static class UpdatePaymentCommandFromResourceAssembler
                 ? $"PAY-{DateTimeOffset.UtcNow:yyyyMMddHHmmssfff}"
                 : resource.ReferenceCode);
 }
-

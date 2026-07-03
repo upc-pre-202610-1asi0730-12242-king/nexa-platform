@@ -9,4 +9,3 @@ public interface ICurrentWorkspaceContext
     string? WorkspaceSlug { get; }
     bool HasWorkspaceScope { get; }
 }
-

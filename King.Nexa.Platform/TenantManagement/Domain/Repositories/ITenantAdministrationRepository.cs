@@ -17,4 +17,3 @@ public interface ITenantAdministrationRepository
 }
 
 public record TenantUserReference(int Id, string Email);
-

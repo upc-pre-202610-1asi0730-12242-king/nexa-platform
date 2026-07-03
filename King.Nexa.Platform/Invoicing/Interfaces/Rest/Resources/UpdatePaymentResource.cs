@@ -9,4 +9,3 @@ public record UpdatePaymentResource(
     decimal Amount,
     string Currency,
     string? ReferenceCode = null);
-

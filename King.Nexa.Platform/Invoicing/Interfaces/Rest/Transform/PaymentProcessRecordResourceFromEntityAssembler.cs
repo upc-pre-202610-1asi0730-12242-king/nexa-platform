@@ -37,4 +37,3 @@ public static class PaymentProcessRecordResourceFromEntityAssembler
             Status = resource.Status ?? "pending"
         };
 }
-

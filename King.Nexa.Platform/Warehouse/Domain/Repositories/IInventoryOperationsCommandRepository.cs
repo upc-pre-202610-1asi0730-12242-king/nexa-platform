@@ -19,4 +19,3 @@ public interface IInventoryOperationsCommandRepository
     Task<int?> FindOrderIdByReferenceAsync(int tenantId, string? reference, CancellationToken cancellationToken = default);
     Task<int?> ResolvePurchaseRequestIdAsync(int tenantId, int? id, CancellationToken cancellationToken = default);
 }
-

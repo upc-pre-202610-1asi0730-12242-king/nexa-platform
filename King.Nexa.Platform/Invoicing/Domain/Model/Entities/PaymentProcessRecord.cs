@@ -37,4 +37,3 @@ public class PaymentProcessRecord : AuditableEntity, ITenantScoped
         UpdatedAt = DateTime.UtcNow;
     }
 }
-

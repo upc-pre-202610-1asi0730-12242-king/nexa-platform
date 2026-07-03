@@ -191,4 +191,3 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         builder.UseSnakeCasePluralNamingConvention();
     }
 }
-

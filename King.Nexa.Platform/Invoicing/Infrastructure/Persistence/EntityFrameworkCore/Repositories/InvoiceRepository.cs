@@ -61,4 +61,3 @@ public class InvoiceRepository(AppDbContext context, ICurrentWorkspaceContext wo
             order.Id == invoice.OrderId && order.ClientAccountId == clientAccountId));
     }
 }
-

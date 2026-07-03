@@ -7,4 +7,3 @@ public interface IClientAccountRepository : IBaseRepository<ClientAccount>
 {
     Task<ClientAccount?> FindByCodeAsync(string code, CancellationToken cancellationToken = default);
 }
-

@@ -43,4 +43,3 @@ public interface IInvoicingTenantReferenceRepository
     Task<bool> PaymentOptionIsActiveAsync(int paymentOptionId, CancellationToken cancellationToken = default);
     Task<bool> PaymentMethodBelongsToTenantAsync(int tenantId, int paymentMethodRecordId, CancellationToken cancellationToken = default);
 }
-

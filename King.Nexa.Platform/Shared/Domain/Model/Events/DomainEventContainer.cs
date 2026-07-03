@@ -10,4 +10,3 @@ public abstract class DomainEventContainer : IHasDomainEvents
 
     protected void AddDomainEvent(IDomainEvent domainEvent) => domainEvents.Add(domainEvent);
 }
-

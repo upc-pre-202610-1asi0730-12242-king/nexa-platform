@@ -16,4 +16,3 @@ public interface IInventoryItemRepository : IBaseRepository<InventoryItem>
 
     Task<PagedResult<InventoryItem>> SearchAsync(InventoryItemCollectionQuery query, CancellationToken cancellationToken = default);
 }
-

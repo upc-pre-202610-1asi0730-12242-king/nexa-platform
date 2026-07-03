@@ -90,4 +90,3 @@ public class JwtTokenCodec(IOptions<JwtOptions> options, TimeProvider timeProvid
         return Convert.FromBase64String(padded);
     }
 }
-

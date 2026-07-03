@@ -22,4 +22,3 @@ public interface ITenantAdministrationQueryService
     Task<IEnumerable<WorkspacePreference>> ListPreferencesAsync(CancellationToken cancellationToken = default);
     Task<WorkspacePreference?> GetPreferenceAsync(int id, CancellationToken cancellationToken = default);
 }
-

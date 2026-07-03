@@ -54,4 +54,3 @@ public sealed class DomainEventOutboxInterceptor : SaveChangesInterceptor
     private static int? IntProperty(IDomainEvent domainEvent, string name) =>
         domainEvent.GetType().GetProperty(name, BindingFlags.Public | BindingFlags.Instance)?.GetValue(domainEvent) as int?;
 }
-

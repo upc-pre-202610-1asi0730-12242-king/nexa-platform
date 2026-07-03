@@ -12,4 +12,3 @@ public sealed record ProductId
 
     public override string ToString() => Value;
 }
-

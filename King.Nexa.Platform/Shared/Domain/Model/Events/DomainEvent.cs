@@ -6,4 +6,3 @@ public abstract record DomainEvent(Guid EventId, DateTime OccurredAt) : IDomainE
     {
     }
 }
-

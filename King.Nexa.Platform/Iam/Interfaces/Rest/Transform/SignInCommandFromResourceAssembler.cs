@@ -8,4 +8,3 @@ public static class SignInCommandFromResourceAssembler
     public static SignInCommand ToCommandFromResource(SignInResource resource) =>
         new(resource.Email ?? resource.Username ?? string.Empty, resource.Password, resource.WorkspaceSlug);
 }
-

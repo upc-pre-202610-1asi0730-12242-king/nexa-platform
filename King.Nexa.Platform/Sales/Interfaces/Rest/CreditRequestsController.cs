@@ -58,4 +58,3 @@ public class CreditRequestsController(ICreditRequestQueryService queries, ICredi
     public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken) =>
         await commands.DeleteAsync(id, cancellationToken) ? NoContent() : NotFound();
 }
-

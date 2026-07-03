@@ -10,4 +10,3 @@ public record CreateTenantResource(
     string Plan,
     string Status,
     string Country);
-

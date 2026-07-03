@@ -14,4 +14,3 @@ public static class CreateInventoryItemCommandFromResourceAssembler
             new WarehouseLocation(resource.WarehouseLocation),
             new TemperatureRange(resource.MinimumTemperature, resource.MaximumTemperature));
 }
-

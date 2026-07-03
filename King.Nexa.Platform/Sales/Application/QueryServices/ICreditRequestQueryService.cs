@@ -7,4 +7,3 @@ public interface ICreditRequestQueryService
     Task<IReadOnlyCollection<CreditRequest>> ListAsync(CancellationToken cancellationToken = default);
     Task<CreditRequest?> FindAsync(int id, CancellationToken cancellationToken = default);
 }
-

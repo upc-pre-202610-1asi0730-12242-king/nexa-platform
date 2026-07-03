@@ -108,4 +108,3 @@ public class ShipmentsController(IShipmentCommandService shipmentCommandService,
         return cancelled ? NoContent() : NotFound();
     }
 }
-

@@ -12,4 +12,3 @@ public record InventoryItemResource(
     string WarehouseLocation,
     decimal MinimumTemperature,
     decimal MaximumTemperature);
-

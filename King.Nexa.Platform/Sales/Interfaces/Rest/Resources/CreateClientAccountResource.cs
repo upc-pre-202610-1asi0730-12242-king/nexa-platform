@@ -22,4 +22,3 @@ public record CreateClientAccountResource(
     bool PortalAccess,
     string SellerWorkspaceEmail,
     string Status);
-

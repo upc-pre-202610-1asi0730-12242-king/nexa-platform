@@ -171,4 +171,3 @@ public class ClientAccount : AuditableEntity, ITenantScoped
         UpdatedAt = DateTime.UtcNow;
     }
 }
-

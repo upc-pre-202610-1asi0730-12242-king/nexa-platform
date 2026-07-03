@@ -26,4 +26,3 @@ public static class PaymentMethodRecordResourceAssembler
             IsDefault = resource.IsDefault
         };
 }
-

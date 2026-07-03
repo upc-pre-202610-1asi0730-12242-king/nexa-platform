@@ -23,4 +23,3 @@ public static class PagedQueryableExtensions
         return new PagedResult<T>(items, page, pageSize, totalItems, totalPages);
     }
 }
-

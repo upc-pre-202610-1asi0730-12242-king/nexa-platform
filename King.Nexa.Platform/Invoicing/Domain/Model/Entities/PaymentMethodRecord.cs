@@ -11,4 +11,3 @@ public class PaymentMethodRecord : AuditableEntity, ITenantScoped
     public string Status { get; set; } = "active";
     public bool IsDefault { get; set; }
 }
-

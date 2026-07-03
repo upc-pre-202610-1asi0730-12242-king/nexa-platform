@@ -132,4 +132,3 @@ public class InvoicingTenantReferenceRepository(AppDbContext context) : IInvoici
     public Task<bool> PaymentMethodBelongsToTenantAsync(int tenantId, int paymentMethodRecordId, CancellationToken cancellationToken = default) =>
         context.PaymentMethodRecords.AsNoTracking().AnyAsync(row => row.TenantId == tenantId && row.Id == paymentMethodRecordId, cancellationToken);
 }
-

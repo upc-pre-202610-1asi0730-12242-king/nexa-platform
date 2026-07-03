@@ -15,4 +15,3 @@ public class CreditRequestQueryService(ICreditRequestRepository repository, ICur
 
     private int TenantId() => workspaceContext.TenantId ?? throw new InvalidOperationException("Current tenant is required.");
 }
-

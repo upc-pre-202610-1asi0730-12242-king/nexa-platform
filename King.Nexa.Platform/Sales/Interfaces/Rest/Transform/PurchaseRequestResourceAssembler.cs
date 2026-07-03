@@ -100,4 +100,3 @@ public static class PurchaseRequestResourceAssembler
             VisibleToBuyer = resource.VisibleToBuyer
         };
 }
-

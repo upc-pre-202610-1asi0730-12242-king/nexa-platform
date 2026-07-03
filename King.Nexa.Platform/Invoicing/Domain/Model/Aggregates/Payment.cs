@@ -109,4 +109,3 @@ public class Payment : AuditableEntity, ITenantScoped
         Status = PaymentStatus.Cancelled;
     }
 }
-

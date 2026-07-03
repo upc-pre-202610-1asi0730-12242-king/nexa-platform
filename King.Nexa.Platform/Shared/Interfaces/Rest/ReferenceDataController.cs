@@ -132,4 +132,3 @@ public class ReferenceDataController(AppDbContext context) : ControllerBase
 }
 
 public record ReferenceOptionResource(int Id, string Code, string Label, string? ParentCode = null, bool IsActive = true);
-

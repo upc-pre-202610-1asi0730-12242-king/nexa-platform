@@ -14,4 +14,3 @@ public interface IPaymentRepository : IBaseRepository<Payment>
 
     Task<PagedResult<Payment>> SearchAsync(PaymentCollectionQuery query, CancellationToken cancellationToken = default);
 }
-

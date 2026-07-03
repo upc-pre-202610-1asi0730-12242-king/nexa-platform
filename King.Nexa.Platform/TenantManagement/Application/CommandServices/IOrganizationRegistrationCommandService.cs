@@ -9,4 +9,3 @@ public interface IOrganizationRegistrationCommandService
         CreateOrganizationRegistrationCommand command,
         CancellationToken cancellationToken = default);
 }
-

@@ -38,4 +38,3 @@ public record AuditLogResource(
     string ResourceId,
     string? MetadataJson,
     DateTime CreatedAt);
-

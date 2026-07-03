@@ -102,4 +102,3 @@ public class InventoryItem : AuditableEntity, ITenantScoped
         throw new InvalidOperationException("Unsupported inventory movement type.");
     }
 }
-

@@ -41,4 +41,3 @@ public class UpsertPromotionResource
     public string? Status { get; init; }
     public IReadOnlyCollection<string>? ProductIds { get; init; }
 }
-

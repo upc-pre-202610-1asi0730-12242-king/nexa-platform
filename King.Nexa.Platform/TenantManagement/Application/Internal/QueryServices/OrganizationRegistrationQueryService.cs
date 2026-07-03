@@ -15,4 +15,3 @@ public class OrganizationRegistrationQueryService(
         CancellationToken cancellationToken = default) =>
         registrationRepository.FindByExternalIdAsync(externalId, cancellationToken);
 }
-

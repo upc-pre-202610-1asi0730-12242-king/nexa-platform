@@ -15,4 +15,3 @@ public interface IPurchaseRequestQueryService
     Task<IEnumerable<ConversationMessage>> ListMessagesAsync(CancellationToken cancellationToken = default);
     Task<ConversationMessage?> GetMessageByIdAsync(int id, CancellationToken cancellationToken = default);
 }
-

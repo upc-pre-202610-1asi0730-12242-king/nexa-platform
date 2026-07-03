@@ -15,4 +15,3 @@ public class TenantQueryService(ITenantRepository tenantRepository) : ITenantQue
     public Task<Tenant?> FindBySlugAsync(string slug, CancellationToken cancellationToken = default) =>
         tenantRepository.FindBySlugAsync(slug, cancellationToken);
 }
-

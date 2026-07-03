@@ -29,4 +29,3 @@ public class ClientAccountRepository(AppDbContext context, ICurrentWorkspaceCont
             : query;
     }
 }
-

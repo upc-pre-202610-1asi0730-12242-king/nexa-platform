@@ -36,4 +36,3 @@ public class CreditRequestRepository(AppDbContext context) : ICreditRequestRepos
 
     public void Remove(CreditRequest entity) => context.CreditRequests.Remove(entity);
 }
-

@@ -57,4 +57,3 @@ public static class ClientAccountResourceAssembler
             resource.DeliveryReference ?? string.Empty,
             resource.DocumentProfile ?? "ruc_factura_xml_pdf_guia");
 }
-

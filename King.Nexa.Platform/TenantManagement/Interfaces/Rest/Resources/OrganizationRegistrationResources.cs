@@ -29,4 +29,3 @@ public record OrganizationRegistrationResource(
     string WorkspaceSlug,
     string AdminEmail,
     DateTime SubmittedAt);
-

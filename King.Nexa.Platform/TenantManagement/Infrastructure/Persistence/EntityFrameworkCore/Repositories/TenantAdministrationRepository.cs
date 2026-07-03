@@ -78,4 +78,3 @@ public class TenantAdministrationRepository(AppDbContext context) : ITenantAdmin
     private static string NormalizeSlug(string? value) =>
         string.IsNullOrWhiteSpace(value) ? string.Empty : value.Trim().ToLowerInvariant().Replace(".", "-").Replace("_", "-").Replace(" ", "-");
 }
-

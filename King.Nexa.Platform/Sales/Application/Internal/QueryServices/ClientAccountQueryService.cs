@@ -15,4 +15,3 @@ public class ClientAccountQueryService(IClientAccountRepository clientAccountRep
     public Task<ClientAccount?> FindByCodeAsync(string code, CancellationToken cancellationToken = default) =>
         clientAccountRepository.FindByCodeAsync(code, cancellationToken);
 }
-

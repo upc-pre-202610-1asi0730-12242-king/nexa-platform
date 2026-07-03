@@ -16,4 +16,3 @@ public class UserQueryService(IUserRepository userRepository) : IUserQueryServic
     public Task<IReadOnlyCollection<User>> ListByTenantAsync(int tenantId, CancellationToken cancellationToken = default) =>
         userRepository.ListByTenantAsync(tenantId, cancellationToken);
 }
-

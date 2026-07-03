@@ -2,6 +2,7 @@ using King.Nexa.Platform.Invoicing.Application.QueryServices;
 using King.Nexa.Platform.Invoicing.Domain.Model.Aggregates;
 using King.Nexa.Platform.Invoicing.Domain.Model.Queries;
 using King.Nexa.Platform.Invoicing.Domain.Repositories;
+using King.Nexa.Platform.Shared.Application.Pagination;
 
 namespace King.Nexa.Platform.Invoicing.Application.Internal.QueryServices;
 
@@ -18,4 +19,7 @@ public class PaymentQueryService(IPaymentRepository paymentRepository) : IPaymen
 
     public async Task<IEnumerable<Payment>> Handle(GetPaymentsByStatusQuery query, CancellationToken cancellationToken = default) =>
         await paymentRepository.ListByStatusAsync(query.Status, cancellationToken);
+
+    public Task<PagedResult<Payment>> SearchAsync(PaymentCollectionQuery query, CancellationToken cancellationToken = default) =>
+        paymentRepository.SearchAsync(query, cancellationToken);
 }

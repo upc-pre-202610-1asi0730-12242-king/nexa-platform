@@ -42,4 +42,3 @@ public class AuthenticationController(IUserCommandService userCommandService) : 
             : Ok(AuthenticatedUserResourceFromEntityAssembler.ToResourceFromEntity(authenticatedUser));
     }
 }
-

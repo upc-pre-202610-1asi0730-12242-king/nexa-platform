@@ -12,4 +12,3 @@ public class NotificationRecord : AuditableEntity, ITenantScoped
     public string Body { get; set; } = string.Empty;
     public bool Read { get; set; }
 }
-

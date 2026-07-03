@@ -13,4 +13,3 @@ public interface IShipmentQueryService
 
     Task<IEnumerable<Shipment>> Handle(GetShipmentsByStatusQuery query, CancellationToken cancellationToken = default);
 }
-

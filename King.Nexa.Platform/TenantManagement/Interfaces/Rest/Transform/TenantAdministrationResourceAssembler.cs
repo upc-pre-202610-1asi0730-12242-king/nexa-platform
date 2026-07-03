@@ -22,4 +22,3 @@ public static class TenantAdministrationResourceAssembler
     public static WorkspacePreferenceResource ToResource(WorkspacePreference x) => new(x.Id, x.TenantId, x.WorkspaceId, x.Key, x.Value, x.ValueType, x.CreatedAt, x.UpdatedAt);
     public static WorkspacePreference ToEntity(UpsertWorkspacePreferenceResource x) => new() { TenantId = x.TenantId, WorkspaceId = x.WorkspaceId, Key = x.Key, Value = x.Value, ValueType = x.ValueType };
 }
-

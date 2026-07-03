@@ -18,4 +18,3 @@ public record TenantPreviewResource(
     string WorkspaceUrl,
     string Plan,
     string Status);
-

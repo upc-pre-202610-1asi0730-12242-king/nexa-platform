@@ -1,8 +1,9 @@
 using System.Net;
 using System.Text.Json;
-using King.Nexa.Platform.Shared.Infrastructure.Localization;
+using King.Nexa.Platform.Resources;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
+using King.Nexa.Platform.Shared.Application.Security;
 
 namespace King.Nexa.Platform.Shared.Infrastructure.Pipeline.Middleware.Components;
 
@@ -20,6 +21,10 @@ public sealed class GlobalExceptionHandlerMiddleware(
         catch (ArgumentException exception)
         {
             await WriteProblemAsync(context, HttpStatusCode.BadRequest, localizer["InvalidRequestTitle"], exception.Message);
+        }
+        catch (WorkspaceAccessDeniedException exception)
+        {
+            await WriteProblemAsync(context, HttpStatusCode.Forbidden, "Forbidden", exception.Message);
         }
         catch (InvalidOperationException exception)
         {

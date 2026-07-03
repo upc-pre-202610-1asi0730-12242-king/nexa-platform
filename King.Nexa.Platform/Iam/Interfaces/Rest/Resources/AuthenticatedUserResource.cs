@@ -19,4 +19,3 @@ public record AuthenticatedUserResource(
     string? WorkspaceStatus,
     string? MembershipStatus,
     int? ClientAccountId);
-

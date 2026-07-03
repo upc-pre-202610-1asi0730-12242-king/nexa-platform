@@ -8,4 +8,3 @@ public interface ITokenService
 {
     string GenerateToken(User user, Tenant? tenant = null, Workspace? workspace = null, UserWorkspaceMembership? membership = null);
 }
-

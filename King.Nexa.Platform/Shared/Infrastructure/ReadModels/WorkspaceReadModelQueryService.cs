@@ -408,4 +408,3 @@ public class WorkspaceReadModelQueryService(AppDbContext context, ICurrentWorksp
     private static OrderLineReadModel ToOrderLine(OrderItem item) =>
         new(item.Id, item.ProductId.Value, item.CatalogItemId.Value, item.ItemName.Value, item.Quantity.Value, item.UnitPrice.Amount, item.Subtotal.Amount);
 }
-

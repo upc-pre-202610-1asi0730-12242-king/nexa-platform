@@ -100,4 +100,3 @@ public record OrderAcceptanceResource(int PurchaseRequestId, int OrderId, int? D
 public record ReservationRequestResource(string? Id, int? InventoryItemId, string? ProductId, string? LotCode, int Units);
 
 public record ReservationResource(int Id, string ExternalId, string Status);
-

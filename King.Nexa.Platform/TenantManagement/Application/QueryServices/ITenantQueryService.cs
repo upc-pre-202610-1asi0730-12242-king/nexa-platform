@@ -8,4 +8,3 @@ public interface ITenantQueryService
     Task<Tenant?> FindByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<Tenant?> FindBySlugAsync(string slug, CancellationToken cancellationToken = default);
 }
-

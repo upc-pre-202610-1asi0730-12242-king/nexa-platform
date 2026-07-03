@@ -25,4 +25,3 @@ public record ClientAccountResource(
     bool PortalAccess,
     string SellerWorkspaceEmail,
     string Status);
-

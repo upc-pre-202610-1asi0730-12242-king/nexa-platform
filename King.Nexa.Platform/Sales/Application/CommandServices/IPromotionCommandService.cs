@@ -26,4 +26,3 @@ public record PromotionDraft(
     DateOnly? EndsOn,
     string? Status,
     IReadOnlyCollection<string>? ProductIds);
-

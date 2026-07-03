@@ -22,4 +22,3 @@ public static class ModelBuilderExtensions
         user.HasIndex(entity => entity.Email).IsUnique();
     }
 }
-

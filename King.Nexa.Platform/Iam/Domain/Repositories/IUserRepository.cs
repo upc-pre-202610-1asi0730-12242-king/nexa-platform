@@ -8,4 +8,3 @@ public interface IUserRepository : IBaseRepository<User>
     Task<User?> FindByUsernameAsync(string username, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<User>> ListByTenantAsync(int tenantId, CancellationToken cancellationToken = default);
 }
-

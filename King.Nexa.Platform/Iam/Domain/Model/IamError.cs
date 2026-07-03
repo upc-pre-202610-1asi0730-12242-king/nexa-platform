@@ -14,4 +14,3 @@ public enum IamError
     DatabaseError,
     InternalServerError
 }
-

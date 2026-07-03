@@ -77,4 +77,3 @@ public class WorkspaceMembershipValidationMiddleware(RequestDelegate next)
         await next(httpContext);
     }
 }
-

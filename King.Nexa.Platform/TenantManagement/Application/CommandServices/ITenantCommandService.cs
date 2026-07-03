@@ -6,4 +6,3 @@ public interface ITenantCommandService
 {
     Task<Tenant?> UpdateAsync(int id, Tenant tenant, CancellationToken cancellationToken = default);
 }
-

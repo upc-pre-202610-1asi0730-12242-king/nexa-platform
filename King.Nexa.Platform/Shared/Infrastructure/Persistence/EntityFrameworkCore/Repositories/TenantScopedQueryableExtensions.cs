@@ -11,4 +11,3 @@ public static class TenantScopedQueryableExtensions
             ? query.Where(entity => EF.Property<int>(entity, nameof(ITenantScoped.TenantId)) == tenantId.Value)
             : query.Where(_ => false);
 }
-

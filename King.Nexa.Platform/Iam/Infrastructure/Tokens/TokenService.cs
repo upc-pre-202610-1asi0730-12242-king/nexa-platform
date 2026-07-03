@@ -36,4 +36,3 @@ public class TokenService(JwtTokenCodec tokenCodec) : ITokenService
         return tokenCodec.CreateToken(claims);
     }
 }
-

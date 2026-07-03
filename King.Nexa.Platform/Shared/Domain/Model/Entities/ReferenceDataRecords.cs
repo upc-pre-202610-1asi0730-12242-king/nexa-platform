@@ -51,4 +51,3 @@ public class District : AuditableEntity
     public string Label { get; set; } = string.Empty;
     public bool IsActive { get; set; } = true;
 }
-

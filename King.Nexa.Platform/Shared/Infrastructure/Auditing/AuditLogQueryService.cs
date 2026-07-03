@@ -27,4 +27,3 @@ public class AuditLogQueryService(AppDbContext context, ICurrentWorkspaceContext
             .FirstOrDefaultAsync(row => row.TenantId == tenantId && row.Id == id, cancellationToken);
     }
 }
-

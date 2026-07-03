@@ -9,4 +9,3 @@ public interface IPromotionRepository : IBaseRepository<Promotion>
     Task ReplaceCatalogItemsAsync(Promotion promotion, IReadOnlyCollection<int> catalogItemIds, CancellationToken cancellationToken = default);
     Task<IReadOnlyDictionary<int, IReadOnlyCollection<string>>> ListProductIdsByPromotionIdAsync(IReadOnlyCollection<int> promotionIds, CancellationToken cancellationToken = default);
 }
-

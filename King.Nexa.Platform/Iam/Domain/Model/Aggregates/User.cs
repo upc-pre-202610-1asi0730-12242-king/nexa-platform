@@ -69,4 +69,3 @@ public class User : AuditableEntity
         UpdatedAt = DateTime.UtcNow;
     }
 }
-

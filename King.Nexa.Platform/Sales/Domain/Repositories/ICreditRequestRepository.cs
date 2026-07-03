@@ -10,4 +10,3 @@ public interface ICreditRequestRepository
     Task AddAsync(CreditRequest entity, CancellationToken cancellationToken = default);
     void Remove(CreditRequest entity);
 }
-

@@ -15,4 +15,3 @@ public sealed record TemperatureRange
 
     public decimal MaximumTemperature { get; }
 }
-

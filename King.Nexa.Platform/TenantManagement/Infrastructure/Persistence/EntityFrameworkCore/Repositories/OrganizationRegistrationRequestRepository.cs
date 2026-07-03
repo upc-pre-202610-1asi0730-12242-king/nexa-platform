@@ -26,4 +26,3 @@ public class OrganizationRegistrationRequestRepository(AppDbContext context)
         Context.Set<OrganizationRegistrationRequest>()
             .AnyAsync(row => row.ExternalId == externalId, cancellationToken);
 }
-

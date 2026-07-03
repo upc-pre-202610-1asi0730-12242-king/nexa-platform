@@ -9,4 +9,3 @@ public interface IPromotionQueryService
 }
 
 public record PromotionSnapshot(Promotion Promotion, IReadOnlyCollection<string> ProductIds);
-

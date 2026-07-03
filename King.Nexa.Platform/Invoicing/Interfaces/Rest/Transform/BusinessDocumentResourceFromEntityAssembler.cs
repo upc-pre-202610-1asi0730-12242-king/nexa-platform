@@ -34,4 +34,3 @@ public static class BusinessDocumentResourceFromEntityAssembler
             Required = resource.Required
         };
 }
-

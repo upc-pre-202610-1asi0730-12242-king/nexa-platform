@@ -10,4 +10,3 @@ public record AuthenticatedUser(
     Tenant? Tenant = null,
     Workspace? Workspace = null,
     UserWorkspaceMembership? Membership = null);
-

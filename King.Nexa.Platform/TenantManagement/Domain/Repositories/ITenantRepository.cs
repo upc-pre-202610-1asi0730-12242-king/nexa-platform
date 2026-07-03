@@ -7,4 +7,3 @@ public interface ITenantRepository : IBaseRepository<Tenant>
 {
     Task<Tenant?> FindBySlugAsync(string slug, CancellationToken cancellationToken = default);
 }
-

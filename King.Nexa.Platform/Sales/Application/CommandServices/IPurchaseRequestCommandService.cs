@@ -30,4 +30,3 @@ public record PurchaseRequestMessageDraft(string Body, string? SenderRole, strin
 public record PurchaseRequestReservationDraft(string? ExternalId, int? InventoryItemId, string? ProductId, string? LotCode, int Units);
 
 public record PurchaseRequestReservationResult(int Id, string ExternalId, string Status);
-

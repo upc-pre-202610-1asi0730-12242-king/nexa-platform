@@ -16,4 +16,3 @@ public interface IInvoiceRepository : IBaseRepository<Invoice>
 
     Task<PagedResult<Invoice>> SearchAsync(InvoiceCollectionQuery query, CancellationToken cancellationToken = default);
 }
-

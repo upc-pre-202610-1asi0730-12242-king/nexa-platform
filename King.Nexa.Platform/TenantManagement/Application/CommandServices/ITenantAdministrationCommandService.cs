@@ -29,4 +29,3 @@ public interface ITenantAdministrationCommandService
     Task<WorkspacePreference?> UpdatePreferenceAsync(int id, WorkspacePreference entity, CancellationToken cancellationToken = default);
     Task<bool> DeletePreferenceAsync(int id, CancellationToken cancellationToken = default);
 }
-

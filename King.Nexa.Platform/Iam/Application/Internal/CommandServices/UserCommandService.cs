@@ -99,4 +99,3 @@ public class UserCommandService(
             throw new InvalidOperationException("Password must contain at least 10 characters, uppercase, lowercase, number, and symbol.");
     }
 }
-

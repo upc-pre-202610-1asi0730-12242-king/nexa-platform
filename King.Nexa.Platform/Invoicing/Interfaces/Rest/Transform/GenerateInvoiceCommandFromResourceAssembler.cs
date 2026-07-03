@@ -9,4 +9,3 @@ public static class GenerateInvoiceCommandFromResourceAssembler
     public static GenerateInvoiceCommand ToCommandFromResource(GenerateInvoiceResource resource) =>
         new(new InvoiceNumber(resource.InvoiceNumber), resource.OrderId, new BillingAmount(resource.Amount, resource.Currency));
 }
-

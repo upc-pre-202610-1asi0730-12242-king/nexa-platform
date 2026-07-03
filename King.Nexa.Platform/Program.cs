@@ -248,4 +248,3 @@ static string? NormalizeDatabaseUrl(string? databaseUrl)
 }
 
 public partial class Program;
-

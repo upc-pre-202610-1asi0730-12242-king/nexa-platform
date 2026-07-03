@@ -23,4 +23,3 @@ public record CreateCreditRequestResource(
     int? CreatedByUserId);
 
 public record ResolveCreditRequestResource(string Status, string ReviewedBy, string Note);
-

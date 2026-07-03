@@ -15,5 +15,9 @@ public static class UpdateOrderCommandFromResourceAssembler
                 new CatalogItemId(item.CatalogItemId),
                 new ItemName(item.ItemName),
                 new Quantity(item.Quantity),
-                new Money(item.UnitPriceAmount, item.UnitPriceCurrency))).ToList());
+                new Money(item.UnitPriceAmount, item.UnitPriceCurrency))).ToList(),
+            resource.Priority ?? "medium",
+            resource.Notes ?? string.Empty,
+            CreateOrderCommandFromResourceAssembler.ToValueObject(resource.Delivery),
+            resource.ClientAccountId);
 }

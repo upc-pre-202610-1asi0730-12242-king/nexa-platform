@@ -42,4 +42,3 @@ public sealed class WorkspaceRoleAuthorizationHandler(AppDbContext dbContext) : 
     private static int? TryInt(string? value) =>
         int.TryParse(value, out var parsed) && parsed > 0 ? parsed : null;
 }
-

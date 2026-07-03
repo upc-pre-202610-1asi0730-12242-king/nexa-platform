@@ -8,4 +8,3 @@ public interface ICreditRequestCommandService
     Task<CreditRequest?> ResolveAsync(int id, string status, string reviewedBy, string note, CancellationToken cancellationToken = default);
     Task<bool> DeleteAsync(int id, CancellationToken cancellationToken = default);
 }
-

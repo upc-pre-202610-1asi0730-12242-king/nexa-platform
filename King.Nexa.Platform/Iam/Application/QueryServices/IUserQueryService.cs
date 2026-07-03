@@ -9,4 +9,3 @@ public interface IUserQueryService
     Task<User?> FindByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<IReadOnlyCollection<User>> ListByTenantAsync(int tenantId, CancellationToken cancellationToken = default);
 }
-

@@ -8,4 +8,3 @@ public interface IWarehouseRepository : IBaseRepository<WarehouseAggregate>
 {
     Task<WarehouseAggregate?> FindByLocationAsync(WarehouseLocation location, CancellationToken cancellationToken = default);
 }
-

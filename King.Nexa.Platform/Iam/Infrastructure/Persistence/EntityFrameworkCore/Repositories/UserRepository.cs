@@ -24,4 +24,3 @@ public class UserRepository(AppDbContext context) : BaseRepository<User>(context
             .OrderBy(user => user.Id)
             .ToListAsync(cancellationToken);
 }
-

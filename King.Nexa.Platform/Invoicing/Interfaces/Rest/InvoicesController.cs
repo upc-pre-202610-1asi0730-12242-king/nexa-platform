@@ -222,4 +222,3 @@ file static class InvoiceControllerQuery
             _ => true
         });
 }
-

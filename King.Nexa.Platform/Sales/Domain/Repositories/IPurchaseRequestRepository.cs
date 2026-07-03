@@ -23,4 +23,3 @@ public interface IPurchaseRequestRepository
     void RemoveMessage(ConversationMessage message);
     Task<bool> RequestBelongsToTenantAsync(int tenantId, int requestId, CancellationToken cancellationToken = default);
 }
-

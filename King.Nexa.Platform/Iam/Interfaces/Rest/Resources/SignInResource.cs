@@ -8,4 +8,3 @@ namespace King.Nexa.Platform.Iam.Interfaces.Rest.Resources;
 /// <param name="Password">The user's password.</param>
 /// <param name="WorkspaceSlug">The workspace slug the user is entering.</param>
 public record SignInResource(string? Email, string? Username, string Password, string? WorkspaceSlug);
-

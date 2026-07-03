@@ -4,4 +4,3 @@ public static class NexaAuthenticationConstants
 {
     public const string Scheme = "NexaJwt";
 }
-

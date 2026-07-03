@@ -14,4 +14,3 @@ public record PaymentResource(
     string Status,
     DateTimeOffset? ConfirmedAt,
     DateTimeOffset? RejectedAt);
-

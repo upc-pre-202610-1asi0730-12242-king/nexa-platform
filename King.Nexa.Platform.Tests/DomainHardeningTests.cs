@@ -154,4 +154,3 @@ public class DomainHardeningTests
         return payment;
     }
 }
-

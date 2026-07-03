@@ -12,4 +12,3 @@ public sealed record WarehouseName
 
     public override string ToString() => Value;
 }
-

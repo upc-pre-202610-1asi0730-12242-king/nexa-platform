@@ -38,4 +38,3 @@ public class TenantAdministrationQueryService(
             ? repository.FindByIdAsync<T>(tenantId, id, cancellationToken)
             : Task.FromResult<T?>(null);
 }
-

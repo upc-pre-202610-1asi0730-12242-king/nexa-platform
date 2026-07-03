@@ -52,4 +52,3 @@ public static class PromotionResourceAssembler
     private static DateOnly? ParseDate(string? value) =>
         DateOnly.TryParse(value, out var date) ? date : null;
 }
-

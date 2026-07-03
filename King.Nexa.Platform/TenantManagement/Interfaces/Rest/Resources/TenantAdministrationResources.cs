@@ -16,4 +16,3 @@ public record UserWorkspaceMembershipResource(int Id, int TenantId, int Workspac
 public record UpsertUserWorkspaceMembershipResource(int TenantId, int WorkspaceId, int UserId, string Email, string FullName, string Role, string Department, string Status, bool PortalAccess, int? ClientAccountId);
 public record WorkspacePreferenceResource(int Id, int TenantId, int WorkspaceId, string Key, string Value, string ValueType, DateTime CreatedAt, DateTime? UpdatedAt);
 public record UpsertWorkspacePreferenceResource(int TenantId, int WorkspaceId, string Key, string Value, string ValueType);
-

@@ -8,4 +8,3 @@ public interface IClientAccountQueryService
     Task<ClientAccount?> FindByIdAsync(int id, CancellationToken cancellationToken = default);
     Task<ClientAccount?> FindByCodeAsync(string code, CancellationToken cancellationToken = default);
 }
-

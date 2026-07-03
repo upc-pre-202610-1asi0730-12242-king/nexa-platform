@@ -9,4 +9,3 @@ public interface IOrganizationRegistrationRequestRepository : IBaseRepository<Or
     Task<OrganizationRegistrationRequest?> FindByExternalIdAsync(string externalId, CancellationToken cancellationToken = default);
     Task<bool> ExistsByExternalIdAsync(string externalId, CancellationToken cancellationToken = default);
 }
-

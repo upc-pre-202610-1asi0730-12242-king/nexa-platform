@@ -12,4 +12,3 @@ public sealed class OutboxMessage
     public int? TenantId { get; set; }
     public int? WorkspaceId { get; set; }
 }
-

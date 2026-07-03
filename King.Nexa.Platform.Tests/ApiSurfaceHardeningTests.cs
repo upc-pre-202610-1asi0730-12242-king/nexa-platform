@@ -281,4 +281,3 @@ public class ApiSurfaceHardeningTests
         return Convert.ToHexString(hash).ToLowerInvariant();
     }
 }
-

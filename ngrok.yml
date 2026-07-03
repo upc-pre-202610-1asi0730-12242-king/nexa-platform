@@ -1,0 +1,8 @@
+version: 3
+agent:
+  authtoken: "3EpdyLTQkW6KR45Uj0t9QdDTwaB_4vDwDAoPRrQ46Pkc2Jxhs"
+tunnels:
+  proxy:
+    proto: http
+    addr: 127.0.0.1:8000
+    domain: predict-badness-crane.ngrok-free.dev

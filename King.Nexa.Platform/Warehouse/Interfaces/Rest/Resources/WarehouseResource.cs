@@ -7,4 +7,3 @@ public record WarehouseResource(
     decimal MinimumTemperature,
     decimal MaximumTemperature,
     bool IsActive);
-

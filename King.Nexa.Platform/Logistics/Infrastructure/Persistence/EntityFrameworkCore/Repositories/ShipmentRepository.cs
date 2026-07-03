@@ -33,4 +33,3 @@ public class ShipmentRepository(AppDbContext context, ICurrentWorkspaceContext w
             : query.Where(_ => false);
     }
 }
-

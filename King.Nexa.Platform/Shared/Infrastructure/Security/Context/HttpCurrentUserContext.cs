@@ -13,4 +13,3 @@ public class HttpCurrentUserContext(IHttpContextAccessor accessor) : ICurrentUse
 
     private static int? TryInt(string? value) => int.TryParse(value, out var parsed) ? parsed : null;
 }
-

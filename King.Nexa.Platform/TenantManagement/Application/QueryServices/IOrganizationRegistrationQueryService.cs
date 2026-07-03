@@ -7,4 +7,3 @@ public interface IOrganizationRegistrationQueryService
     Task<IEnumerable<OrganizationRegistrationRequest>> ListNewestAsync(CancellationToken cancellationToken = default);
     Task<OrganizationRegistrationRequest?> FindByExternalIdAsync(string externalId, CancellationToken cancellationToken = default);
 }
-

@@ -16,4 +16,3 @@ public static class InventoryItemResourceFromEntityAssembler
             entity.TemperatureRange.MinimumTemperature,
             entity.TemperatureRange.MaximumTemperature);
 }
-

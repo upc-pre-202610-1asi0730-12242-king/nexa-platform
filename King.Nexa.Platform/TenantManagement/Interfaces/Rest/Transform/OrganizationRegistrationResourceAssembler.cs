@@ -39,4 +39,3 @@ public static class OrganizationRegistrationResourceAssembler
     private static string NormalizeSlug(string value) =>
         string.Join('-', value.Trim().ToLowerInvariant().Split(' ', StringSplitOptions.RemoveEmptyEntries));
 }
-

@@ -114,4 +114,3 @@ public class PromotionCommandService(
     private static string Value(string? incoming, string current, string fallback = "") =>
         incoming is null ? (string.IsNullOrWhiteSpace(current) ? fallback : current) : incoming.Trim();
 }
-

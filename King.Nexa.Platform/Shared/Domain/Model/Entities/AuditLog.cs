@@ -22,4 +22,3 @@ public class AuditLog : AuditableEntity, ITenantScoped
 
     public string? UserAgent { get; set; }
 }
-

@@ -91,4 +91,3 @@ public class PromotionRepository(AppDbContext context, ICurrentWorkspaceContext 
             : query.Where(_ => false);
     }
 }
-

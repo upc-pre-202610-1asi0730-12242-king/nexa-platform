@@ -26,4 +26,3 @@ public static class AuthenticatedUserResourceFromEntityAssembler
             authenticatedUser.Membership?.Status,
             authenticatedUser.Membership?.ClientAccountId);
 }
-

@@ -12,4 +12,3 @@ public sealed record InvoiceNumber
 
     public override string ToString() => Value;
 }
-

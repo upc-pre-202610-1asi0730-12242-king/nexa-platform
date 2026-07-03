@@ -56,4 +56,3 @@ public class PaymentRepository(AppDbContext context, ICurrentWorkspaceContext wo
             : query;
     }
 }
-

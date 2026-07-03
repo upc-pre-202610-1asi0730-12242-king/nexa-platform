@@ -14,4 +14,3 @@ public static class TenantResourceAssembler
     public static Tenant ToEntity(CreateTenantResource resource) =>
         new(resource.Name, resource.LegalName, resource.Slug, resource.Ruc, resource.WorkspaceUrl, resource.EmailDomain, resource.Plan, resource.Status, resource.Country);
 }
-

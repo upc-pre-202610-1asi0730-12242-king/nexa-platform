@@ -44,4 +44,3 @@ public class WorkspacePreference : AuditableEntity, ITenantScoped
     public string Value { get; set; } = string.Empty;
     public string ValueType { get; set; } = "string";
 }
-

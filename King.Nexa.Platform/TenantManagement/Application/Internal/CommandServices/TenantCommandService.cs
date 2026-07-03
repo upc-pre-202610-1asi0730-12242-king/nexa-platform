@@ -18,4 +18,3 @@ public class TenantCommandService(ITenantRepository tenantRepository, IUnitOfWor
         return existing;
     }
 }
-

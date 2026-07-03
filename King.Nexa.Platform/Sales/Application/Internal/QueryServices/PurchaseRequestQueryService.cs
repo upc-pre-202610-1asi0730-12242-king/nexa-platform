@@ -33,4 +33,3 @@ public class PurchaseRequestQueryService(
     public Task<ConversationMessage?> GetMessageByIdAsync(int id, CancellationToken cancellationToken = default) =>
         purchaseRequestRepository.FindMessageByIdAsync(id, cancellationToken);
 }
-

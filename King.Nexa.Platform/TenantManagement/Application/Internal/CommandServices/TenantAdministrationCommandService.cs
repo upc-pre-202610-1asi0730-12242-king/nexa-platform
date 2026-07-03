@@ -229,4 +229,3 @@ public class TenantAdministrationCommandService(
     private static string Value(string? value, string fallback) => string.IsNullOrWhiteSpace(value) ? fallback : value.Trim();
     private static string Slug(string value) => value.Trim().ToLowerInvariant().Replace(".", "-").Replace("_", "-").Replace(" ", "-");
 }
-

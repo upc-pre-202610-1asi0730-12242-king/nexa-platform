@@ -65,4 +65,3 @@ public class Invoice : AuditableEntity, ITenantScoped
         AddDomainEvent(new InvoicePaid(Id, TenantId));
     }
 }
-

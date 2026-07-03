@@ -13,4 +13,3 @@ public class OrganizationRegistrationRequest : AuditableEntity
     public string PayloadJson { get; set; } = "{}";
     public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
 }
-

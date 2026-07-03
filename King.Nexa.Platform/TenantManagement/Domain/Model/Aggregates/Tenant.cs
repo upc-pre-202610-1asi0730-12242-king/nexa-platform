@@ -66,4 +66,3 @@ public class Tenant : AuditableEntity
         return value;
     }
 }
-

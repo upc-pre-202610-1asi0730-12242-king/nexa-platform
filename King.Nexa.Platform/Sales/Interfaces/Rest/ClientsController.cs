@@ -104,4 +104,3 @@ public class ClientsController(
         ? workspaceContext.TenantId.Value
         : throw new InvalidOperationException("An authenticated tenant context is required.");
 }
-

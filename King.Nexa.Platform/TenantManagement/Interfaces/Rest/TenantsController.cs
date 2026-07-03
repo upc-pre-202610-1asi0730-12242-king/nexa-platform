@@ -58,4 +58,3 @@ public class TenantsController(ITenantQueryService tenantQueryService, ITenantCo
     private int? CurrentTenantId() =>
         int.TryParse(User.FindFirstValue("tenant_id"), out var tenantId) && tenantId > 0 ? tenantId : null;
 }
-

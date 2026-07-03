@@ -171,4 +171,3 @@ public class BusinessDocumentContentGenerator(AppDbContext context) : IBusinessD
 
     private static void WriteAscii(Stream stream, string value) => stream.Write(Encoding.ASCII.GetBytes(value));
 }
-

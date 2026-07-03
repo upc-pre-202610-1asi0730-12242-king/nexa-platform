@@ -25,4 +25,3 @@ public class NexaJwtAuthenticationHandler(
         return Task.FromResult(AuthenticateResult.Success(new AuthenticationTicket(principal, Scheme.Name)));
     }
 }
-

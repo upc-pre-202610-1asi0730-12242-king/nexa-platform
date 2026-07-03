@@ -34,4 +34,3 @@ public static class WarehouseErrors
     public static readonly Error InternalServerError =
         new("Warehouse.InternalServerError", "An internal server error occurred while processing the warehouse request.");
 }
-

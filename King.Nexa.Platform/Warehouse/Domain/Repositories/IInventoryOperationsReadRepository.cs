@@ -17,4 +17,3 @@ public record InventoryLotReadRecord(InventoryLot Lot, string ProductId, string 
 public record InventoryMovementReadRecord(InventoryMovement Movement, string ProductId, string? LotCode, string? Warehouse, string? OrderNumber);
 
 public record InventoryReservationReadRecord(InventoryReservationRecord Reservation, string ProductId, string? LotCode, string? OrderNumber);
-

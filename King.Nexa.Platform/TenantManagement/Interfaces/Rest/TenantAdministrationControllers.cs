@@ -129,4 +129,3 @@ public class WorkspacePreferencesController(ITenantAdministrationQueryService qu
     public async Task<IActionResult> Delete(int id, CancellationToken ct) =>
         await commands.DeletePreferenceAsync(id, ct) ? NoContent() : NotFound();
 }
-

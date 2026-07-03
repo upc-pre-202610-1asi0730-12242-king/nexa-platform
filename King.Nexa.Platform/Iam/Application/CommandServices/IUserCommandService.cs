@@ -13,4 +13,3 @@ public interface IUserCommandService
     Task<User?> UpdateProfileAsync(int id, string fullName, string? email, string phone, string preferredLanguage, bool criticalNotificationsEnabled, CancellationToken cancellationToken = default);
     Task<bool> ChangePasswordAsync(int id, string currentPassword, string newPassword, CancellationToken cancellationToken = default);
 }
-

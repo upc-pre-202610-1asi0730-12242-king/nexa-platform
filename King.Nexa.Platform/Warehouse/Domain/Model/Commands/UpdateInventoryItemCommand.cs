@@ -9,4 +9,3 @@ public record UpdateInventoryItemCommand(
     StockQuantity AvailableQuantity,
     WarehouseLocation WarehouseLocation,
     TemperatureRange TemperatureRange);
-

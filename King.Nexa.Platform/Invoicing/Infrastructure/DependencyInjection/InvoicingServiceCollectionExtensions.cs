@@ -40,4 +40,3 @@ public static class InvoicingServiceCollectionExtensions
         return services;
     }
 }
-

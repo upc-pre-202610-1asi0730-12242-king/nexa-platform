@@ -63,4 +63,3 @@ public class WarehousesController(IWarehouseCommandService warehouseCommandServi
         return deleted ? NoContent() : NotFound();
     }
 }
-

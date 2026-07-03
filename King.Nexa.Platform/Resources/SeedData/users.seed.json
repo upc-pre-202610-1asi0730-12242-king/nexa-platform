@@ -1,26 +1,30 @@
 [
   {
-    "username": "admin@nexa.com",
-    "email": "admin@nexa.com",
-    "password": "NexaDemo2026!",
-    "role": "Admin"
+    "username": "valeria.sanchez@icisa.pe",
+    "fullName": "Valeria Sanchez",
+    "email": "valeria.sanchez@icisa.pe",
+    "password": "Password123!",
+    "role": "Company Owner"
   },
   {
-    "username": "logistics@nexa.com",
-    "email": "logistics@nexa.com",
-    "password": "NexaDemo2026!",
-    "role": "Logistics"
-  },
-  {
-    "username": "sales@nexa.com",
-    "email": "sales@nexa.com",
-    "password": "NexaDemo2026!",
+    "username": "carlos.rios@icisa.pe",
+    "fullName": "Carlos Rios",
+    "email": "carlos.rios@icisa.pe",
+    "password": "Password123!",
     "role": "Sales"
   },
   {
-    "username": "buyer.demo@nexa.com",
-    "email": "buyer.demo@nexa.com",
-    "password": "NexaDemo2026!",
+    "username": "roberto.garcia@icisa.pe",
+    "fullName": "Roberto Garcia",
+    "email": "roberto.garcia@icisa.pe",
+    "password": "Password123!",
+    "role": "Logistics Manager"
+  },
+  {
+    "username": "elena.litano@icisa.pe",
+    "fullName": "Elena Litano",
+    "email": "elena.litano@icisa.pe",
+    "password": "Password123!",
     "role": "Buyer"
   }
 ]

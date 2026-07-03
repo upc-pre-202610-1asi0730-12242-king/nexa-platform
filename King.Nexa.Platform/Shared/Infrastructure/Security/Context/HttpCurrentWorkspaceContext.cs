@@ -16,4 +16,3 @@ public class HttpCurrentWorkspaceContext(IHttpContextAccessor accessor) : ICurre
 
     private static int? TryInt(string? value) => int.TryParse(value, out var parsed) ? parsed : null;
 }
-

@@ -33,4 +33,3 @@ public class ClientAccountCommandService(
     private int CurrentTenantId() =>
         workspaceContext.TenantId ?? throw new InvalidOperationException("Current tenant is required.");
 }
-

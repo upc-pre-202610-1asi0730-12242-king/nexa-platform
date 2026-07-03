@@ -21,4 +21,3 @@ public static class PaymentResourceFromEntityAssembler
             entity.ConfirmedAt,
             entity.RejectedAt);
 }
-

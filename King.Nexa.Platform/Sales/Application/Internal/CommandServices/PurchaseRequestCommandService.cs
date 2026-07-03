@@ -445,4 +445,3 @@ public class PurchaseRequestCommandService(
     private static string PriorityForOrder(string? priority) =>
         string.Equals(priority, "normal", StringComparison.OrdinalIgnoreCase) ? "medium" : priority ?? "medium";
 }
-

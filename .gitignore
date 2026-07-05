@@ -30,8 +30,13 @@ logs/
 .env
 .env.local
 appsettings.Local.json
+ngrok.yml
 *.db
 *.sqlite
 *.pfx
 *.p12
 secrets/
+
+# Local capture artifacts
+.playwright-cli/
+* 2/

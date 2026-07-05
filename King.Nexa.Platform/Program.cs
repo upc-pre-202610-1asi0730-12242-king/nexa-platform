@@ -226,7 +226,7 @@ app.MapGet("/health/ready", async (AppDbContext context, CancellationToken cance
     return canConnect
         ? Results.Ok(new { status = "Healthy" })
         : Results.Problem("Database is not reachable.", statusCode: StatusCodes.Status503ServiceUnavailable);
-});
+}).AllowAnonymous();
 
 app.Run();
 

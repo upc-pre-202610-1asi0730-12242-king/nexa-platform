@@ -31,6 +31,8 @@ public class InventoryItemsController(
         [FromQuery] string? catalogItemId,
         [FromQuery] int? warehouseId,
         [FromQuery] string? warehouseLocation,
+        [FromQuery] string? stockStatus,
+        [FromQuery] int? threshold,
         CancellationToken cancellationToken)
     {
         var itemIdentifier = catalogItemId ?? productId;
@@ -46,7 +48,13 @@ public class InventoryItemsController(
             return Ok(byLocation.Select(InventoryItemResourceFromEntityAssembler.ToResourceFromEntity));
         }
 
-        if (HasCollectionQuery(page, pageSize, search, productId, warehouseId))
+        if (string.Equals(stockStatus, "low", StringComparison.OrdinalIgnoreCase))
+        {
+            var lowStockItems = await inventoryItemQueryService.Handle(new GetLowStockInventoryItemsQuery(threshold ?? 10), cancellationToken);
+            return Ok(lowStockItems.Select(InventoryItemResourceFromEntityAssembler.ToResourceFromEntity));
+        }
+
+        if (HasCollectionQuery(page, pageSize, search, productId, warehouseId, stockStatus, threshold))
         {
             var paged = await inventoryItemQueryService.SearchAsync(
                 new InventoryItemCollectionQuery(
@@ -70,16 +78,6 @@ public class InventoryItemsController(
     {
         var item = await inventoryItemQueryService.Handle(new GetInventoryItemByIdQuery(id), cancellationToken);
         return item is null ? NotFound() : Ok(InventoryItemResourceFromEntityAssembler.ToResourceFromEntity(item));
-    }
-
-    /// <summary>
-    /// Gets inventory items whose available quantity is at or below the threshold.
-    /// </summary>
-    [HttpGet("low-stock/{threshold:int}")]
-    public async Task<IActionResult> GetLowStockInventoryItems(int threshold, CancellationToken cancellationToken)
-    {
-        var items = await inventoryItemQueryService.Handle(new GetLowStockInventoryItemsQuery(threshold), cancellationToken);
-        return Ok(items.Select(InventoryItemResourceFromEntityAssembler.ToResourceFromEntity));
     }
 
     /// <summary>

@@ -36,6 +36,7 @@ public class CatalogItemsController(
         [FromQuery] string? brand,
         [FromQuery] string? category,
         [FromQuery] string? coldChain,
+        [FromQuery] string? coldChainRequirement,
         [FromQuery] bool? active,
         [FromQuery] DateOnly? createdFrom,
         [FromQuery] DateOnly? createdTo,
@@ -47,14 +48,16 @@ public class CatalogItemsController(
             return catalogItem is null ? NotFound() : Ok(CatalogItemResourceFromEntityAssembler.ToResourceFromEntity(catalogItem));
         }
 
-        if (!includePromotions && HasCollectionQuery(page, pageSize, search, brand, category, coldChain, active, createdFrom, createdTo))
+        var requestedColdChain = coldChainRequirement ?? coldChain;
+
+        if (!includePromotions && HasCollectionQuery(page, pageSize, search, brand, category, requestedColdChain, active, createdFrom, createdTo))
         {
-            ColdChainRequirement? coldChainRequirement = null;
-            if (!string.IsNullOrWhiteSpace(coldChain))
+            ColdChainRequirement? parsedColdChainRequirement = null;
+            if (!string.IsNullOrWhiteSpace(requestedColdChain))
             {
-                if (!Enum.TryParse<ColdChainRequirement>(coldChain, true, out var parsedRequirement))
+                if (!Enum.TryParse<ColdChainRequirement>(requestedColdChain, true, out var parsedRequirement))
                     return BadRequest(new { message = "Invalid cold-chain requirement." });
-                coldChainRequirement = parsedRequirement;
+                parsedColdChainRequirement = parsedRequirement;
             }
 
             var paged = await catalogItemQueryService.SearchAsync(
@@ -63,7 +66,7 @@ public class CatalogItemsController(
                     search,
                     brand,
                     category,
-                    coldChainRequirement,
+                    parsedColdChainRequirement,
                     active,
                     createdFrom,
                     createdTo),
@@ -117,19 +120,6 @@ public class CatalogItemsController(
     {
         var availability = await readModels.GetCatalogItemAvailabilityAsync(id, cancellationToken);
         return availability is null ? NotFound() : Ok(availability);
-    }
-
-    /// <summary>
-    /// Gets catalog items by cold-chain requirement.
-    /// </summary>
-    [HttpGet("cold-chain/{requirement}")]
-    public async Task<IActionResult> GetCatalogItemsByColdChainRequirement(string requirement, CancellationToken cancellationToken)
-    {
-        if (!Enum.TryParse<ColdChainRequirement>(requirement, true, out var coldChainRequirement))
-            return BadRequest(new { message = "Invalid cold-chain requirement." });
-
-        var catalogItems = await catalogItemQueryService.Handle(new GetCatalogItemsByColdChainRequirementQuery(coldChainRequirement), cancellationToken);
-        return Ok(catalogItems.Select(CatalogItemResourceFromEntityAssembler.ToResourceFromEntity));
     }
 
     /// <summary>

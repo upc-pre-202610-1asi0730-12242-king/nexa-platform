@@ -69,9 +69,9 @@ public class ShipmentsController(IShipmentCommandService shipmentCommandService,
     /// <summary>
     /// Reschedules a shipment.
     /// </summary>
-    [HttpPut("{id:int}/schedule")]
+    [HttpPost("{id:int}/schedules")]
     [Authorize(Policy = NexaAuthorizationPolicies.CanStartDispatch)]
-    public async Task<IActionResult> RescheduleShipment(int id, RescheduleShipmentResource resource, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateShipmentSchedule(int id, RescheduleShipmentResource resource, CancellationToken cancellationToken)
     {
         var command = RescheduleShipmentCommandFromResourceAssembler.ToCommandFromResource(id, resource);
         var shipment = await shipmentCommandService.RescheduleAsync(command, cancellationToken);
@@ -81,9 +81,9 @@ public class ShipmentsController(IShipmentCommandService shipmentCommandService,
     /// <summary>
     /// Marks a shipment as delivered.
     /// </summary>
-    [HttpPost("{id:int}/delivered")]
+    [HttpPost("{id:int}/delivery-confirmations")]
     [Authorize(Policy = NexaAuthorizationPolicies.CanStartDispatch)]
-    public async Task<IActionResult> MarkShipmentDelivered(int id, CancellationToken cancellationToken)
+    public async Task<IActionResult> CreateDeliveryConfirmation(int id, CancellationToken cancellationToken)
     {
         var shipment = await shipmentCommandService.MarkDeliveredAsync(new MarkShipmentDeliveredCommand(id), cancellationToken);
         if (shipment is null) return NotFound();

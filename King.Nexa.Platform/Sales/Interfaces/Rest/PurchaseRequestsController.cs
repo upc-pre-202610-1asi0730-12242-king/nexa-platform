@@ -15,7 +15,8 @@ namespace King.Nexa.Platform.Sales.Interfaces.Rest;
 [Route("api/v1/purchase-requests")]
 public class PurchaseRequestsController(
     IPurchaseRequestQueryService queryService,
-    IPurchaseRequestCommandService commandService) : ControllerBase
+    IPurchaseRequestCommandService commandService,
+    IAuthorizationService authorizationService) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<PurchaseRequestResource>), StatusCodes.Status200OK)]
@@ -26,10 +27,21 @@ public class PurchaseRequestsController(
         [FromQuery] int? clientAccountId,
         [FromQuery] string? priority,
         [FromQuery] string? search,
+        [FromQuery] string? scope,
         [FromQuery] DateOnly? createdFrom,
         [FromQuery] DateOnly? createdTo,
         CancellationToken cancellationToken)
     {
+        if (string.Equals(scope, "commercial", StringComparison.OrdinalIgnoreCase))
+        {
+            var authorization = await authorizationService.AuthorizeAsync(User, null, NexaAuthorizationPolicies.CanAcceptPurchaseRequest);
+            if (!authorization.Succeeded)
+                return Forbid();
+
+            var commercialRequests = await queryService.ListCommercialInboxAsync(cancellationToken);
+            return Ok(commercialRequests.Select(PurchaseRequestResourceAssembler.ToResourceFromEntity));
+        }
+
         if (HasCollectionQuery(page, pageSize, status, clientAccountId, priority, search, createdFrom, createdTo))
         {
             var paged = await queryService.SearchAsync(
@@ -58,15 +70,6 @@ public class PurchaseRequestsController(
         return request is null ? NotFound() : Ok(PurchaseRequestResourceAssembler.ToResourceFromEntity(request));
     }
 
-    [HttpGet("/api/v1/commercial/purchase-requests")]
-    [Authorize(Policy = NexaAuthorizationPolicies.CanAcceptPurchaseRequest)]
-    [ProducesResponseType(typeof(IEnumerable<PurchaseRequestResource>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<PurchaseRequestResource>>> GetCommercialInbox(CancellationToken cancellationToken)
-    {
-        var requests = await queryService.ListCommercialInboxAsync(cancellationToken);
-        return Ok(requests.Select(PurchaseRequestResourceAssembler.ToResourceFromEntity));
-    }
-
     [HttpPost]
     [ProducesResponseType(typeof(PurchaseRequestResource), StatusCodes.Status201Created)]
     public async Task<ActionResult<PurchaseRequestResource>> Create([FromBody] UpsertPurchaseRequestResource resource, CancellationToken cancellationToken)
@@ -75,7 +78,7 @@ public class PurchaseRequestsController(
         return CreatedAtAction(nameof(GetById), new { id = request.Id }, PurchaseRequestResourceAssembler.ToResourceFromEntity(request));
     }
 
-    [HttpPost("/api/v1/manual-purchase-requests")]
+    [HttpPost("manual-creations")]
     [Authorize(Policy = NexaAuthorizationPolicies.CanAcceptPurchaseRequest)]
     [ProducesResponseType(typeof(PurchaseRequestResource), StatusCodes.Status201Created)]
     public async Task<ActionResult<PurchaseRequestResource>> CreateManualRequest([FromBody] UpsertPurchaseRequestResource resource, CancellationToken cancellationToken)

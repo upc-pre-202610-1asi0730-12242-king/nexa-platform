@@ -66,9 +66,9 @@ public class ProofOfDeliveryRecordsController(
         }
     }
 
-    [HttpPut("{id:int}/complete")]
+    [HttpPost("{id:int}/completions")]
     [Authorize(Policy = NexaAuthorizationPolicies.CanStartDispatch)]
-    public async Task<ActionResult<ProofOfDeliveryRecordResource>> Complete(int id, [FromBody] CompletePodResource resource, CancellationToken cancellationToken)
+    public async Task<ActionResult<ProofOfDeliveryRecordResource>> CreateCompletion(int id, [FromBody] CompletePodResource resource, CancellationToken cancellationToken)
     {
         try
         {

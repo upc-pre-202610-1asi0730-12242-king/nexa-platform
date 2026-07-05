@@ -91,35 +91,6 @@ public class BusinessDocumentsController(
         }
     }
 
-    [HttpPost("upload")]
-    [Authorize(Policy = NexaAuthorizationPolicies.CanManageDocuments)]
-    [RequestSizeLimit(20_000_000)]
-    [ProducesResponseType(typeof(BusinessDocumentResource), StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult<BusinessDocumentResource>> Upload([FromForm] UploadBusinessDocumentResource resource, CancellationToken cancellationToken)
-    {
-        if (resource.File is null || resource.File.Length == 0) return BadRequest("Document file is required.");
-
-        try
-        {
-            var document = await commandService.UploadAsync(new UploadBusinessDocumentCommand(
-                resource.TenantId,
-                resource.OrderId,
-                resource.ClientAccountId,
-                resource.Type,
-                resource.Label,
-                resource.VisibleToBuyer,
-                resource.Required,
-                resource.File), cancellationToken);
-            return CreatedAtAction(nameof(GetById), new { id = document.Id }, BusinessDocumentResourceFromEntityAssembler.ToResourceFromEntity(document));
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(new { message = ex.Message });
-        }
-    }
-
     [HttpPost("{id:int}/status-changes")]
     [Authorize(Policy = NexaAuthorizationPolicies.CanManageDocuments)]
     [ProducesResponseType(typeof(BusinessDocumentResource), StatusCodes.Status200OK)]

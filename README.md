@@ -24,10 +24,11 @@
 ![University](https://img.shields.io/badge/University-UPC-0a2540?style=flat-square)
 ![Team](https://img.shields.io/badge/Team-King-2a67d9?style=flat-square)
 ![Delivery](https://img.shields.io/badge/Delivery-TB2-0a2540?style=flat-square)
-![Status](https://img.shields.io/badge/Status-Release%20v2.0.1-22c55e?style=flat-square)
+![Status](https://img.shields.io/badge/Status-Release%20v2.0.0-22c55e?style=flat-square)
 
 <br/>
 
+**[Start Website Flow](https://upc-pre-202610-1asi0730-12242-king.github.io/nexa-website/)** ·
 **[Open Swagger UI](https://nexa-platform-20wt.onrender.com/swagger/index.html)** ·
 **[Open Live API](https://nexa-platform-20wt.onrender.com)**
 
@@ -37,11 +38,23 @@
 
 ---
 
+## Project Entry Flow
+
+Start the Nexa review from the public Website and continue through the operational products:
+
+1. **Website:** https://upc-pre-202610-1asi0730-12242-king.github.io/nexa-website/
+2. **WebApp:** https://nexa-webapp.onrender.com/#/auth/login
+3. **Platform API:** https://nexa-platform-20wt.onrender.com
+4. **Swagger UI:** https://nexa-platform-20wt.onrender.com/swagger/index.html
+5. **Report Repository:** https://github.com/upc-pre-202610-1asi0730-12242-king/nexa-ecosystem-report
+
+---
+
 ## Overview
 
 The `nexa-platform` repository contains the ASP.NET Core backend for Nexa. It exposes REST APIs for cold-chain catalog management, B2B purchase requests, commercial orders, warehouse inventory, logistics dispatch, billing documents, payment records, tenant management, and IAM workflows.
 
-This repository is part of the **TB2 delivery** and is currently published as **v2.0.1**.
+This repository is part of the **TB2 delivery** and is currently published as **v2.0.0**.
 
 ---
 
@@ -78,7 +91,7 @@ This repository is part of the **TB2 delivery** and is currently published as **
       <p>Backend platform and API service layer for domain, persistence, security, and deployment concerns.</p>
       <p><a href="https://nexa-platform-20wt.onrender.com/swagger/index.html">Open Swagger UI</a></p>
       <p>
-        <img alt="Version" src="https://img.shields.io/badge/v2.0.1-TB2-22c55e?style=flat-square" />
+        <img alt="Version" src="https://img.shields.io/badge/v2.0.0-TB2-22c55e?style=flat-square" />
         <img alt="Platform" src="https://img.shields.io/badge/Platform-backend%20workspace-512BD4?style=flat-square" />
         <img alt="API" src="https://img.shields.io/badge/API-domain%20services-0EA5E9?style=flat-square" />
         <img alt="EF Core" src="https://img.shields.io/badge/EF%20Core-PostgreSQL-512BD4?style=flat-square" />
@@ -103,8 +116,8 @@ This repository is part of the **TB2 delivery** and is currently published as **
 
 | Component | Current Version | URL |
 |---|---:|---|
-| Platform API | `v2.0.1` | https://nexa-platform-20wt.onrender.com |
-| Swagger UI | `v2.0.1` | https://nexa-platform-20wt.onrender.com/swagger/index.html |
+| Platform API | `v2.0.0` | https://nexa-platform-20wt.onrender.com |
+| Swagger UI | `v2.0.0` | https://nexa-platform-20wt.onrender.com/swagger/index.html |
 | WebApp | `v3.0.1` | https://nexa-webapp.onrender.com/#/auth/login |
 | Website | `v4.0.1` | https://upc-pre-202610-1asi0730-12242-king.github.io/nexa-website/ |
 
@@ -183,7 +196,7 @@ King.Nexa.Platform/
 - [Code of Conduct](.github/CODE_OF_CONDUCT.md)
 - [Contributing Guidelines](.github/CONTRIBUTING.md)
 - [Security Policy](SECURITY.md)
-- [Latest Release](https://github.com/upc-pre-202610-1asi0730-12242-king/nexa-platform/releases/tag/v2.0.1)
+- [Latest Release](https://github.com/upc-pre-202610-1asi0730-12242-king/nexa-platform/releases/tag/v2.0.0)
 
 ---
 

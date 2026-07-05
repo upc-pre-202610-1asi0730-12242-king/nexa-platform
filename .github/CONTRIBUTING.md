@@ -6,7 +6,7 @@
 
 | Field | Value |
 |---|---|
-| Current release | `v2.0.1` |
+| Current release | `v2.0.0` |
 | Delivery | TB2 |
 | Runtime | .NET 10 / ASP.NET Core |
 | Persistence | PostgreSQL / EF Core |

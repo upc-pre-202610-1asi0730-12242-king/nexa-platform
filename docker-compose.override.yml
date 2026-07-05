@@ -1,8 +1,4 @@
 services:
-  api:
-    environment:
-      ALLOWED_ORIGINS__0: https://predict-badness-crane.ngrok-free.dev
-
   webapp:
     environment:
       VITE_NEXA_API_BASE_URL: /api/v1

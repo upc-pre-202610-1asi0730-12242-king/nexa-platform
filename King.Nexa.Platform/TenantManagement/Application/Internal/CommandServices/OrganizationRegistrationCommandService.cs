@@ -8,6 +8,7 @@ namespace King.Nexa.Platform.TenantManagement.Application.Internal.CommandServic
 
 public class OrganizationRegistrationCommandService(
     IOrganizationRegistrationRequestRepository registrationRepository,
+    ITenantAdministrationRepository tenantAdministrationRepository,
     IUnitOfWork unitOfWork) : IOrganizationRegistrationCommandService
 {
     public async Task<OrganizationRegistrationRequest> CreateAsync(
@@ -16,6 +17,14 @@ public class OrganizationRegistrationCommandService(
     {
         if (await registrationRepository.ExistsByExternalIdAsync(command.ExternalId, cancellationToken))
             throw new InvalidOperationException("Organization registration already exists.");
+
+        if (await tenantAdministrationRepository.FindWorkspaceBySlugAsync(command.WorkspaceSlug, cancellationToken) is not null)
+            throw new InvalidOperationException("Workspace slug is already registered.");
+
+        var existingRequests = await registrationRepository.ListNewestAsync(cancellationToken);
+        if (existingRequests.Any(request =>
+                string.Equals(request.WorkspaceSlug, command.WorkspaceSlug, StringComparison.OrdinalIgnoreCase)))
+            throw new InvalidOperationException("Workspace slug is already registered.");
 
         var registration = new OrganizationRegistrationRequest
         {
